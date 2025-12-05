@@ -27,7 +27,7 @@ class Parser {
 
   Token get _current => _tokens[_position];
 
-  Token? get _peek => _position + 1 < _tokens.length ? _tokens[_position + 1] : null;
+  // Token? get _peek => _position + 1 < _tokens.length ? _tokens[_position + 1] : null;
 
   Token _advance() {
     if (!_isAtEnd) _position++;
