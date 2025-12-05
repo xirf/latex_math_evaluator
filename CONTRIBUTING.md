@@ -62,7 +62,7 @@ feat: add support for hyperbolic functions
 
 ## Adding New Functions
 
-1. Add handler in appropriate category file (e.g., `lib/src/functions/trigonometric.dart`)
+1. Add handler in appropriate category file (e.g., `lib/src/functions/trigonometric.dart`) no matter how small is it, this to ensure that function can easily be found
 2. Register in `function_registry.dart`
 3. Add LaTeX command to tokenizer if needed
 4. Add tests in `test/evaluator_test.dart`
