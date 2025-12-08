@@ -235,3 +235,35 @@ class ProductExpr extends Expression {
       variable.hashCode ^ start.hashCode ^ end.hashCode ^ body.hashCode;
 }
 
+/// Comparison operation types.
+enum ComparisonOperator {
+  less,
+  greater,
+  lessEqual,
+  greaterEqual,
+  equal,
+}
+
+/// A comparison operation (left op right).
+class Comparison extends Expression {
+  final Expression left;
+  final ComparisonOperator operator;
+  final Expression right;
+
+  const Comparison(this.left, this.operator, this.right);
+
+  @override
+  String toString() => 'Comparison($left, $operator, $right)';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Comparison &&
+          runtimeType == other.runtimeType &&
+          left == other.left &&
+          operator == other.operator &&
+          right == other.right;
+
+  @override
+  int get hashCode => left.hashCode ^ operator.hashCode ^ right.hashCode;
+}

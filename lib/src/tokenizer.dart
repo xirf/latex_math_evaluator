@@ -85,6 +85,18 @@ class Tokenizer {
         return Token(type: TokenType.underscore, value: '_', position: startPos);
       case '=':
         return Token(type: TokenType.equals, value: '=', position: startPos);
+      case '<':
+        if (_peek == '=') {
+          _position++;
+          return Token(type: TokenType.lessEqual, value: '<=', position: startPos);
+        }
+        return Token(type: TokenType.less, value: '<', position: startPos);
+      case '>':
+        if (_peek == '=') {
+          _position++;
+          return Token(type: TokenType.greaterEqual, value: '>=', position: startPos);
+        }
+        return Token(type: TokenType.greater, value: '>', position: startPos);
       case '(':
       case '{':
         return Token(type: TokenType.lparen, value: char, position: startPos);

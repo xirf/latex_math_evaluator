@@ -14,7 +14,26 @@ class Parser {
 
   /// Parses the token stream and returns the root expression.
   Expression parse() {
-    final expr = _parseExpression();
+    // Check for function definition pattern: f(x) = ...
+    // We currently ignore the definition part and just parse the RHS.
+    // Pattern: variable + lparen + variable + rparen + equals
+    if (_tokens.length > 4 &&
+        _tokens[0].type == TokenType.variable &&
+        _tokens[1].type == TokenType.lparen &&
+        _tokens[2].type == TokenType.variable &&
+        _tokens[3].type == TokenType.rparen &&
+        _tokens[4].type == TokenType.equals) {
+      _position += 5;
+    }
+
+    var expr = _parseExpression();
+
+    // Handle comma-separated constraints: expr, condition
+    // We treat this as multiplication: expr * condition
+    while (_match([TokenType.comma])) {
+      final condition = _parseExpression();
+      expr = BinaryOp(expr, BinaryOperator.multiply, condition);
+    }
 
     if (!_isAtEnd && _current.type != TokenType.eof) {
       throw ParserException('Unexpected token: ${_current.value}', _current.position);
@@ -51,8 +70,54 @@ class Parser {
     throw ParserException(message, _current.position);
   }
 
-  /// Expression → Term (('+' | '-') Term)*
+  /// Expression → Comparison
   Expression _parseExpression() {
+    return _parseComparison();
+  }
+
+  /// Comparison → PlusMinus (('<' | '>' | '<=' | '>=' | '=') PlusMinus)*
+  Expression _parseComparison() {
+    var left = _parsePlusMinus();
+
+    while (_match([
+      TokenType.less,
+      TokenType.greater,
+      TokenType.lessEqual,
+      TokenType.greaterEqual,
+      TokenType.equals
+    ])) {
+      final operator = _tokens[_position - 1];
+      final right = _parsePlusMinus();
+
+      ComparisonOperator op;
+      switch (operator.type) {
+        case TokenType.less:
+          op = ComparisonOperator.less;
+          break;
+        case TokenType.greater:
+          op = ComparisonOperator.greater;
+          break;
+        case TokenType.lessEqual:
+          op = ComparisonOperator.lessEqual;
+          break;
+        case TokenType.greaterEqual:
+          op = ComparisonOperator.greaterEqual;
+          break;
+        case TokenType.equals:
+          op = ComparisonOperator.equal;
+          break;
+        default:
+          throw ParserException('Unknown comparison operator', operator.position);
+      }
+
+      left = Comparison(left, op, right);
+    }
+
+    return left;
+  }
+
+  /// PlusMinus → Term (('+' | '-') Term)*
+  Expression _parsePlusMinus() {
     var left = _parseTerm();
 
     while (_match([TokenType.plus, TokenType.minus])) {
@@ -69,7 +134,7 @@ class Parser {
     return left;
   }
 
-  /// Term → Power (('*' | '/' | '\times' | '\div') Power)*
+  /// Term → Power (('*' | '/' | '\times' | '\div') Power | Implicit)*
   Expression _parseTerm() {
     var left = _parsePower();
 
@@ -96,6 +161,8 @@ class Parser {
     return left;
   }
 
+
+
   bool _checkImplicitMultiplication() {
     if (_isAtEnd) return false;
     
@@ -113,20 +180,22 @@ class Parser {
         _check(TokenType.infty);
   }
 
-  /// Power → Unary ('^' Unary)*
+  //// Power → Unary ('^' Unary)* (Right-Associative)
   Expression _parsePower() {
     var left = _parseUnary();
 
-    while (_match([TokenType.power])) {
+    if (_match([TokenType.power])) {
       // Handle optional braces after ^
       if (_check(TokenType.lparen) && _current.value == '{') {
         _advance(); // consume {
-        final right = _parseExpression();
+        final right = _parseExpression(); // Recurse here for right-associativity? Usually parseExpression or parsePower depending on precedence desires
         _consume(TokenType.rparen, "Expected '}' after exponent");
-        left = BinaryOp(left, BinaryOperator.power, right);
+        // Recursion happens implicitly if _parseExpression calls back down, 
+        // but for strict right-associativity typically: right = _parsePower();
+        return BinaryOp(left, BinaryOperator.power, right);
       } else {
-        final right = _parseUnary();
-        left = BinaryOp(left, BinaryOperator.power, right);
+        final right = _parsePower(); // Recursive call to self handles a^b^c correctly
+        return BinaryOp(left, BinaryOperator.power, right);
       }
     }
 

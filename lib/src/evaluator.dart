@@ -57,6 +57,8 @@ class Evaluator {
       return _evaluateSum(expr, variables);
     } else if (expr is ProductExpr) {
       return _evaluateProduct(expr, variables);
+    } else if (expr is Comparison) {
+      return _evaluateComparison(expr, variables);
     }
 
     throw EvaluatorException('Unknown expression type: ${expr.runtimeType}');
@@ -230,5 +232,32 @@ class Evaluator {
     }
 
     return result;
+  }
+
+  double _evaluateComparison(Comparison comp, Map<String, double> variables) {
+    final left = evaluate(comp.left, variables);
+    final right = evaluate(comp.right, variables);
+
+    bool result;
+    switch (comp.operator) {
+      case ComparisonOperator.less:
+        result = left < right;
+        break;
+      case ComparisonOperator.greater:
+        result = left > right;
+        break;
+      case ComparisonOperator.lessEqual:
+        result = left <= right;
+        break;
+      case ComparisonOperator.greaterEqual:
+        result = left >= right;
+        break;
+      case ComparisonOperator.equal:
+        // Use epsilon for float comparison?
+        result = (left - right).abs() < 1e-9;
+        break;
+    }
+
+    return result ? 1.0 : double.nan;
   }
 }

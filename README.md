@@ -21,8 +21,14 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
+  latex_math_evaluator: 0.0.2
+
+# or for the latest version
+
+dependencies:
   latex_math_evaluator:
-    path: ../latex_math_evaluator  # or publish to pub.dev
+    git:
+      url: https://github.com/xirf/latex_math_evaluator.git
 ```
 
 ## Quick Start
@@ -55,24 +61,26 @@ evaluator.evaluate(r'\prod_{i=1}^{5} i');  // 120.0 (5!)
 
 ## Supported Functions
 
-| Category | Functions |
-|----------|-----------|
-| **Trigonometric** | `\sin`, `\cos`, `\tan`, `\asin`, `\acos`, `\atan` |
-| **Hyperbolic** | `\sinh`, `\cosh`, `\tanh` |
-| **Logarithmic** | `\ln`, `\log`, `\log_{base}` |
-| **Rounding** | `\ceil`, `\floor`, `\round` |
-| **Power/Root** | `\sqrt`, `\exp` |
-| **Other** | `\abs`, `\sgn`, `\factorial`, `\min_{a}{b}`, `\max_{a}{b}` |
+| Category          | Functions                                                  |
+| ----------------- | ---------------------------------------------------------- |
+| **Trigonometric** | `\sin`, `\cos`, `\tan`, `\asin`, `\acos`, `\atan`          |
+| **Hyperbolic**    | `\sinh`, `\cosh`, `\tanh`                                  |
+| **Logarithmic**   | `\ln`, `\log`, `\log_{base}`                               |
+| **Rounding**      | `\ceil`, `\floor`, `\round`                                |
+| **Power/Root**    | `\sqrt`, `\exp`                                            |
+| **Other**         | `\abs`, `\sgn`, `\factorial`, `\min_{a}{b}`, `\max_{a}{b}` |
+
+Also support equation with domain constraints: `f(x) = 2x - 3, 3 < x < 5`
 
 ## Built-in Constants
 
-| Name | Symbol | Value |
-|------|--------|-------|
-| `e` | e | 2.71828... |
-| `pi` | π | 3.14159... |
-| `tau` | τ | 6.28318... |
-| `phi` | φ | 1.61803... |
-| `gamma` | γ | 0.57721... |
+| Name    | Symbol | Value      |
+| ------- | ------ | ---------- |
+| `e`     | e      | 2.71828... |
+| `pi`    | π      | 3.14159... |
+| `tau`   | τ      | 6.28318... |
+| `phi`   | φ      | 1.61803... |
+| `gamma` | γ      | 0.57721... |
 
 > User-provided variables override built-in constants.
 
@@ -114,13 +122,13 @@ evaluator.evaluate(r'\cbrt{27}');  // 3.0
 
 ## Documentation
 
-See the [docs/](docs/) folder for detailed documentation:
+See the [doc/](doc/) folder for detailed documentation:
 
-- [Getting Started](docs/getting_started.md)
-- [Functions](docs/functions/README.md)
-- [Notation](docs/notation/README.md)
-- [Constants](docs/constants.md)
-- [Extensions](docs/extensions.md)
+- [Getting Started](doc/getting_started.md)
+- [Functions](doc/functions/README.md)
+- [Notation](doc/notation/README.md)
+- [Constants](doc/constants.md)
+- [Extensions](doc/extensions.md)
 
 ## License
 

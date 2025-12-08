@@ -54,6 +54,16 @@ enum TokenType {
   /// Infinity `\infty`.
   infty,
 
+  // Comparison
+  less,
+  greater,
+  lessEqual,
+  greaterEqual,
+
+  // Misc
+  /// Comma `,`.
+  comma,
+
   /// End of input.
   eof,
 }
