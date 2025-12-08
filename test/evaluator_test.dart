@@ -231,6 +231,26 @@ void main() {
         expect(eval(r'\abs{-5}'), closeTo(5.0, 0.001));
       });
 
+      test('evaluates |-5| = 5 (pipe notation)', () {
+        expect(eval(r'|-5|'), closeTo(5.0, 0.001));
+      });
+
+      test('evaluates |3.7| = 3.7', () {
+        expect(eval(r'|3.7|'), closeTo(3.7, 0.001));
+      });
+
+      test('evaluates |-x| with x=4', () {
+        expect(eval(r'|-x|', {'x': 4}), closeTo(4.0, 0.001));
+      });
+
+      test('evaluates |x^2 - 4| with x=1', () {
+        expect(eval(r'|x^2 - 4|', {'x': 1}), closeTo(3.0, 0.001));
+      });
+
+      test('evaluates nested absolute values ||x|| with x=-5', () {
+        expect(eval(r'||x||', {'x': -5}), closeTo(5.0, 0.001));
+      });
+
       test('throws on sqrt of negative', () {
         expect(
           () => eval(r'\sqrt{-1}'),

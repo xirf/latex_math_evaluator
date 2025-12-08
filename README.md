@@ -2,7 +2,7 @@
 
 A Flutter/Dart library for parsing and evaluating mathematical expressions written in LaTeX format.
 
-[![Tests](https://img.shields.io/badge/tests-122%20passed-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-151%20passed-brightgreen)]()
 [![Dart](https://img.shields.io/badge/dart-%3E%3D3.0.0-blue)]()
 
 ## Features
@@ -48,6 +48,7 @@ evaluator.evaluate(r'x^{2} + 1', {'x': 3});  // 10.0
 evaluator.evaluate(r'\sin{0}');            // 0.0
 evaluator.evaluate(r'\sqrt{16}');          // 4.0
 evaluator.evaluate(r'\log_{2}{8}');        // 3.0
+evaluator.evaluate(r'|-5|');               // 5.0 (absolute value)
 
 // Constants (used when variable not provided)
 evaluator.evaluate('e');                    // 2.71828...
@@ -68,7 +69,7 @@ evaluator.evaluate(r'\prod_{i=1}^{5} i');  // 120.0 (5!)
 | **Logarithmic**   | `\ln`, `\log`, `\log_{base}`                               |
 | **Rounding**      | `\ceil`, `\floor`, `\round`                                |
 | **Power/Root**    | `\sqrt`, `\exp`                                            |
-| **Other**         | `\abs`, `\sgn`, `\factorial`, `\min_{a}{b}`, `\max_{a}{b}` |
+| **Other**         | `\abs`, `|x|`, `\sgn`, `\factorial`, `\min_{a}{b}`, `\max_{a}{b}` |
 
 Also support equation with domain constraints: `f(x) = 2x - 3, 3 < x < 5`
 

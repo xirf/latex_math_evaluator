@@ -105,6 +105,8 @@ class Tokenizer {
         return Token(type: TokenType.rparen, value: char, position: startPos);
       case ',':
         return Token(type: TokenType.comma, value: ',', position: startPos);
+      case '|':
+        return Token(type: TokenType.pipe, value: '|', position: startPos);
       default:
         if (_isLetter(char)) {
           return Token(type: TokenType.variable, value: char, position: startPos);

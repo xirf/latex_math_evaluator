@@ -22,14 +22,19 @@ Returns e^x (e raised to the power x).
 \exp{2}          → 7.38905...
 ```
 
-## `\abs{x}` - Absolute Value
+## `\abs{x}` / `|x|` - Absolute Value
 
 Returns the absolute value of x.
+
+**Syntax**: `\abs{x}` or `|x|` (pipe notation)
 
 ```latex
 \abs{5}          → 5
 \abs{-5}         → 5
-\abs{0}          → 0
+|5|              → 5
+|-5|             → 5
+|x^2 - 4|        → depends on x
+||x||            → |x| (nested)
 ```
 
 ## `\sgn{x}` - Sign Function
@@ -71,6 +76,8 @@ final e = LatexMathEvaluator();
 
 e.evaluate(r'\sqrt{16}');        // 4.0
 e.evaluate(r'\abs{-42}');        // 42.0
+e.evaluate(r'|-42|');            // 42.0 (pipe notation)
+e.evaluate(r'|x^2 - 4|', {'x': 1});  // 3.0
 e.evaluate(r'\factorial{6}');    // 720.0
 e.evaluate(r'\min_{x}{y}', {'x': 3, 'y': 7});  // 3.0
 ```

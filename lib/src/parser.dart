@@ -261,6 +261,13 @@ class Parser {
       return _parseProductExpr();
     }
 
+    // Absolute value: |expression|
+    if (_match([TokenType.pipe])) {
+      final expr = _parseExpression();
+      _consume(TokenType.pipe, "Expected '|' after absolute value expression");
+      return AbsoluteValue(expr);
+    }
+
     // Grouped expression
     if (_match([TokenType.lparen])) {
       final closingChar = _tokens[_position - 1].value == '(' ? ')' : '}';

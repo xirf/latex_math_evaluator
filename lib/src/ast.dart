@@ -105,6 +105,26 @@ class UnaryOp extends Expression {
   int get hashCode => operator.hashCode ^ operand.hashCode;
 }
 
+/// Absolute value expression: |x|
+class AbsoluteValue extends Expression {
+  final Expression argument;
+
+  const AbsoluteValue(this.argument);
+
+  @override
+  String toString() => 'AbsoluteValue($argument)';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AbsoluteValue &&
+          runtimeType == other.runtimeType &&
+          argument == other.argument;
+
+  @override
+  int get hashCode => argument.hashCode;
+}
+
 /// A function call expression (e.g., \log{x}, \ln{x}, \sin{x}).
 ///
 /// For functions with a subscript base like \log_{2}{x}, use [base].

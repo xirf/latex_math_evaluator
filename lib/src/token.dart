@@ -64,6 +64,9 @@ enum TokenType {
   /// Comma `,`.
   comma,
 
+  /// Pipe `|` for absolute value.
+  pipe,
+
   /// End of input.
   eof,
 }

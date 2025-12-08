@@ -49,6 +49,8 @@ class Evaluator {
       return _evaluateBinaryOp(expr.left, expr.operator, expr.right, variables);
     } else if (expr is UnaryOp) {
       return _evaluateUnaryOp(expr.operator, expr.operand, variables);
+    } else if (expr is AbsoluteValue) {
+      return evaluate(expr.argument, variables).abs();
     } else if (expr is FunctionCall) {
       return _evaluateFunctionCall(expr, variables);
     } else if (expr is LimitExpr) {
