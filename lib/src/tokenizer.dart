@@ -86,13 +86,13 @@ class Tokenizer {
       case '=':
         return Token(type: TokenType.equals, value: '=', position: startPos);
       case '<':
-        if (_peek == '=') {
+        if (!_isAtEnd && _current == '=') {
           _position++;
           return Token(type: TokenType.lessEqual, value: '<=', position: startPos);
         }
         return Token(type: TokenType.less, value: '<', position: startPos);
       case '>':
-        if (_peek == '=') {
+        if (!_isAtEnd && _current == '=') {
           _position++;
           return Token(type: TokenType.greaterEqual, value: '>=', position: startPos);
         }
@@ -103,6 +103,8 @@ class Tokenizer {
       case ')':
       case '}':
         return Token(type: TokenType.rparen, value: char, position: startPos);
+      case ',':
+        return Token(type: TokenType.comma, value: ',', position: startPos);
       default:
         if (_isLetter(char)) {
           return Token(type: TokenType.variable, value: char, position: startPos);

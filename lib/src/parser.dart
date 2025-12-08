@@ -29,10 +29,10 @@ class Parser {
     var expr = _parseExpression();
 
     // Handle comma-separated constraints: expr, condition
-    // We treat this as multiplication: expr * condition
-    while (_match([TokenType.comma])) {
+    // Parse as a conditional expression
+    if (_match([TokenType.comma])) {
       final condition = _parseExpression();
-      expr = BinaryOp(expr, BinaryOperator.multiply, condition);
+      expr = ConditionalExpr(expr, condition);
     }
 
     if (!_isAtEnd && _current.type != TokenType.eof) {
@@ -78,6 +78,9 @@ class Parser {
   /// Comparison → PlusMinus (('<' | '>' | '<=' | '>=' | '=') PlusMinus)*
   Expression _parseComparison() {
     var left = _parsePlusMinus();
+    
+    final expressions = <Expression>[left];
+    final operators = <ComparisonOperator>[];
 
     while (_match([
       TokenType.less,
@@ -110,7 +113,15 @@ class Parser {
           throw ParserException('Unknown comparison operator', operator.position);
       }
 
-      left = Comparison(left, op, right);
+      expressions.add(right);
+      operators.add(op);
+    }
+
+    // If we have multiple comparisons, create a ChainedComparison
+    if (operators.length > 1) {
+      return ChainedComparison(expressions, operators);
+    } else if (operators.length == 1) {
+      return Comparison(expressions[0], operators[0], expressions[1]);
     }
 
     return left;
@@ -259,6 +270,14 @@ class Parser {
         throw ParserException("Expected '$closingChar'", _current.position);
       }
       _advance();
+      
+      // Check for condition after closing brace: {...}{condition}
+      if (closingChar == '}' && _check(TokenType.lparen) && _current.value == '{') {
+        _advance(); // consume {
+        final condition = _parseExpression();
+        _consume(TokenType.rparen, "Expected '}' after condition");
+        return ConditionalExpr(expr, condition);
+      }
       
       return expr;
     }
