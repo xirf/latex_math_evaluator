@@ -36,6 +36,9 @@ enum TokenType {
   /// Function name (e.g., `\log`, `\ln`, `\sin`).
   function,
 
+  /// Fraction `\frac`.
+  frac,
+
   /// Limit keyword `\lim`.
   lim,
 
@@ -53,6 +56,9 @@ enum TokenType {
 
   /// Infinity `\infty`.
   infty,
+
+  /// Mathematical constant (e.g., `\pi`, `\tau`, `\phi`).
+  constant,
 
   // Comparison
   less,

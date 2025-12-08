@@ -108,5 +108,61 @@ void main() {
         expect(evaluator.evaluate('x + 0.5', {'x': 1.5}), 2.0);
       });
     });
+
+    group('fractions', () {
+      test('simple fraction', () {
+        expect(evaluator.evaluate(r'\frac{1}{2}'), 0.5);
+      });
+
+      test('fraction with expressions', () {
+        expect(evaluator.evaluate(r'\frac{4 + 2}{3}'), 2.0);
+      });
+
+      test('nested fractions', () {
+        expect(evaluator.evaluate(r'\frac{\frac{1}{2}}{2}'), 0.25);
+      });
+
+      test('fraction with variables', () {
+        expect(evaluator.evaluate(r'\frac{x}{y}', {'x': 6, 'y': 3}), 2.0);
+      });
+    });
+
+    group('LaTeX constants', () {
+      test('pi constant', () {
+        expect(evaluator.evaluate(r'\pi'), closeTo(3.14159, 0.001));
+      });
+
+      test('tau constant', () {
+        expect(evaluator.evaluate(r'\tau'), closeTo(6.28318, 0.001));
+      });
+
+      test('phi (golden ratio)', () {
+        expect(evaluator.evaluate(r'\phi'), closeTo(1.61803, 0.001));
+      });
+
+      test('pi in expression', () {
+        expect(evaluator.evaluate(r'2 * \pi'), closeTo(6.28318, 0.001));
+      });
+
+      test('pi^2', () {
+        expect(evaluator.evaluate(r'\pi^{2}'), closeTo(9.8696, 0.001));
+      });
+    });
+
+    group('complex real-world expressions', () {
+      test('sin(pi^3 * x) with fraction and absolute value', () {
+        final expr = r'\sin(\pi^3 x) \cdot \sqrt{\frac{e^2 - x^2}{2}} + \sqrt{|x|}';
+        final result = evaluator.evaluate(expr, {'x': 1});
+        expect(result, isA<double>());
+        expect(result.isFinite, isTrue);
+      });
+
+      test('fraction with constants', () {
+        expect(
+          evaluator.evaluate(r'\frac{\pi}{2}'),
+          closeTo(1.5708, 0.001),
+        );
+      });
+    });
   });
 }

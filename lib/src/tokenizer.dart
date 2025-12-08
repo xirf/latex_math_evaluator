@@ -209,6 +209,17 @@ class Tokenizer {
         return Token(type: TokenType.to, value: '\\to', position: startPos);
       case 'infty':
         return Token(type: TokenType.infty, value: '\\infty', position: startPos);
+      // Fraction
+      case 'frac':
+        return Token(type: TokenType.frac, value: 'frac', position: startPos);
+      // Mathematical constants
+      case 'pi':
+      case 'tau':
+      case 'phi':
+      case 'gamma':
+      case 'Omega':
+      case 'delta':
+        return Token(type: TokenType.constant, value: command, position: startPos);
       default:
         // Try extension registry
         if (_extensions != null) {

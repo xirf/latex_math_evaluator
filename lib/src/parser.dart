@@ -183,11 +183,13 @@ class Parser {
     // e.g. "x - y" is x minus y, not x times -y.
     return _check(TokenType.number) ||
         _check(TokenType.variable) ||
+        _check(TokenType.constant) ||
         _check(TokenType.lparen) || // ( or {
         _check(TokenType.function) ||
         _check(TokenType.lim) ||
         _check(TokenType.sum) ||
         _check(TokenType.prod) ||
+        _check(TokenType.frac) ||
         _check(TokenType.infty);
   }
 
@@ -236,6 +238,11 @@ class Parser {
       return Variable(_tokens[_position - 1].value);
     }
 
+    // Mathematical constant (\pi, \tau, etc.)
+    if (_match([TokenType.constant])) {
+      return Variable(_tokens[_position - 1].value);
+    }
+
     // Infinity
     if (_match([TokenType.infty])) {
       return NumberLiteral(double.infinity);
@@ -259,6 +266,11 @@ class Parser {
     // Product expression: \prod_{i=start}^{end} expr
     if (_match([TokenType.prod])) {
       return _parseProductExpr();
+    }
+
+    // Fraction: \frac{numerator}{denominator}
+    if (_match([TokenType.frac])) {
+      return _parseFraction();
     }
 
     // Absolute value: |expression|
@@ -399,5 +411,20 @@ class Parser {
     final body = _parseExpression();
 
     return ProductExpr(variable, start, end, body);
+  }
+
+  /// Parses fraction: \frac{numerator}{denominator}
+  Expression _parseFraction() {
+    // Parse numerator
+    _consume(TokenType.lparen, "Expected '{' after \\frac");
+    final numerator = _parseExpression();
+    _consume(TokenType.rparen, "Expected '}' after numerator");
+
+    // Parse denominator
+    _consume(TokenType.lparen, "Expected '{' after numerator");
+    final denominator = _parseExpression();
+    _consume(TokenType.rparen, "Expected '}' after denominator");
+
+    return BinaryOp(numerator, BinaryOperator.divide, denominator);
   }
 }

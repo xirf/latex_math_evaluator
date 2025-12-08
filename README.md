@@ -2,7 +2,7 @@
 
 A Flutter/Dart library for parsing and evaluating mathematical expressions written in LaTeX format.
 
-[![Tests](https://img.shields.io/badge/tests-151%20passed-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-162%20passed-brightgreen)]()
 [![Dart](https://img.shields.io/badge/dart-%3E%3D3.0.0-blue)]()
 
 ## Features
@@ -49,9 +49,11 @@ evaluator.evaluate(r'\sin{0}');            // 0.0
 evaluator.evaluate(r'\sqrt{16}');          // 4.0
 evaluator.evaluate(r'\log_{2}{8}');        // 3.0
 evaluator.evaluate(r'|-5|');               // 5.0 (absolute value)
+evaluator.evaluate(r'\frac{1}{2}');        // 0.5 (fraction)
 
 // Constants (used when variable not provided)
 evaluator.evaluate('e');                    // 2.71828...
+evaluator.evaluate(r'\pi');                 // 3.14159...
 
 // Summation
 evaluator.evaluate(r'\sum_{i=1}^{5} i');   // 15.0 (1+2+3+4+5)
@@ -75,19 +77,27 @@ Also support equation with domain constraints: `f(x) = 2x - 3, 3 < x < 5`
 
 ## Built-in Constants
 
-| Name    | Symbol | Value      |
-| ------- | ------ | ---------- |
-| `e`     | e      | 2.71828... |
-| `pi`    | π      | 3.14159... |
-| `tau`   | τ      | 6.28318... |
-| `phi`   | φ      | 1.61803... |
-| `gamma` | γ      | 0.57721... |
+LaTeX constants can be used with backslash notation:
+
+| Name      | LaTeX    | Symbol | Value      |
+| --------- | -------- | ------ | ---------- |
+| `e`       | `\e`     | e      | 2.71828... |
+| `pi`      | `\pi`    | π      | 3.14159... |
+| `tau`     | `\tau`   | τ      | 6.28318... |
+| `phi`     | `\phi`   | φ      | 1.61803... |
+| `gamma`   | `\gamma` | γ      | 0.57721... |
+| `Omega`   | `\Omega` | Ω      | 0.56714... |
+| `delta`   | `\delta` | δ      | 2.41421... |
 
 > User-provided variables override built-in constants.
 
 ## Notation Support
 
 ```latex
+% Fractions
+\frac{numerator}{denominator}
+\frac{a + b}{c}
+
 % Summation
 \sum_{i=1}^{10} i^{2}
 
@@ -96,6 +106,13 @@ Also support equation with domain constraints: `f(x) = 2x - 3, 3 < x < 5`
 
 % Limits (numeric approximation)
 \lim_{x \to 0} \sin{x}
+
+% Absolute value
+|x|
+|x^2 - 4|
+
+% Constants
+\pi, \tau, \phi, \gamma
 ```
 
 ## Custom Extensions
