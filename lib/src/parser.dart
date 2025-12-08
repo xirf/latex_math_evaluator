@@ -73,18 +73,44 @@ class Parser {
   Expression _parseTerm() {
     var left = _parsePower();
 
-    while (_match([TokenType.multiply, TokenType.divide])) {
-      final operator = _tokens[_position - 1];
-      final right = _parsePower();
+    while (true) {
+      if (_match([TokenType.multiply, TokenType.divide])) {
+        final operator = _tokens[_position - 1];
+        final right = _parsePower();
 
-      left = BinaryOp(
-        left,
-        operator.type == TokenType.multiply ? BinaryOperator.multiply : BinaryOperator.divide,
-        right,
-      );
+        left = BinaryOp(
+          left,
+          operator.type == TokenType.multiply
+              ? BinaryOperator.multiply
+              : BinaryOperator.divide,
+          right,
+        );
+      } else if (_checkImplicitMultiplication()) {
+        final right = _parsePower();
+        left = BinaryOp(left, BinaryOperator.multiply, right);
+      } else {
+        break;
+      }
     }
 
     return left;
+  }
+
+  bool _checkImplicitMultiplication() {
+    if (_isAtEnd) return false;
+    
+    // Check if the next token is a valid start of a Primary expression
+    // Note: We intentionally exclude TokenType.minus to avoid ambiguity with subtraction.
+    // Subtraction is handled by _parseExpression.
+    // e.g. "x - y" is x minus y, not x times -y.
+    return _check(TokenType.number) ||
+        _check(TokenType.variable) ||
+        _check(TokenType.lparen) || // ( or {
+        _check(TokenType.function) ||
+        _check(TokenType.lim) ||
+        _check(TokenType.sum) ||
+        _check(TokenType.prod) ||
+        _check(TokenType.infty);
   }
 
   /// Power → Unary ('^' Unary)*
