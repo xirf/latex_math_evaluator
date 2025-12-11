@@ -42,6 +42,7 @@ export 'src/ast.dart';
 export 'src/evaluator.dart';
 export 'src/exceptions.dart';
 export 'src/extensions.dart';
+export 'src/matrix.dart';
 export 'src/parser.dart';
 export 'src/token.dart';
 export 'src/tokenizer.dart';
@@ -66,7 +67,7 @@ class LatexMathEvaluator {
   /// [expression] is the LaTeX math string to evaluate.
   /// [variables] is an optional map of variable names to their numeric values.
   ///
-  /// Returns the computed result as a double.
+  /// Returns the computed result as a [double] or [Matrix].
   ///
   /// Example:
   /// ```dart
@@ -76,7 +77,7 @@ class LatexMathEvaluator {
   /// evaluator.evaluate('\\log{10}'); // 1.0
   /// evaluator.evaluate('\\lim_{x \\to 1} x^{2}'); // 1.0
   /// ```
-  double evaluate(String expression, [Map<String, double> variables = const {}]) {
+  dynamic evaluate(String expression, [Map<String, double> variables = const {}]) {
     final tokens = Tokenizer(expression, extensions: _extensions).tokenize();
     final ast = Parser(tokens).parse();
     return _evaluator.evaluate(ast, variables);

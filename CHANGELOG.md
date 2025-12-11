@@ -1,6 +1,12 @@
 # CHANGELOG
 
-## 0.0.1
+## 0.1.0
+
+- **BREAKING CHANGE**: `evaluate` method now returns `dynamic` instead of `double` to support matrix results.
+- Added support for matrix evaluation and operations (addition, subtraction, multiplication).
+- Added `Matrix` class.
+
+## 0.0.2
 
 - Initial release
 - Added support for basic arithmetic operations

@@ -8,6 +8,7 @@ import 'constants/constant_registry.dart';
 import 'exceptions.dart';
 import 'extensions.dart';
 import 'functions/function_registry.dart';
+import 'matrix.dart';
 
 /// Evaluates an expression tree with variable bindings.
 class Evaluator {
@@ -21,13 +22,13 @@ class Evaluator {
   /// [expr] is the expression to evaluate.
   /// [variables] is a map of variable names to their values.
   ///
-  /// Returns the computed result as a double.
+  /// Returns the computed result as a [double] or [Matrix].
   ///
   /// Throws [EvaluatorException] if:
   /// - A variable is not found in the bindings
   /// - Division by zero occurs
   /// - An unknown expression type is encountered
-  double evaluate(Expression expr, [Map<String, double> variables = const {}]) {
+  dynamic evaluate(Expression expr, [Map<String, double> variables = const {}]) {
     // Try custom evaluators first
     if (_extensions != null) {
       final result = _extensions!.tryEvaluate(
@@ -45,12 +46,16 @@ class Evaluator {
       return expr.value;
     } else if (expr is Variable) {
       return _lookupVariable(expr.name, variables);
+    } else if (expr is MatrixExpr) {
+      return _evaluateMatrix(expr, variables);
     } else if (expr is BinaryOp) {
       return _evaluateBinaryOp(expr.left, expr.operator, expr.right, variables);
     } else if (expr is UnaryOp) {
       return _evaluateUnaryOp(expr.operator, expr.operand, variables);
     } else if (expr is AbsoluteValue) {
-      return evaluate(expr.argument, variables).abs();
+      final val = evaluate(expr.argument, variables);
+      if (val is double) return val.abs();
+      throw EvaluatorException('Absolute value not supported for this type');
     } else if (expr is FunctionCall) {
       return _evaluateFunctionCall(expr, variables);
     } else if (expr is LimitExpr) {
@@ -85,7 +90,20 @@ class Evaluator {
     throw EvaluatorException('Undefined variable: $name');
   }
 
-  double _evaluateBinaryOp(
+  Matrix _evaluateMatrix(MatrixExpr matrix, Map<String, double> variables) {
+    final rows = matrix.rows.map((row) {
+      return row.map((cell) {
+        final val = evaluate(cell, variables);
+        if (val is! double) {
+          throw EvaluatorException('Matrix elements must evaluate to numbers');
+        }
+        return val;
+      }).toList();
+    }).toList();
+    return Matrix(rows);
+  }
+
+  dynamic _evaluateBinaryOp(
     Expression left,
     BinaryOperator operator,
     Expression right,
@@ -94,18 +112,47 @@ class Evaluator {
     final leftValue = evaluate(left, variables);
     final rightValue = evaluate(right, variables);
 
-    switch (operator) {
-      case BinaryOperator.add:
-        return leftValue + rightValue;
-      case BinaryOperator.subtract:
-        return leftValue - rightValue;
-      case BinaryOperator.multiply:
-        return leftValue * rightValue;
-      case BinaryOperator.divide:
-        return _divide(leftValue, rightValue);
-      case BinaryOperator.power:
-        return math.pow(leftValue, rightValue).toDouble();
+    if (leftValue is Matrix && rightValue is Matrix) {
+      switch (operator) {
+        case BinaryOperator.add:
+          return leftValue + rightValue;
+        case BinaryOperator.subtract:
+          return leftValue - rightValue;
+        case BinaryOperator.multiply:
+          return leftValue * rightValue;
+        default:
+          throw EvaluatorException('Operator $operator not supported for matrices');
+      }
+    } else if (leftValue is Matrix && rightValue is num) {
+      switch (operator) {
+        case BinaryOperator.multiply:
+          return leftValue * rightValue;
+        default:
+          throw EvaluatorException('Operator $operator not supported for matrix and scalar');
+      }
+    } else if (leftValue is num && rightValue is Matrix) {
+      switch (operator) {
+        case BinaryOperator.multiply:
+          return rightValue * leftValue;
+        default:
+          throw EvaluatorException('Operator $operator not supported for scalar and matrix');
+      }
+    } else if (leftValue is double && rightValue is double) {
+      switch (operator) {
+        case BinaryOperator.add:
+          return leftValue + rightValue;
+        case BinaryOperator.subtract:
+          return leftValue - rightValue;
+        case BinaryOperator.multiply:
+          return leftValue * rightValue;
+        case BinaryOperator.divide:
+          return _divide(leftValue, rightValue);
+        case BinaryOperator.power:
+          return math.pow(leftValue, rightValue).toDouble();
+      }
     }
+
+    throw EvaluatorException('Type mismatch in binary operation');
   }
 
   double _divide(double left, double right) {
@@ -115,29 +162,46 @@ class Evaluator {
     return left / right;
   }
 
-  double _evaluateUnaryOp(
+  dynamic _evaluateUnaryOp(
     UnaryOperator operator,
     Expression operand,
     Map<String, double> variables,
   ) {
     final operandValue = evaluate(operand, variables);
 
-    switch (operator) {
-      case UnaryOperator.negate:
-        return -operandValue;
+    if (operandValue is Matrix) {
+      if (operator == UnaryOperator.negate) {
+        return operandValue * -1;
+      }
+      throw EvaluatorException('Operator $operator not supported for matrix');
     }
+
+    if (operandValue is double) {
+      switch (operator) {
+        case UnaryOperator.negate:
+          return -operandValue;
+      }
+    }
+
+    throw EvaluatorException('Type mismatch in unary operation');
+  }
+
+  double _evaluateAsDouble(Expression expr, Map<String, double> variables) {
+    final val = evaluate(expr, variables);
+    if (val is double) return val;
+    throw EvaluatorException('Expression must evaluate to a number');
   }
 
   double _evaluateFunctionCall(FunctionCall func, Map<String, double> variables) {
     return FunctionRegistry.instance.evaluate(
       func,
       variables,
-      (e) => evaluate(e, variables),
+      (e) => _evaluateAsDouble(e, variables),
     );
   }
 
   double _evaluateLimit(LimitExpr limit, Map<String, double> variables) {
-    final targetValue = evaluate(limit.target, variables);
+    final targetValue = _evaluateAsDouble(limit.target, variables);
 
     // Handle infinity
     if (targetValue.isInfinite) {
@@ -156,7 +220,7 @@ class Evaluator {
       final vars = Map<String, double>.from(variables);
       vars[limit.variable] = targetValue - h;
       try {
-        leftApproach = evaluate(limit.body, vars);
+        leftApproach = _evaluateAsDouble(limit.body, vars);
       } catch (_) {
         // Continue to next step
       }
@@ -167,7 +231,7 @@ class Evaluator {
       final vars = Map<String, double>.from(variables);
       vars[limit.variable] = targetValue + h;
       try {
-        rightApproach = evaluate(limit.body, vars);
+        rightApproach = _evaluateAsDouble(limit.body, vars);
       } catch (_) {
         // Continue to next step
       }
@@ -199,7 +263,7 @@ class Evaluator {
       final vars = Map<String, double>.from(variables);
       vars[limit.variable] = positive ? n : -n;
       try {
-        lastValue = evaluate(limit.body, vars);
+        lastValue = _evaluateAsDouble(limit.body, vars);
       } catch (_) {
         // Continue
       }
@@ -213,36 +277,36 @@ class Evaluator {
   }
 
   double _evaluateSum(SumExpr sum, Map<String, double> variables) {
-    final startVal = evaluate(sum.start, variables).toInt();
-    final endVal = evaluate(sum.end, variables).toInt();
+    final startVal = _evaluateAsDouble(sum.start, variables).toInt();
+    final endVal = _evaluateAsDouble(sum.end, variables).toInt();
 
     double result = 0;
     for (int i = startVal; i <= endVal; i++) {
       final vars = Map<String, double>.from(variables);
       vars[sum.variable] = i.toDouble();
-      result += evaluate(sum.body, vars);
+      result += _evaluateAsDouble(sum.body, vars);
     }
 
     return result;
   }
 
   double _evaluateProduct(ProductExpr prod, Map<String, double> variables) {
-    final startVal = evaluate(prod.start, variables).toInt();
-    final endVal = evaluate(prod.end, variables).toInt();
+    final startVal = _evaluateAsDouble(prod.start, variables).toInt();
+    final endVal = _evaluateAsDouble(prod.end, variables).toInt();
 
     double result = 1;
     for (int i = startVal; i <= endVal; i++) {
       final vars = Map<String, double>.from(variables);
       vars[prod.variable] = i.toDouble();
-      result *= evaluate(prod.body, vars);
+      result *= _evaluateAsDouble(prod.body, vars);
     }
 
     return result;
   }
 
   double _evaluateComparison(Comparison comp, Map<String, double> variables) {
-    final left = evaluate(comp.left, variables);
-    final right = evaluate(comp.right, variables);
+    final left = _evaluateAsDouble(comp.left, variables);
+    final right = _evaluateAsDouble(comp.right, variables);
 
     bool result;
     switch (comp.operator) {
@@ -269,7 +333,7 @@ class Evaluator {
 
   double _evaluateChainedComparison(ChainedComparison chain, Map<String, double> variables) {
     // Evaluate all expressions in the chain
-    final values = chain.expressions.map((e) => evaluate(e, variables)).toList();
+    final values = chain.expressions.map((e) => _evaluateAsDouble(e, variables)).toList();
     
     // Check each comparison in sequence
     for (int i = 0; i < chain.operators.length; i++) {
@@ -306,9 +370,9 @@ class Evaluator {
     return 1.0;
   }
 
-  double _evaluateConditional(ConditionalExpr cond, Map<String, double> variables) {
+  dynamic _evaluateConditional(ConditionalExpr cond, Map<String, double> variables) {
     // Evaluate the condition first
-    final conditionResult = evaluate(cond.condition, variables);
+    final conditionResult = _evaluateAsDouble(cond.condition, variables);
     
     // If condition is not satisfied (returns NaN or 0), return NaN
     if (conditionResult.isNaN || conditionResult == 0.0) {

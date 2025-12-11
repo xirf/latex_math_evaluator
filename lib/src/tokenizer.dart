@@ -36,7 +36,8 @@ class Tokenizer {
 
   String get _current => _source[_position];
 
-  String? get _peek => _position + 1 < _source.length ? _source[_position + 1] : null;
+  String? get _peek =>
+      _position + 1 < _source.length ? _source[_position + 1] : null;
 
   void _skipWhitespace() {
     while (!_isAtEnd && _isWhitespace(_current)) {
@@ -44,9 +45,11 @@ class Tokenizer {
     }
   }
 
-  bool _isWhitespace(String char) => char == ' ' || char == '\t' || char == '\n' || char == '\r';
+  bool _isWhitespace(String char) =>
+      char == ' ' || char == '\t' || char == '\n' || char == '\r';
 
-  bool _isDigit(String char) => char.codeUnitAt(0) >= 48 && char.codeUnitAt(0) <= 57;
+  bool _isDigit(String char) =>
+      char.codeUnitAt(0) >= 48 && char.codeUnitAt(0) <= 57;
 
   bool _isLetter(String char) {
     final code = char.codeUnitAt(0);
@@ -82,19 +85,22 @@ class Tokenizer {
       case '^':
         return Token(type: TokenType.power, value: '^', position: startPos);
       case '_':
-        return Token(type: TokenType.underscore, value: '_', position: startPos);
+        return Token(
+            type: TokenType.underscore, value: '_', position: startPos);
       case '=':
         return Token(type: TokenType.equals, value: '=', position: startPos);
       case '<':
         if (!_isAtEnd && _current == '=') {
           _position++;
-          return Token(type: TokenType.lessEqual, value: '<=', position: startPos);
+          return Token(
+              type: TokenType.lessEqual, value: '<=', position: startPos);
         }
         return Token(type: TokenType.less, value: '<', position: startPos);
       case '>':
         if (!_isAtEnd && _current == '=') {
           _position++;
-          return Token(type: TokenType.greaterEqual, value: '>=', position: startPos);
+          return Token(
+              type: TokenType.greaterEqual, value: '>=', position: startPos);
         }
         return Token(type: TokenType.greater, value: '>', position: startPos);
       case '(':
@@ -107,9 +113,12 @@ class Tokenizer {
         return Token(type: TokenType.comma, value: ',', position: startPos);
       case '|':
         return Token(type: TokenType.pipe, value: '|', position: startPos);
+      case '&':
+        return Token(type: TokenType.ampersand, value: '&', position: startPos);
       default:
         if (_isLetter(char)) {
-          return Token(type: TokenType.variable, value: char, position: startPos);
+          return Token(
+              type: TokenType.variable, value: char, position: startPos);
         }
         throw TokenizerException('Unexpected character: $char', startPos);
     }
@@ -136,7 +145,8 @@ class Tokenizer {
       }
     }
 
-    return Token(type: TokenType.number, value: buffer.toString(), position: startPos);
+    return Token(
+        type: TokenType.number, value: buffer.toString(), position: startPos);
   }
 
   Token _readLatexCommand() {
@@ -145,6 +155,13 @@ class Tokenizer {
 
     if (_isAtEnd) {
       throw TokenizerException('Unexpected end after backslash', startPos);
+    }
+
+    // Handle double backslash \\
+    if (_current == '\\') {
+      _position++;
+      return Token(
+          type: TokenType.backslash, value: '\\\\', position: startPos);
     }
 
     final buffer = StringBuffer();
@@ -159,9 +176,11 @@ class Tokenizer {
     switch (command) {
       case 'times':
       case 'cdot':
-        return Token(type: TokenType.multiply, value: '\\$command', position: startPos);
+        return Token(
+            type: TokenType.multiply, value: '\\$command', position: startPos);
       case 'div':
-        return Token(type: TokenType.divide, value: '\\div', position: startPos);
+        return Token(
+            type: TokenType.divide, value: '\\div', position: startPos);
       // Logarithmic functions
       case 'log':
       case 'ln':
@@ -188,14 +207,18 @@ class Tokenizer {
       case 'factorial':
       case 'min':
       case 'max':
-        return Token(type: TokenType.function, value: command, position: startPos);
+        return Token(
+            type: TokenType.function, value: command, position: startPos);
       // Handle arcsin/arccos/arctan aliases
       case 'arcsin':
-        return Token(type: TokenType.function, value: 'asin', position: startPos);
+        return Token(
+            type: TokenType.function, value: 'asin', position: startPos);
       case 'arccos':
-        return Token(type: TokenType.function, value: 'acos', position: startPos);
+        return Token(
+            type: TokenType.function, value: 'acos', position: startPos);
       case 'arctan':
-        return Token(type: TokenType.function, value: 'atan', position: startPos);
+        return Token(
+            type: TokenType.function, value: 'atan', position: startPos);
       // Limit notation
       case 'lim':
         return Token(type: TokenType.lim, value: 'lim', position: startPos);
@@ -204,11 +227,17 @@ class Tokenizer {
         return Token(type: TokenType.sum, value: 'sum', position: startPos);
       case 'prod':
         return Token(type: TokenType.prod, value: 'prod', position: startPos);
+      // Matrix environments
+      case 'begin':
+        return Token(type: TokenType.begin, value: 'begin', position: startPos);
+      case 'end':
+        return Token(type: TokenType.end, value: 'end', position: startPos);
       case 'to':
       case 'rightarrow':
         return Token(type: TokenType.to, value: '\\to', position: startPos);
       case 'infty':
-        return Token(type: TokenType.infty, value: '\\infty', position: startPos);
+        return Token(
+            type: TokenType.infty, value: '\\infty', position: startPos);
       // Fraction
       case 'frac':
         return Token(type: TokenType.frac, value: 'frac', position: startPos);
@@ -219,7 +248,8 @@ class Tokenizer {
       case 'gamma':
       case 'Omega':
       case 'delta':
-        return Token(type: TokenType.constant, value: command, position: startPos);
+        return Token(
+            type: TokenType.constant, value: command, position: startPos);
       default:
         // Try extension registry
         if (_extensions != null) {
@@ -232,4 +262,3 @@ class Tokenizer {
     }
   }
 }
-

@@ -73,6 +73,18 @@ enum TokenType {
   /// Pipe `|` for absolute value.
   pipe,
 
+  /// Ampersand `&` for matrix column separation.
+  ampersand,
+
+  /// Double backslash `\\` for matrix row separation.
+  backslash,
+
+  /// Begin environment `\begin`.
+  begin,
+
+  /// End environment `\end`.
+  end,
+
   /// End of input.
   eof,
 }
