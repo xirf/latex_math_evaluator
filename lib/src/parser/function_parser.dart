@@ -1,5 +1,6 @@
 import '../ast.dart';
 import '../token.dart';
+import '../exceptions.dart';
 import 'base_parser.dart';
 
 mixin FunctionParserMixin on BaseParser {
@@ -97,5 +98,52 @@ mixin FunctionParserMixin on BaseParser {
     final body = parseExpression();
 
     return ProductExpr(variable, start, end, body);
+  }
+
+  @override
+  Expression parseIntegralExpr() {
+    consume(TokenType.underscore, "Expected '_' after \\int");
+    consume(TokenType.lparen, "Expected '{' after '_'");
+    final lower = parseExpression();
+    consume(TokenType.rparen, "Expected '}' after lower bound");
+
+    consume(TokenType.power, "Expected '^' after integral subscript");
+    consume(TokenType.lparen, "Expected '{' after '^'");
+    final upper = parseExpression();
+    consume(TokenType.rparen, "Expected '}' after upper bound");
+
+    final fullBody = parseExpression();
+
+    // Attempt to extract body and variable from "body * d * variable" structure
+    Expression? body;
+    String? variable;
+
+    if (fullBody is BinaryOp && fullBody.operator == BinaryOperator.multiply) {
+      final right = fullBody.right;
+      final left = fullBody.left;
+
+      if (right is Variable) {
+        final potentialVar = right.name;
+        
+        if (left is Variable && left.name == 'd') {
+          // Case: \int dx -> d * x
+          body = NumberLiteral(1.0);
+          variable = potentialVar;
+        } else if (left is BinaryOp && left.operator == BinaryOperator.multiply) {
+           // Case: \int f(x) dx -> f(x) * d * x
+           // left is (f(x) * d)
+           if (left.right is Variable && (left.right as Variable).name == 'd') {
+             body = left.left;
+             variable = potentialVar;
+           }
+        }
+      }
+    }
+
+    if (body == null || variable == null) {
+      throw ParserException("Expected differential (e.g., 'dx') at the end of integral", tokens[position-1].position);
+    }
+
+    return IntegralExpr(lower, upper, body, variable);
   }
 }

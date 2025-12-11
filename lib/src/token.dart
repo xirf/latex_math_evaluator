@@ -48,6 +48,11 @@ enum TokenType {
   /// Product keyword `\prod`.
   prod,
 
+  /// Integral keyword `\int`.
+  int,
+
+  /// Square root `\sqrt`.
+
   /// Arrow `\to` or `\rightarrow`.
   to,
 

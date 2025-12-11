@@ -197,6 +197,7 @@ class Tokenizer {
       case 'cosh':
       case 'tanh':
       // Other functions
+      case 'det':
       case 'sqrt':
       case 'abs':
       case 'ceil':
@@ -227,6 +228,8 @@ class Tokenizer {
         return Token(type: TokenType.sum, value: 'sum', position: startPos);
       case 'prod':
         return Token(type: TokenType.prod, value: 'prod', position: startPos);
+      case 'int':
+        return Token(type: TokenType.int, value: 'int', position: startPos);
       // Matrix environments
       case 'begin':
         return Token(type: TokenType.begin, value: 'begin', position: startPos);

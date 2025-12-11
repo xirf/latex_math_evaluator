@@ -96,3 +96,37 @@ class ProductExpr extends Expression {
   int get hashCode =>
       variable.hashCode ^ start.hashCode ^ end.hashCode ^ body.hashCode;
 }
+
+/// An integral expression: \int_{lower}^{upper} body dx.
+class IntegralExpr extends Expression {
+  /// The lower bound of the integral.
+  final Expression lower;
+
+  /// The upper bound of the integral.
+  final Expression upper;
+
+  /// The expression body to integrate.
+  final Expression body;
+
+  /// The variable of integration (e.g., 'x' in dx).
+  final String variable;
+
+  const IntegralExpr(this.lower, this.upper, this.body, this.variable);
+
+  @override
+  String toString() => 'IntegralExpr($lower to $upper, $body d$variable)';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is IntegralExpr &&
+          runtimeType == other.runtimeType &&
+          lower == other.lower &&
+          upper == other.upper &&
+          body == other.body &&
+          variable == other.variable;
+
+  @override
+  int get hashCode =>
+      lower.hashCode ^ upper.hashCode ^ body.hashCode ^ variable.hashCode;
+}

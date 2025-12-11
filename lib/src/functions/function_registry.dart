@@ -20,10 +20,10 @@ import 'power.dart' as pow;
 import 'other.dart' as other;
 
 /// Handler function type for evaluating a function call.
-typedef FunctionHandler = double Function(
+typedef FunctionHandler = dynamic Function(
   FunctionCall func,
   Map<String, double> variables,
-  double Function(Expression) evaluate,
+  dynamic Function(Expression) evaluate,
 );
 
 /// Registry of built-in mathematical functions.
@@ -43,38 +43,50 @@ class FunctionRegistry {
   FunctionRegistry.custom();
 
   void _registerBuiltins() {
+    // Helper to adapt double-returning handlers
+    void reg(String name, double Function(FunctionCall, Map<String, double>, double Function(Expression)) handler) {
+      register(name, (f, v, e) => handler(f, v, (x) {
+        final val = e(x);
+        if (val is double) return val;
+        throw EvaluatorException('Expected number argument for $name');
+      }));
+    }
+
     // Logarithmic
-    register('ln', log.handleLn);
-    register('log', log.handleLog);
+    reg('ln', log.handleLn);
+    reg('log', log.handleLog);
 
     // Trigonometric
-    register('sin', trig.handleSin);
-    register('cos', trig.handleCos);
-    register('tan', trig.handleTan);
-    register('asin', trig.handleAsin);
-    register('acos', trig.handleAcos);
-    register('atan', trig.handleAtan);
+    reg('sin', trig.handleSin);
+    reg('cos', trig.handleCos);
+    reg('tan', trig.handleTan);
+    reg('asin', trig.handleAsin);
+    reg('acos', trig.handleAcos);
+    reg('atan', trig.handleAtan);
 
     // Hyperbolic
-    register('sinh', hyper.handleSinh);
-    register('cosh', hyper.handleCosh);
-    register('tanh', hyper.handleTanh);
+    reg('sinh', hyper.handleSinh);
+    reg('cosh', hyper.handleCosh);
+    reg('tanh', hyper.handleTanh);
 
     // Power / Root
-    register('sqrt', pow.handleSqrt);
-    register('exp', pow.handleExp);
+    reg('sqrt', pow.handleSqrt);
+    reg('exp', pow.handleExp);
 
     // Rounding
-    register('ceil', round.handleCeil);
-    register('floor', round.handleFloor);
-    register('round', round.handleRound);
+    reg('ceil', round.handleCeil);
+    reg('floor', round.handleFloor);
+    reg('round', round.handleRound);
 
     // Other
-    register('abs', other.handleAbs);
-    register('sgn', other.handleSgn);
-    register('factorial', other.handleFactorial);
-    register('min', other.handleMin);
-    register('max', other.handleMax);
+    reg('abs', other.handleAbs);
+    reg('sgn', other.handleSgn);
+    reg('factorial', other.handleFactorial);
+    reg('min', other.handleMin);
+    reg('max', other.handleMax);
+
+    // Matrix functions (handle dynamic types directly)
+    register('det', other.handleDet);
   }
 
   /// Registers a function handler.
@@ -86,10 +98,10 @@ class FunctionRegistry {
   bool hasFunction(String name) => _handlers.containsKey(name);
 
   /// Evaluates a function call.
-  double evaluate(
+  dynamic evaluate(
     FunctionCall func,
     Map<String, double> variables,
-    double Function(Expression) evaluator,
+    dynamic Function(Expression) evaluator,
   ) {
     final handler = _handlers[func.name];
     if (handler == null) {

@@ -2,7 +2,7 @@
 
 A Flutter/Dart library for parsing and evaluating mathematical expressions written in LaTeX format.
 
-[![Tests](https://img.shields.io/badge/tests-166%20passed-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-173%20passed-brightgreen)]()
 [![Dart](https://img.shields.io/badge/dart-%3E%3D3.0.0-blue)]()
 
 ## Features
@@ -13,7 +13,8 @@ A Flutter/Dart library for parsing and evaluating mathematical expressions writt
 - **Mathematical constants**: π, e, φ, γ, τ, and others
 - **Summation & Product notation**: `\sum_{i=1}^{n}`, `\prod_{i=1}^{n}`
 - **Limit notation**: `\lim_{x \to a}`
-- **Matrix support**: `\begin{matrix} ... \end{matrix}` with operations (+, -, *)
+- **Numerical Integration**: `\int_{a}^{b} f(x) dx` (Simpson's Rule)
+- **Matrix support**: `\begin{matrix} ... \end{matrix}` with operations (+, -, *, ^T, ^-1) and `\det`
 - **Extensible**: Add custom functions and commands
 
 ## Installation

@@ -6,6 +6,8 @@ import 'dart:math' as math;
 import '../ast.dart';
 import '../exceptions.dart';
 
+import '../matrix.dart';
+
 /// Absolute value: \abs{x}
 double handleAbs(FunctionCall func, Map<String, double> vars, double Function(Expression) evaluate) {
   return evaluate(func.argument).abs();
@@ -49,4 +51,13 @@ double handleMax(FunctionCall func, Map<String, double> vars, double Function(Ex
     throw EvaluatorException('max requires two arguments: \\max_{a}{b}');
   }
   return math.max(evaluate(func.base!), evaluate(func.argument));
+}
+
+/// Determinant: \det{M}
+double handleDet(FunctionCall func, Map<String, double> vars, dynamic Function(Expression) evaluate) {
+  final arg = evaluate(func.argument);
+  if (arg is! Matrix) {
+    throw EvaluatorException('Argument to det must be a matrix');
+  }
+  return arg.determinant();
 }

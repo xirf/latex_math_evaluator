@@ -55,5 +55,6 @@ abstract class BaseParser {
   Expression parseLimitExpr();
   Expression parseSumExpr();
   Expression parseProductExpr();
+  Expression parseIntegralExpr();
   Expression parseMatrix();
 }

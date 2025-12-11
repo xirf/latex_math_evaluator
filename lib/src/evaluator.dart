@@ -64,6 +64,8 @@ class Evaluator {
       return _evaluateSum(expr, variables);
     } else if (expr is ProductExpr) {
       return _evaluateProduct(expr, variables);
+    } else if (expr is IntegralExpr) {
+      return _evaluateIntegral(expr, variables);
     } else if (expr is Comparison) {
       return _evaluateComparison(expr, variables);
     } else if (expr is ChainedComparison) {
@@ -110,6 +112,12 @@ class Evaluator {
     Map<String, double> variables,
   ) {
     final leftValue = evaluate(left, variables);
+
+    // Special handling for Matrix Transpose: M^T
+    if (leftValue is Matrix && operator == BinaryOperator.power && right is Variable && right.name == 'T') {
+       return leftValue.transpose();
+    }
+
     final rightValue = evaluate(right, variables);
 
     if (leftValue is Matrix && rightValue is Matrix) {
@@ -127,6 +135,11 @@ class Evaluator {
       switch (operator) {
         case BinaryOperator.multiply:
           return leftValue * rightValue;
+        case BinaryOperator.power:
+          if (rightValue == -1) {
+            return leftValue.inverse();
+          }
+          throw EvaluatorException('Matrix power only supports -1 (inverse) or T (transpose)');
         default:
           throw EvaluatorException('Operator $operator not supported for matrix and scalar');
       }
@@ -192,11 +205,11 @@ class Evaluator {
     throw EvaluatorException('Expression must evaluate to a number');
   }
 
-  double _evaluateFunctionCall(FunctionCall func, Map<String, double> variables) {
+  dynamic _evaluateFunctionCall(FunctionCall func, Map<String, double> variables) {
     return FunctionRegistry.instance.evaluate(
       func,
       variables,
-      (e) => _evaluateAsDouble(e, variables),
+      (e) => evaluate(e, variables),
     );
   }
 
@@ -302,6 +315,38 @@ class Evaluator {
     }
 
     return result;
+  }
+
+  double _evaluateIntegral(IntegralExpr expr, Map<String, double> variables) {
+    final lower = _evaluateAsDouble(expr.lower, variables);
+    final upper = _evaluateAsDouble(expr.upper, variables);
+
+    final n = 1000; // Number of intervals (must be even for Simpson's)
+    final h = (upper - lower) / n;
+    
+    double sum = 0.0;
+    
+    // Helper to evaluate body at x
+    double f(double x) {
+      final newVars = Map<String, double>.from(variables);
+      newVars[expr.variable] = x;
+      return _evaluateAsDouble(expr.body, newVars);
+    }
+
+    // Simpson's Rule
+    sum += f(lower);
+    sum += f(upper);
+
+    for (var i = 1; i < n; i++) {
+      final x = lower + i * h;
+      if (i % 2 == 0) {
+        sum += 2 * f(x);
+      } else {
+        sum += 4 * f(x);
+      }
+    }
+
+    return (h / 3) * sum;
   }
 
   double _evaluateComparison(Comparison comp, Map<String, double> variables) {

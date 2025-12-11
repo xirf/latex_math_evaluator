@@ -39,6 +39,10 @@ mixin PrimaryParserMixin on BaseParser {
       return parseProductExpr();
     }
 
+    if (match([TokenType.int])) {
+      return parseIntegralExpr();
+    }
+
     if (match([TokenType.frac])) {
       return parseFraction();
     }
