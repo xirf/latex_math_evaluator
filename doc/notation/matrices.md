@@ -5,6 +5,7 @@ The library supports standard LaTeX matrix environments for defining matrices an
 ## Supported Environments
 
 The following matrix environments are supported:
+
 - `matrix`: Plain matrix (no brackets)
 - `pmatrix`: Parentheses `( )`
 - `bmatrix`: Square brackets `[ ]`
@@ -15,6 +16,7 @@ Note: While the parser recognizes these different environments, the evaluator tr
 ## Syntax
 
 Matrices are defined using the standard LaTeX syntax:
+
 - `&` separates columns
 - `\\` separates rows
 

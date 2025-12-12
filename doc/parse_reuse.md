@@ -21,6 +21,7 @@ final equation = evaluator.parse(r'x^{2} + 2x + 1');
 Evaluates a pre-parsed expression with variable bindings.
 
 **Parameters:**
+
 - `ast` - The parsed expression from `parse()`
 - `variables` - Optional map of variable names to values
 
@@ -75,12 +76,14 @@ print(evaluator.evaluateParsed(complex, {'x': 2, 'y': 3, 'z': 4})); // 15.0
 ## Performance Benefits
 
 Parsing is done only once, which reduces:
+
 - **Memory allocations** - Tokens and AST are created once
 - **CPU usage** - No repeated tokenization and parsing
 - **Execution time** - Faster evaluation for repeated calculations
 
 Example benchmark (1000 evaluations):
-```
+
+```plain
 Parse+Evaluate each time: 15ms
 Parse once, reuse: <1ms
 Speedup: ~15-20x faster
@@ -89,12 +92,14 @@ Speedup: ~15-20x faster
 ## When to Use
 
 **Use `parse()` + `evaluateParsed()` when:**
+
 - Evaluating the same expression with many different variable values
 - Running simulations or iterations
 - Performance is critical
 - Memory efficiency is important
 
 **Use `evaluate()` when:**
+
 - One-off evaluations
 - Different expressions each time
 - Simplicity is preferred over performance

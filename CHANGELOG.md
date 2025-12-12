@@ -10,6 +10,16 @@
   - `validate(expression)` - Detailed validation with error messages, positions, and suggestions
   - `ValidationResult` class with helpful error information and fix suggestions
 
+### Improved
+
+- **Enhanced Error Messages** with better debugging information:
+  - Added `suggestion` field to all exceptions with context-specific fix recommendations
+  - Added expression snippets showing exactly where errors occurred
+  - Added visual position markers (^) pointing to the error location
+  - All exceptions now include the original expression for better context
+  - Improved error messages in tokenizer, parser, and evaluator with actionable suggestions
+  - Examples: "Add a closing brace }", "Provide a value for 'x' in the variables map", etc.
+
 ## 0.1.1
 
 - Added option to disable implicit multiplication (`allowImplicitMultiplication` in `LatexMathEvaluator`).

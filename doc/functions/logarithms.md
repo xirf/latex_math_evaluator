@@ -12,13 +12,6 @@ Returns the natural logarithm (base e) of x.
 \ln{10}          → 2.302585...
 ```
 
-### Error Cases
-
-```dart
-evaluator.evaluate(r'\ln{0}');   // Throws: Logarithm of non-positive number
-evaluator.evaluate(r'\ln{-1}');  // Throws: Logarithm of non-positive number
-```
-
 ## `\log{x}` - Base-10 Logarithm
 
 Returns the base-10 logarithm of x.

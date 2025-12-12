@@ -6,11 +6,11 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  latex_math_evaluator:
-    path: path/to/latex_math_evaluator
+  latex_math_evaluator: ^0.1.2
 ```
 
 Then run:
+
 ```bash
 flutter pub get
 ```

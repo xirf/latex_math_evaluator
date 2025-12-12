@@ -10,6 +10,7 @@ A Flutter/Dart library for parsing and evaluating mathematical expressions writt
 - **Parse LaTeX math expressions** into an Abstract Syntax Tree
 - **Evaluate expressions** with variable bindings
 - **Validation API**: Check syntax before evaluation with detailed error messages
+- **Enhanced error messages**: Position markers, expression snippets, and helpful suggestions
 - **30+ built-in functions**: trigonometry, logarithms, rounding, and more
 - **Mathematical constants**: π, e, φ, γ, τ, and others
 - **Summation & Product notation**: `\sum_{i=1}^{n}`, `\prod_{i=1}^{n}`
@@ -93,7 +94,7 @@ evaluator.evaluateParsed(multiVar, {'x': 5, 'y': 10, 'z': 15}); // 25.0
 
 ## Validation
 
-Validate expressions before evaluation:
+Validate expressions before evaluation with detailed error messages:
 
 ```dart
 final evaluator = LatexMathEvaluator();
@@ -110,6 +111,20 @@ if (!result.isValid) {
   print('Position: ${result.position}');      // Character position
   print('Suggestion: ${result.suggestion}');  // "Check syntax near this position"
 }
+```
+
+**Enhanced Error Messages** help you debug expressions quickly:
+- **Position markers** show exactly where the error occurred
+- **Expression snippets** provide context around the error
+- **Helpful suggestions** offer actionable fixes
+
+Example error output:
+```
+ParserException at position 10: Expected '}' after numerator
+
+\frac{1{2}
+          ^
+Suggestion: Add a closing brace } or check for matching braces
 ```
 
 [Learn more about validation →](doc/validation.md)

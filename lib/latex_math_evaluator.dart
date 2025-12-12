@@ -105,7 +105,7 @@ class LatexMathEvaluator {
             extensions: _extensions,
             allowImplicitMultiplication: allowImplicitMultiplication)
         .tokenize();
-    return Parser(tokens).parse();
+    return Parser(tokens, expression).parse();
   }
 
   /// Evaluates a pre-parsed expression with variable bindings.
