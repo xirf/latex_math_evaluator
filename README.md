@@ -69,6 +69,27 @@ evaluator.evaluate(r'\sum_{i=1}^{5} i');   // 15.0 (1+2+3+4+5)
 evaluator.evaluate(r'\prod_{i=1}^{5} i');  // 120.0 (5!)
 ```
 
+## Variable Binding
+
+Parse once and reuse with different variable values:
+
+```dart
+final evaluator = LatexMathEvaluator();
+
+// Parse the expression once
+final equation = evaluator.parse(r'x^{2} + 2x + 1');
+
+// Reuse the parsed equation with different values
+final result1 = evaluator.evaluateParsed(equation, {'x': 1});  // 4.0
+final result2 = evaluator.evaluateParsed(equation, {'x': 2});  // 9.0
+final result3 = evaluator.evaluateParsed(equation, {'x': 3});  // 16.0
+
+// Works with multi-variable expressions
+final multiVar = evaluator.parse('2x + 3y - z');
+evaluator.evaluateParsed(multiVar, {'x': 1, 'y': 2, 'z': 3});   // 5.0
+evaluator.evaluateParsed(multiVar, {'x': 5, 'y': 10, 'z': 15}); // 25.0
+```
+
 ## Supported Functions
 
 | Category          | Functions                                                  |
@@ -81,7 +102,7 @@ evaluator.evaluate(r'\prod_{i=1}^{5} i');  // 120.0 (5!)
 | **Matrix**        | `\det`, `\trace`, `\tr`                                    |
 | **Combinatorics** | `\binom{n}{k}`                                             |
 | **Number Theory** | `\gcd(a,b)`, `\lcm(a,b)`                                   |
-| **Other**         | `\abs`, `|x|`, `\sgn`, `\factorial`, `\min_{a}{b}`, `\max_{a}{b}` |
+| **Other**         | `\abs`, `\|x\|`, `\sgn`, `\factorial`, `\min_{a}{b}`, `\max_{a}{b}` |
 
 Also support equation with domain constraints: `f(x) = 2x - 3, 3 < x < 5`
 

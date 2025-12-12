@@ -22,6 +22,20 @@
 /// print(result4); // 0.0
 /// ```
 ///
+/// ## Parse Once, Evaluate Many Times (Memory Efficient)
+///
+/// ```dart
+/// final evaluator = LatexMathEvaluator();
+///
+/// // Parse the expression once
+/// final equation = evaluator.parse('x^{2} + 2x + 1');
+///
+/// // Reuse with different variable values
+/// print(evaluator.evaluateParsed(equation, {'x': 1})); // 4.0
+/// print(evaluator.evaluateParsed(equation, {'x': 2})); // 9.0
+/// print(evaluator.evaluateParsed(equation, {'x': 3})); // 16.0
+/// ```
+///
 /// ## Custom Extensions
 ///
 /// ```dart
@@ -47,6 +61,7 @@ export 'src/parser.dart';
 export 'src/token.dart';
 export 'src/tokenizer.dart';
 
+import 'src/ast.dart';
 import 'src/evaluator.dart';
 import 'src/extensions.dart';
 import 'src/parser.dart';
@@ -63,6 +78,51 @@ class LatexMathEvaluator {
       {ExtensionRegistry? extensions, this.allowImplicitMultiplication = true})
       : _extensions = extensions {
     _evaluator = Evaluator(extensions: _extensions);
+  }
+
+  /// Parses a LaTeX math expression into an AST without evaluating.
+  ///
+  /// This allows you to parse once and evaluate multiple times with different
+  /// variable bindings, which is more memory efficient.
+  ///
+  /// [expression] is the LaTeX math string to parse.
+  ///
+  /// Returns the parsed AST [Expression] that can be reused.
+  ///
+  /// Example:
+  /// ```dart
+  /// final evaluator = LatexMathEvaluator();
+  /// final equation = evaluator.parse('x^{2} + 2x + 1');
+  ///
+  /// // Reuse the parsed equation with different values
+  /// final result1 = evaluator.evaluateParsed(equation, {'x': 1}); // 4.0
+  /// final result2 = evaluator.evaluateParsed(equation, {'x': 2}); // 9.0
+  /// final result3 = evaluator.evaluateParsed(equation, {'x': 3}); // 16.0
+  /// ```
+  Expression parse(String expression) {
+    final tokens = Tokenizer(expression,
+            extensions: _extensions,
+            allowImplicitMultiplication: allowImplicitMultiplication)
+        .tokenize();
+    return Parser(tokens).parse();
+  }
+
+  /// Evaluates a pre-parsed expression with variable bindings.
+  ///
+  /// [ast] is the parsed expression from [parse()].
+  /// [variables] is a map of variable names to their values.
+  ///
+  /// Returns the computed result as a [double] or [Matrix].
+  ///
+  /// Example:
+  /// ```dart
+  /// final evaluator = LatexMathEvaluator();
+  /// final equation = evaluator.parse('x + y');
+  /// final result = evaluator.evaluateParsed(equation, {'x': 10, 'y': 5}); // 15.0
+  /// ```
+  dynamic evaluateParsed(Expression ast,
+      [Map<String, double> variables = const {}]) {
+    return _evaluator.evaluate(ast, variables);
   }
 
   /// Parses and evaluates a LaTeX math expression.
@@ -82,12 +142,7 @@ class LatexMathEvaluator {
   /// ```
   dynamic evaluate(String expression,
       [Map<String, double> variables = const {}]) {
-    final tokens = Tokenizer(expression,
-            extensions: _extensions,
-            allowImplicitMultiplication: allowImplicitMultiplication)
-        .tokenize();
-    final ast = Parser(tokens).parse();
+    final ast = parse(expression);
     return _evaluator.evaluate(ast, variables);
   }
 }
-
