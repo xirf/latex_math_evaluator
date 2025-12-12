@@ -5,31 +5,92 @@ library;
 sealed class LatexMathException implements Exception {
   final String message;
   final int? position;
+  final String? expression;
+  final String? suggestion;
 
-  const LatexMathException(this.message, [this.position]);
+  const LatexMathException(
+    this.message, {
+    this.position,
+    this.expression,
+    this.suggestion,
+  });
+
+  /// Formats the error with position markers showing where the error occurred.
+  String _formatWithPositionMarker() {
+    if (expression == null || position == null) {
+      return message;
+    }
+
+    final buffer = StringBuffer();
+    buffer.writeln(message);
+    buffer.writeln();
+    
+    // Show expression with position marker
+    final snippetStart = (position! - 20).clamp(0, expression!.length);
+    final snippetEnd = (position! + 20).clamp(0, expression!.length);
+    final snippet = expression!.substring(snippetStart, snippetEnd);
+    final markerPos = position! - snippetStart;
+    
+    if (snippetStart > 0) buffer.write('...');
+    buffer.write(snippet);
+    if (snippetEnd < expression!.length) buffer.write('...');
+    buffer.writeln();
+    
+    // Add position marker (^)
+    if (snippetStart > 0) buffer.write('   '); // account for "..."
+    buffer.write(' ' * markerPos);
+    buffer.write('^');
+    
+    return buffer.toString();
+  }
 
   @override
   String toString() {
+    final buffer = StringBuffer('$runtimeType');
+    
     if (position != null) {
-      return '$runtimeType at position $position: $message';
+      buffer.write(' at position $position');
     }
-    return '$runtimeType: $message';
+    
+    buffer.write(': ');
+    buffer.write(_formatWithPositionMarker());
+    
+    if (suggestion != null) {
+      buffer.write('\nSuggestion: $suggestion');
+    }
+    
+    return buffer.toString();
   }
 }
 
 /// Exception thrown during tokenization.
 class TokenizerException extends LatexMathException {
-  const TokenizerException(super.message, [super.position]);
+  const TokenizerException(
+    super.message, {
+    super.position,
+    super.expression,
+    super.suggestion,
+  });
 }
 
 /// Exception thrown during parsing.
 class ParserException extends LatexMathException {
-  const ParserException(super.message, [super.position]);
+  const ParserException(
+    super.message, {
+    super.position,
+    super.expression,
+    super.suggestion,
+  });
 }
 
 /// Exception thrown during evaluation.
 class EvaluatorException extends LatexMathException {
-  const EvaluatorException(super.message, [super.position]);
+  const EvaluatorException(
+    super.message, {
+    super.position,
+    super.expression,
+    super.suggestion,
+  });
 }
 
 /// Result of validating a LaTeX math expression.

@@ -66,7 +66,14 @@ mixin PrimaryParserMixin on BaseParser {
       final expr = parseExpression();
 
       if (!check(TokenType.rparen)) {
-        throw ParserException("Expected '$closingChar'", current.position);
+        throw ParserException(
+          "Expected '$closingChar'",
+          position: current.position,
+          expression: sourceExpression,
+          suggestion: closingChar == ')'
+              ? 'Add a closing parenthesis ) to match the opening'
+              : 'Add a closing brace } to match the opening',
+        );
       }
       advance();
 
@@ -83,7 +90,11 @@ mixin PrimaryParserMixin on BaseParser {
     }
 
     throw ParserException(
-        'Expected expression, got: ${current.value}', current.position);
+      'Expected expression, got: ${current.value}',
+      position: current.position,
+      expression: sourceExpression,
+      suggestion: 'Check for missing operands or invalid syntax',
+    );
   }
 
   Expression parseFraction() {

@@ -191,7 +191,7 @@ void main() {
     });
 
     test('fromException creates correct result', () {
-      const exception = ParserException('Test error', 10);
+      const exception = ParserException('Test error', position: 10);
       final result = ValidationResult.fromException(exception);
 
       expect(result.isValid, isFalse);

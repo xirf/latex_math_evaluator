@@ -14,7 +14,8 @@ class Parser extends BaseParser
         PrimaryParserMixin,
         FunctionParserMixin,
         MatrixParserMixin {
-  Parser(List<Token> tokens) : super(tokens);
+  Parser(List<Token> tokens, [String? sourceExpression])
+      : super(tokens, sourceExpression);
 
   /// Parses the token stream and returns the root expression.
   Expression parse() {
@@ -36,7 +37,11 @@ class Parser extends BaseParser
 
     if (!isAtEnd && current.type != TokenType.eof) {
       throw ParserException(
-          'Unexpected token: ${current.value}', current.position);
+        'Unexpected token: ${current.value}',
+        position: current.position,
+        expression: sourceExpression,
+        suggestion: 'Check for extra operators or misplaced tokens',
+      );
     }
 
     return expr;

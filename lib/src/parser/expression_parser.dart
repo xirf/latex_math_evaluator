@@ -44,7 +44,11 @@ mixin ExpressionParserMixin on BaseParser {
           break;
         default:
           throw ParserException(
-              'Unknown comparison operator', operator.position);
+            'Unknown comparison operator',
+            position: operator.position,
+            expression: sourceExpression,
+            suggestion: 'Use valid comparison operators: <, >, <=, >=, =',
+          );
       }
 
       expressions.add(right);

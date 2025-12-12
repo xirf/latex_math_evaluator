@@ -8,7 +8,12 @@ mixin MatrixParserMixin on BaseParser {
   Expression parseMatrix() {
     final env = parseLatexArgument();
     if (!['matrix', 'pmatrix', 'bmatrix', 'vmatrix'].contains(env)) {
-      throw ParserException('Unsupported matrix environment: $env', position);
+      throw ParserException(
+        'Unsupported matrix environment: $env',
+        position: position,
+        expression: sourceExpression,
+        suggestion: 'Use matrix, pmatrix, bmatrix, or vmatrix',
+      );
     }
 
     final rows = <List<Expression>>[];
@@ -29,7 +34,12 @@ mixin MatrixParserMixin on BaseParser {
         rows.add(currentRow);
         currentRow = [];
       } else if (!check(TokenType.end)) {
-        throw ParserException('Expected & or \\\\ or \\end', current.position);
+        throw ParserException(
+          'Expected & or \\\\ or \\end',
+          position: current.position,
+          expression: sourceExpression,
+          suggestion: 'Use & to separate columns or \\\\ to start a new row',
+        );
       }
     }
 
@@ -42,7 +52,11 @@ mixin MatrixParserMixin on BaseParser {
 
     if (endEnv != env) {
       throw ParserException(
-          'Environment mismatch: \\begin{$env} ... \\end{$endEnv}', position);
+        'Environment mismatch: \\begin{$env} ... \\end{$endEnv}',
+        position: position,
+        expression: sourceExpression,
+        suggestion: 'Use \\end{$env} to match \\begin{$env}',
+      );
     }
 
     return MatrixExpr(rows);

@@ -136,7 +136,12 @@ class Tokenizer {
                 position: startPos);
           }
         }
-        throw TokenizerException('Unexpected character: $char', startPos);
+        throw TokenizerException(
+          'Unexpected character: $char',
+          position: startPos,
+          expression: _source,
+          suggestion: 'Remove this character or check if it should be part of a LaTeX command',
+        );
     }
   }
 
@@ -170,7 +175,12 @@ class Tokenizer {
     _position++; // Skip the backslash
 
     if (_isAtEnd) {
-      throw TokenizerException('Unexpected end after backslash', startPos);
+      throw TokenizerException(
+        'Unexpected end after backslash',
+        position: startPos,
+        expression: _source,
+        suggestion: 'Add a LaTeX command after the backslash (e.g., \\sin, \\pi)',
+      );
     }
 
     // Handle double backslash \\
@@ -287,7 +297,12 @@ class Tokenizer {
             return token;
           }
         }
-        throw TokenizerException('Unknown LaTeX command: \\$command', startPos);
+        throw TokenizerException(
+          'Unknown LaTeX command: \\$command',
+          position: startPos,
+          expression: _source,
+          suggestion: 'Check if this is a valid LaTeX command or function name',
+        );
     }
   }
 }

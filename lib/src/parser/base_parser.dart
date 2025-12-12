@@ -4,9 +4,10 @@ import '../token.dart';
 
 abstract class BaseParser {
   final List<Token> tokens;
+  String? sourceExpression;
   int position = 0;
 
-  BaseParser(this.tokens);
+  BaseParser(this.tokens, [this.sourceExpression]);
 
   bool get isAtEnd => position >= tokens.length;
 
@@ -31,7 +32,25 @@ abstract class BaseParser {
 
   Token consume(TokenType type, String message) {
     if (check(type)) return advance();
-    throw ParserException(message, current.position);
+    throw ParserException(
+      message,
+      position: current.position,
+      expression: sourceExpression,
+      suggestion: _getSuggestion(type, message),
+    );
+  }
+
+  String? _getSuggestion(TokenType expectedType, String message) {
+    if (message.contains("Expected '{'")) {
+      return 'Add an opening brace {';
+    } else if (message.contains("Expected '}'")) {
+      return 'Add a closing brace } or check for matching braces';
+    } else if (message.contains("Expected '('")) {
+      return 'Add an opening parenthesis (';
+    } else if (message.contains("Expected ')'")) {
+      return 'Add a closing parenthesis ) or check for matching parentheses';
+    }
+    return null;
   }
 
   String parseLatexArgument() {
