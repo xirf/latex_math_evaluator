@@ -1,7 +1,14 @@
 # CHANGELOG
 
 ## 0.1.2 Nightly
-- Add Support for variable binding
+
+### Added
+
+- Added support for variable binding
+- Added **Validation API**: `isValid()` and `validate()` methods for syntax validation
+  - `isValid(expression)` - Quick boolean check for valid syntax
+  - `validate(expression)` - Detailed validation with error messages, positions, and suggestions
+  - `ValidationResult` class with helpful error information and fix suggestions
 
 ## 0.1.1
 

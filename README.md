@@ -2,13 +2,14 @@
 
 A Flutter/Dart library for parsing and evaluating mathematical expressions written in LaTeX format.
 
-[![Tests](https://img.shields.io/badge/tests-221%20passed-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-260%20passed-brightgreen)]()
 [![Dart](https://img.shields.io/badge/dart-%3E%3D3.0.0-blue)]()
 
 ## Features
 
 - **Parse LaTeX math expressions** into an Abstract Syntax Tree
 - **Evaluate expressions** with variable bindings
+- **Validation API**: Check syntax before evaluation with detailed error messages
 - **30+ built-in functions**: trigonometry, logarithms, rounding, and more
 - **Mathematical constants**: π, e, φ, γ, τ, and others
 - **Summation & Product notation**: `\sum_{i=1}^{n}`, `\prod_{i=1}^{n}`
@@ -89,6 +90,29 @@ final multiVar = evaluator.parse('2x + 3y - z');
 evaluator.evaluateParsed(multiVar, {'x': 1, 'y': 2, 'z': 3});   // 5.0
 evaluator.evaluateParsed(multiVar, {'x': 5, 'y': 10, 'z': 15}); // 25.0
 ```
+
+## Validation
+
+Validate expressions before evaluation:
+
+```dart
+final evaluator = LatexMathEvaluator();
+
+// Quick validation
+if (evaluator.isValid(r'\sin{x}')) {
+  print('Valid syntax!');
+}
+
+// Detailed validation with error info
+final result = evaluator.validate(r'\sin{');
+if (!result.isValid) {
+  print('Error: ${result.errorMessage}');     // "Expected expression, got: "
+  print('Position: ${result.position}');      // Character position
+  print('Suggestion: ${result.suggestion}');  // "Check syntax near this position"
+}
+```
+
+[Learn more about validation →](doc/validation.md)
 
 ## Supported Functions
 
