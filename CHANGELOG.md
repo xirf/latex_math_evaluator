@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 0.1.2 Nightly
+- Add Support for variable binding
+
 ## 0.1.1
 
 - Added option to disable implicit multiplication (`allowImplicitMultiplication` in `LatexMathEvaluator`).
