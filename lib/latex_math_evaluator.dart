@@ -63,6 +63,7 @@ export 'src/tokenizer.dart';
 
 import 'src/ast.dart';
 import 'src/evaluator.dart';
+import 'src/exceptions.dart';
 import 'src/extensions.dart';
 import 'src/parser.dart';
 import 'src/tokenizer.dart';
@@ -144,5 +145,75 @@ class LatexMathEvaluator {
       [Map<String, double> variables = const {}]) {
     final ast = parse(expression);
     return _evaluator.evaluate(ast, variables);
+  }
+
+  /// Checks if a LaTeX math expression is syntactically valid.
+  ///
+  /// This is a quick check that only validates syntax during tokenization
+  /// and parsing. It does not check for undefined variables or evaluate
+  /// the expression.
+  ///
+  /// [expression] is the LaTeX math string to validate.
+  ///
+  /// Returns `true` if the expression can be parsed successfully,
+  /// `false` otherwise.
+  ///
+  /// Example:
+  /// ```dart
+  /// final evaluator = LatexMathEvaluator();
+  ///
+  /// evaluator.isValid(r'2 + 3');        // true
+  /// evaluator.isValid(r'\sin{x}');      // true (variables are OK)
+  /// evaluator.isValid(r'\sin{');        // false (unclosed brace)
+  /// evaluator.isValid(r'\unknown{5}');  // false (unknown command)
+  /// ```
+  bool isValid(String expression) {
+    try {
+      parse(expression);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Validates a LaTeX math expression and returns detailed error information.
+  ///
+  /// Unlike [isValid], this method returns a [ValidationResult] containing
+  /// detailed information about any errors, including position and suggestions.
+  ///
+  /// This only validates syntax during tokenization and parsing. Variables
+  /// are allowed in expressions and won't cause validation to fail.
+  ///
+  /// [expression] is the LaTeX math string to validate.
+  ///
+  /// Returns a [ValidationResult] with validation status and error details.
+  ///
+  /// Example:
+  /// ```dart
+  /// final evaluator = LatexMathEvaluator();
+  ///
+  /// final result = evaluator.validate(r'\sin{');
+  /// if (!result.isValid) {
+  ///   print('Error: ${result.errorMessage}');
+  ///   print('Position: ${result.position}');
+  ///   if (result.suggestion != null) {
+  ///     print('Suggestion: ${result.suggestion}');
+  ///   }
+  /// }
+  /// ```
+  ValidationResult validate(String expression) {
+    try {
+      parse(expression);
+      return const ValidationResult.valid();
+    } on LatexMathException catch (e) {
+      return ValidationResult.fromException(e);
+    } catch (e) {
+      // Handle unexpected errors
+      return ValidationResult(
+        isValid: false,
+        errorMessage: 'Unexpected error: $e',
+        suggestion: 'Please report this as a bug',
+      );
+    }
   }
 }

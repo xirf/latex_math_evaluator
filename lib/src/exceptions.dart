@@ -31,3 +31,128 @@ class ParserException extends LatexMathException {
 class EvaluatorException extends LatexMathException {
   const EvaluatorException(super.message, [super.position]);
 }
+
+/// Result of validating a LaTeX math expression.
+///
+/// Contains information about whether the expression is valid and,
+/// if not, details about the error including position and suggestions.
+///
+/// Example:
+/// ```dart
+/// final result = evaluator.validate(r'\sin{x');
+/// if (!result.isValid) {
+///   print('Error: ${result.errorMessage}');
+///   print('Position: ${result.position}');
+///   if (result.suggestion != null) {
+///     print('Suggestion: ${result.suggestion}');
+///   }
+/// }
+/// ```
+class ValidationResult {
+  /// Whether the expression is valid.
+  final bool isValid;
+
+  /// Error message if the expression is invalid, null otherwise.
+  final String? errorMessage;
+
+  /// Position where the error occurred, null if valid or position unknown.
+  final int? position;
+
+  /// Suggested fix for the error, null if no suggestion available.
+  final String? suggestion;
+
+  /// The exception type that occurred, null if valid.
+  final Type? exceptionType;
+
+  /// Creates a validation result.
+  const ValidationResult({
+    required this.isValid,
+    this.errorMessage,
+    this.position,
+    this.suggestion,
+    this.exceptionType,
+  });
+
+  /// Creates a successful validation result.
+  const ValidationResult.valid()
+      : isValid = true,
+        errorMessage = null,
+        position = null,
+        suggestion = null,
+        exceptionType = null;
+
+  /// Creates a failed validation result from an exception.
+  factory ValidationResult.fromException(LatexMathException exception) {
+    String? suggestion;
+
+    // Provide helpful suggestions based on common errors
+    final message = exception.message.toLowerCase();
+    if (message.contains('unexpected end')) {
+      suggestion = 'Check for unclosed braces or parentheses';
+    } else if (message.contains('unknown command') ||
+        message.contains('unknown latex')) {
+      suggestion = 'Verify the LaTeX command is supported';
+    } else if (message.contains('undefined variable')) {
+      suggestion = 'Provide a value for this variable in the variables map';
+    } else if (message.contains('division by zero')) {
+      suggestion = 'Ensure denominator is not zero';
+    } else if (message.contains('expected') && message.contains("'}'")) {
+      suggestion = 'Check for unclosed braces';
+    } else if (message.contains('expected') && message.contains("')'")) {
+      suggestion = 'Check for unclosed parentheses';
+    } else if (message.contains('expected')) {
+      suggestion = 'Check syntax near this position';
+    }
+
+    return ValidationResult(
+      isValid: false,
+      errorMessage: exception.message,
+      position: exception.position,
+      suggestion: suggestion,
+      exceptionType: exception.runtimeType,
+    );
+  }
+
+  @override
+  String toString() {
+    if (isValid) {
+      return 'ValidationResult: valid';
+    }
+
+    final buffer = StringBuffer('ValidationResult: invalid\n');
+    buffer.write('  Error: $errorMessage');
+
+    if (position != null) {
+      buffer.write('\n  Position: $position');
+    }
+
+    if (suggestion != null) {
+      buffer.write('\n  Suggestion: $suggestion');
+    }
+
+    if (exceptionType != null) {
+      buffer.write('\n  Type: $exceptionType');
+    }
+
+    return buffer.toString();
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ValidationResult &&
+          runtimeType == other.runtimeType &&
+          isValid == other.isValid &&
+          errorMessage == other.errorMessage &&
+          position == other.position &&
+          suggestion == other.suggestion &&
+          exceptionType == other.exceptionType;
+
+  @override
+  int get hashCode =>
+      isValid.hashCode ^
+      errorMessage.hashCode ^
+      position.hashCode ^
+      suggestion.hashCode ^
+      exceptionType.hashCode;
+}
