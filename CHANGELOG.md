@@ -3,9 +3,6 @@
 ## 0.1.1
 
 - Added option to disable implicit multiplication (`allowImplicitMultiplication` in `LatexMathEvaluator`).
-
-## 0.1.1
-
 - Added support for **Inverse Hyperbolic Functions**: `\asinh`, `\acosh`, `\atanh`.
 - Added support for **Combinatorics**: `\binom{n}{k}`.
 - Added support for **Number Theory**: `\gcd(a, b)`, `\lcm(a, b)`.
