@@ -55,10 +55,13 @@ import 'src/tokenizer.dart';
 /// A convenience class that combines tokenizing, parsing, and evaluation.
 class LatexMathEvaluator {
   final ExtensionRegistry? _extensions;
+  final bool allowImplicitMultiplication;
   late final Evaluator _evaluator;
 
   /// Creates an evaluator with optional extension registry.
-  LatexMathEvaluator({ExtensionRegistry? extensions}) : _extensions = extensions {
+  LatexMathEvaluator(
+      {ExtensionRegistry? extensions, this.allowImplicitMultiplication = true})
+      : _extensions = extensions {
     _evaluator = Evaluator(extensions: _extensions);
   }
 
@@ -77,8 +80,12 @@ class LatexMathEvaluator {
   /// evaluator.evaluate('\\log{10}'); // 1.0
   /// evaluator.evaluate('\\lim_{x \\to 1} x^{2}'); // 1.0
   /// ```
-  dynamic evaluate(String expression, [Map<String, double> variables = const {}]) {
-    final tokens = Tokenizer(expression, extensions: _extensions).tokenize();
+  dynamic evaluate(String expression,
+      [Map<String, double> variables = const {}]) {
+    final tokens = Tokenizer(expression,
+            extensions: _extensions,
+            allowImplicitMultiplication: allowImplicitMultiplication)
+        .tokenize();
     final ast = Parser(tokens).parse();
     return _evaluator.evaluate(ast, variables);
   }

@@ -61,3 +61,56 @@ double handleDet(FunctionCall func, Map<String, double> vars, dynamic Function(E
   }
   return arg.determinant();
 }
+
+/// Trace: \trace{M}
+double handleTrace(FunctionCall func, Map<String, double> vars, dynamic Function(Expression) evaluate) {
+  final arg = evaluate(func.argument);
+  if (arg is! Matrix) {
+    throw EvaluatorException('Argument to trace must be a matrix');
+  }
+  return arg.trace();
+}
+
+/// GCD: \gcd(a, b)
+double handleGcd(FunctionCall func, Map<String, double> vars, dynamic Function(Expression) evaluate) {
+  if (func.args.length != 2) {
+    throw EvaluatorException('gcd requires two arguments');
+  }
+  final a = (evaluate(func.args[0]) as double).round();
+  final b = (evaluate(func.args[1]) as double).round();
+  return _gcd(a, b).toDouble();
+}
+
+int _gcd(int a, int b) {
+  return b == 0 ? a : _gcd(b, a % b);
+}
+
+/// LCM: \lcm(a, b)
+double handleLcm(FunctionCall func, Map<String, double> vars, dynamic Function(Expression) evaluate) {
+  if (func.args.length != 2) {
+    throw EvaluatorException('lcm requires two arguments');
+  }
+  final a = (evaluate(func.args[0]) as double).round();
+  final b = (evaluate(func.args[1]) as double).round();
+  if (a == 0 || b == 0) return 0;
+  return ((a * b).abs() / _gcd(a, b)).toDouble();
+}
+
+/// Binomial Coefficient: \binom{n}{k}
+double handleBinom(FunctionCall func, Map<String, double> vars, dynamic Function(Expression) evaluate) {
+  if (func.args.length != 2) {
+    throw EvaluatorException('binom requires two arguments');
+  }
+  final n = (evaluate(func.args[0]) as double).round();
+  final k = (evaluate(func.args[1]) as double).round();
+  
+  if (k < 0 || k > n) return 0;
+  if (k == 0 || k == n) return 1;
+  if (k > n / 2) return handleBinom(FunctionCall.multivar('binom', [NumberLiteral(n.toDouble()), NumberLiteral((n - k).toDouble())]), vars, evaluate);
+  
+  double res = 1;
+  for (int i = 1; i <= k; i++) {
+    res = res * (n - i + 1) / i;
+  }
+  return res;
+}

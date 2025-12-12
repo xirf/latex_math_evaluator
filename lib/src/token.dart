@@ -39,6 +39,9 @@ enum TokenType {
   /// Fraction `\frac`.
   frac,
 
+  /// Binomial coefficient `\binom`.
+  binom,
+
   /// Limit keyword `\lim`.
   lim,
 

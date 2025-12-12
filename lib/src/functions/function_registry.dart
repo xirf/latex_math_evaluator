@@ -68,6 +68,9 @@ class FunctionRegistry {
     reg('sinh', hyper.handleSinh);
     reg('cosh', hyper.handleCosh);
     reg('tanh', hyper.handleTanh);
+    reg('asinh', hyper.handleAsinh);
+    reg('acosh', hyper.handleAcosh);
+    reg('atanh', hyper.handleAtanh);
 
     // Power / Root
     reg('sqrt', pow.handleSqrt);
@@ -87,6 +90,13 @@ class FunctionRegistry {
 
     // Matrix functions (handle dynamic types directly)
     register('det', other.handleDet);
+    register('trace', other.handleTrace);
+    register('tr', other.handleTrace);
+    
+    // Combinatorics & Number Theory
+    register('gcd', other.handleGcd);
+    register('lcm', other.handleLcm);
+    register('binom', other.handleBinom);
   }
 
   /// Registers a function handler.

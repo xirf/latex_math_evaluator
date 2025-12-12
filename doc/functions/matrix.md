@@ -43,3 +43,18 @@ matrix^T
 ### Examples
 
 - `\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}^T` evaluates to `[[1, 3], [2, 4]]`.
+
+## Trace
+
+Calculates the trace (sum of diagonal elements) of a square matrix.
+
+### Syntax
+
+```latex
+\trace{matrix}
+\tr{matrix}
+```
+
+### Examples
+
+- `\trace{\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}}` evaluates to `5` (1 + 4).

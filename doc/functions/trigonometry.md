@@ -77,6 +77,32 @@ Returns the arctangent of x.
 \tanh{0}         → 0
 ```
 
+## Inverse Hyperbolic Functions
+
+### `\asinh{x}` - Inverse Hyperbolic Sine
+
+Returns the inverse hyperbolic sine of x.
+
+```latex
+\asinh{0}        → 0
+```
+
+### `\acosh{x}` - Inverse Hyperbolic Cosine
+
+Returns the inverse hyperbolic cosine of x. Domain: x ≥ 1
+
+```latex
+\acosh{1}        → 0
+```
+
+### `\atanh{x}` - Inverse Hyperbolic Tangent
+
+Returns the inverse hyperbolic tangent of x. Domain: -1 < x < 1
+
+```latex
+\atanh{0}        → 0
+```
+
 ## Example
 
 ```dart

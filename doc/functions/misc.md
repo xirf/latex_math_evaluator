@@ -47,6 +47,35 @@ Returns the sign of x: -1, 0, or 1.
 \sgn{0}          → 0
 ```
 
+## Combinatorics
+
+### `\binom{n}{k}` - Binomial Coefficient
+
+Calculates the number of ways to choose k items from a set of n items.
+
+```latex
+\binom{5}{2}     → 10
+\binom{4}{4}     → 1
+```
+
+## Number Theory
+
+### `\gcd(a, b)` - Greatest Common Divisor
+
+Calculates the greatest common divisor of two numbers.
+
+```latex
+\gcd(12, 18)     → 6
+```
+
+### `\lcm(a, b)` - Least Common Multiple
+
+Calculates the least common multiple of two numbers.
+
+```latex
+\lcm(12, 18)     → 36
+```
+
 ## `\factorial{n}` - Factorial
 
 Returns n! (n factorial). Limited to n ≤ 170 to prevent overflow.

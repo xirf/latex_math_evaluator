@@ -2,7 +2,7 @@
 
 A Flutter/Dart library for parsing and evaluating mathematical expressions written in LaTeX format.
 
-[![Tests](https://img.shields.io/badge/tests-173%20passed-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-221%20passed-brightgreen)]()
 [![Dart](https://img.shields.io/badge/dart-%3E%3D3.0.0-blue)]()
 
 ## Features
@@ -74,10 +74,13 @@ evaluator.evaluate(r'\prod_{i=1}^{5} i');  // 120.0 (5!)
 | Category          | Functions                                                  |
 | ----------------- | ---------------------------------------------------------- |
 | **Trigonometric** | `\sin`, `\cos`, `\tan`, `\asin`, `\acos`, `\atan`          |
-| **Hyperbolic**    | `\sinh`, `\cosh`, `\tanh`                                  |
+| **Hyperbolic**    | `\sinh`, `\cosh`, `\tanh`, `\asinh`, `\acosh`, `\atanh`    |
 | **Logarithmic**   | `\ln`, `\log`, `\log_{base}`                               |
 | **Rounding**      | `\ceil`, `\floor`, `\round`                                |
 | **Power/Root**    | `\sqrt`, `\exp`                                            |
+| **Matrix**        | `\det`, `\trace`, `\tr`                                    |
+| **Combinatorics** | `\binom{n}{k}`                                             |
+| **Number Theory** | `\gcd(a,b)`, `\lcm(a,b)`                                   |
 | **Other**         | `\abs`, `|x|`, `\sgn`, `\factorial`, `\min_{a}{b}`, `\max_{a}{b}` |
 
 Also support equation with domain constraints: `f(x) = 2x - 3, 3 < x < 5`
@@ -97,6 +100,22 @@ LaTeX constants can be used with backslash notation:
 | `delta`   | `\delta` | δ      | 2.41421... |
 
 > User-provided variables override built-in constants.
+
+## Implicit Multiplication
+
+By default, implicit multiplication is enabled. This means `2x` is treated as `2 * x` and `xy` is treated as `x * y`.
+
+You can disable this behavior to treat multi-letter sequences as single variables:
+
+```dart
+// Default: implicit multiplication enabled
+final evaluator = LatexMathEvaluator();
+evaluator.evaluate('xy', {'x': 2, 'y': 3}); // 6.0
+
+// Disabled: implicit multiplication disabled
+final evaluator2 = LatexMathEvaluator(allowImplicitMultiplication: false);
+evaluator2.evaluate('xy', {'xy': 10}); // 10.0
+```
 
 ## Notation Support
 

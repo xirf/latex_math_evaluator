@@ -15,17 +15,23 @@ mixin FunctionParserMixin on BaseParser {
       consume(TokenType.rparen, "Expected '}' after base");
     }
 
-    Expression argument;
+    List<Expression> args = [];
     if (check(TokenType.lparen)) {
       advance();
-      argument = parseExpression();
+      args.add(parseExpression());
+      while (match([TokenType.comma])) {
+        args.add(parseExpression());
+      }
       consume(TokenType.rparen,
           "Expected closing brace/paren after function argument");
     } else {
-      argument = parseUnary();
+      args.add(parseUnary());
     }
 
-    return FunctionCall(name, argument, base: base);
+    if (args.length == 1) {
+      return FunctionCall(name, args[0], base: base);
+    }
+    return FunctionCall.multivar(name, args, base: base);
   }
 
   @override

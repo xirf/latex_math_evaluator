@@ -44,6 +44,24 @@ void main() {
   final expInt = r'\int_{0}^{1} e^x dx';
   final expResult = evaluator.evaluate(expInt);
   print('Integral of e^x from 0 to 1: $expResult (Expected: ~1.718)');
+
+  print('\n--- New Features v0.1.1 ---');
+
+  // 1. Inverse Hyperbolic Functions
+  print('asinh(0) = ${evaluator.evaluate(r'\asinh{0}')}');
+  print('acosh(1) = ${evaluator.evaluate(r'\acosh{1}')}');
+  print('atanh(0.5) = ${evaluator.evaluate(r'\atanh{0.5}')}');
+
+  // 2. Combinatorics
+  print('binom(5, 2) = ${evaluator.evaluate(r'\binom{5}{2}')}');
+
+  // 3. Number Theory
+  print('gcd(12, 18) = ${evaluator.evaluate(r'\gcd(12, 18)')}');
+  print('lcm(12, 18) = ${evaluator.evaluate(r'\lcm(12, 18)')}');
+
+  // 4. Matrix Trace
+  final traceExpr = r'\trace{\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}}';
+  print('Trace of [[1, 2], [3, 4]] = ${evaluator.evaluate(traceExpr)}');
 }
 
 void printMatrix(dynamic result) {

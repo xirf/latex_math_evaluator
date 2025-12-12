@@ -9,10 +9,13 @@ import 'token.dart';
 class Tokenizer {
   final String _source;
   final ExtensionRegistry? _extensions;
+  final bool _allowImplicitMultiplication;
   int _position = 0;
 
-  Tokenizer(this._source, {ExtensionRegistry? extensions})
-      : _extensions = extensions;
+  Tokenizer(this._source,
+      {ExtensionRegistry? extensions, bool allowImplicitMultiplication = true})
+      : _extensions = extensions,
+        _allowImplicitMultiplication = allowImplicitMultiplication;
 
   /// Returns all tokens from the source string.
   List<Token> tokenize() {
@@ -117,8 +120,21 @@ class Tokenizer {
         return Token(type: TokenType.ampersand, value: '&', position: startPos);
       default:
         if (_isLetter(char)) {
-          return Token(
-              type: TokenType.variable, value: char, position: startPos);
+          if (_allowImplicitMultiplication) {
+            return Token(
+                type: TokenType.variable, value: char, position: startPos);
+          } else {
+            final buffer = StringBuffer();
+            buffer.write(char);
+            while (!_isAtEnd && _isLetter(_current)) {
+              buffer.write(_current);
+              _position++;
+            }
+            return Token(
+                type: TokenType.variable,
+                value: buffer.toString(),
+                position: startPos);
+          }
         }
         throw TokenizerException('Unexpected character: $char', startPos);
     }
@@ -196,8 +212,15 @@ class Tokenizer {
       case 'sinh':
       case 'cosh':
       case 'tanh':
+      case 'asinh':
+      case 'acosh':
+      case 'atanh':
       // Other functions
       case 'det':
+      case 'trace':
+      case 'tr':
+      case 'gcd':
+      case 'lcm':
       case 'sqrt':
       case 'abs':
       case 'ceil':
@@ -244,6 +267,9 @@ class Tokenizer {
       // Fraction
       case 'frac':
         return Token(type: TokenType.frac, value: 'frac', position: startPos);
+      // Binomial
+      case 'binom':
+        return Token(type: TokenType.binom, value: 'binom', position: startPos);
       // Mathematical constants
       case 'pi':
       case 'tau':

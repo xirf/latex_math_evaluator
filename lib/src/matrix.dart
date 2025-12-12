@@ -36,6 +36,17 @@ class Matrix {
     return det;
   }
 
+  double trace() {
+    if (rows != cols) {
+      throw EvaluatorException('Trace requires a square matrix');
+    }
+    double sum = 0;
+    for (int i = 0; i < rows; i++) {
+      sum += data[i][i];
+    }
+    return sum;
+  }
+
   Matrix inverse() {
     if (rows != cols) {
       throw EvaluatorException('Inverse requires a square matrix');

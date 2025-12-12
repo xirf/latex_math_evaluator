@@ -47,6 +47,10 @@ mixin PrimaryParserMixin on BaseParser {
       return parseFraction();
     }
 
+    if (match([TokenType.binom])) {
+      return parseBinom();
+    }
+
     if (match([TokenType.begin])) {
       return parseMatrix();
     }
@@ -92,5 +96,17 @@ mixin PrimaryParserMixin on BaseParser {
     consume(TokenType.rparen, "Expected '}' after denominator");
 
     return BinaryOp(numerator, BinaryOperator.divide, denominator);
+  }
+
+  Expression parseBinom() {
+    consume(TokenType.lparen, "Expected '{' after \\binom");
+    final n = parseExpression();
+    consume(TokenType.rparen, "Expected '}' after n");
+
+    consume(TokenType.lparen, "Expected '{' after n");
+    final k = parseExpression();
+    consume(TokenType.rparen, "Expected '}' after k");
+
+    return FunctionCall.multivar('binom', [n, k]);
   }
 }

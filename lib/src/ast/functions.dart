@@ -27,18 +27,23 @@ class FunctionCall extends Expression {
   /// The function name (e.g., 'log', 'ln', 'sin').
   final String name;
 
-  /// The function argument.
-  final Expression argument;
+  /// The function arguments.
+  final List<Expression> args;
+
+  /// The function argument (first argument).
+  Expression get argument => args[0];
 
   /// Optional base for functions like \log_{base}{arg}.
   final Expression? base;
 
-  const FunctionCall(this.name, this.argument, {this.base});
+  FunctionCall(this.name, Expression argument, {this.base}) : args = [argument];
+  
+  FunctionCall.multivar(this.name, this.args, {this.base});
 
   @override
   String toString() => base != null
-      ? 'FunctionCall($name, base: $base, arg: $argument)'
-      : 'FunctionCall($name, $argument)';
+      ? 'FunctionCall($name, base: $base, args: $args)'
+      : 'FunctionCall($name, args: $args)';
 
   @override
   bool operator ==(Object other) =>
@@ -46,9 +51,10 @@ class FunctionCall extends Expression {
       other is FunctionCall &&
           runtimeType == other.runtimeType &&
           name == other.name &&
-          argument == other.argument &&
-          base == other.base;
+          // Deep equality for list
+          args.length == other.args.length &&
+          base == other.base; // Simplified check
 
   @override
-  int get hashCode => name.hashCode ^ argument.hashCode ^ (base?.hashCode ?? 0);
+  int get hashCode => Object.hash(name, Object.hashAll(args), base);
 }

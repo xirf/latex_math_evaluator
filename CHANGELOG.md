@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 0.1.1
+
+- Added option to disable implicit multiplication (`allowImplicitMultiplication` in `LatexMathEvaluator`).
+
+## 0.1.1
+
+- Added support for **Inverse Hyperbolic Functions**: `\asinh`, `\acosh`, `\atanh`.
+- Added support for **Combinatorics**: `\binom{n}{k}`.
+- Added support for **Number Theory**: `\gcd(a, b)`, `\lcm(a, b)`.
+- Added support for **Matrix Trace**: `\trace{M}`, `\tr{M}`.
+
 ## 0.1.0
 
 - **BREAKING CHANGE**: `evaluate` method now returns `dynamic` instead of `double` to support matrix results.
@@ -11,7 +22,6 @@
 - Updated `Tokenizer` to support `\int` and `\det`.
 - Added support for matrix evaluation and operations (addition, subtraction, multiplication).
 - Added `Matrix` class.
-
 
 ## 0.0.2
 
