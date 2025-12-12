@@ -27,7 +27,7 @@ class Matrix {
     if (rows == 2) {
       return data[0][0] * data[1][1] - data[0][1] * data[1][0];
     }
-    
+
     // Laplace expansion for larger matrices (not efficient for very large matrices but simple)
     double det = 0;
     for (int j = 0; j < cols; j++) {
@@ -119,7 +119,8 @@ class Matrix {
     } else if (other is Matrix) {
       // Matrix multiplication
       if (cols != other.rows) {
-        throw EvaluatorException('Matrix dimensions mismatch for multiplication');
+        throw EvaluatorException(
+            'Matrix dimensions mismatch for multiplication');
       }
       return Matrix(List.generate(rows, (i) {
         return List.generate(other.cols, (j) {
@@ -134,12 +135,12 @@ class Matrix {
       throw EvaluatorException('Invalid operand for matrix multiplication');
     }
   }
-  
+
   @override
   String toString() {
     return data.toString();
   }
-  
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
@@ -152,7 +153,7 @@ class Matrix {
     }
     return true;
   }
-  
+
   @override
   int get hashCode => Object.hashAll(data.map((row) => Object.hashAll(row)));
 }

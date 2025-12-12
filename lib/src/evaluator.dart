@@ -28,7 +28,8 @@ class Evaluator {
   /// - A variable is not found in the bindings
   /// - Division by zero occurs
   /// - An unknown expression type is encountered
-  dynamic evaluate(Expression expr, [Map<String, double> variables = const {}]) {
+  dynamic evaluate(Expression expr,
+      [Map<String, double> variables = const {}]) {
     // Try custom evaluators first
     if (_extensions != null) {
       final result = _extensions!.tryEvaluate(
@@ -82,13 +83,13 @@ class Evaluator {
     if (variables.containsKey(name)) {
       return variables[name]!;
     }
-    
+
     // Fall back to built-in constants
     final constant = ConstantRegistry.instance.get(name);
     if (constant != null) {
       return constant;
     }
-    
+
     throw EvaluatorException('Undefined variable: $name');
   }
 
@@ -114,8 +115,11 @@ class Evaluator {
     final leftValue = evaluate(left, variables);
 
     // Special handling for Matrix Transpose: M^T
-    if (leftValue is Matrix && operator == BinaryOperator.power && right is Variable && right.name == 'T') {
-       return leftValue.transpose();
+    if (leftValue is Matrix &&
+        operator == BinaryOperator.power &&
+        right is Variable &&
+        right.name == 'T') {
+      return leftValue.transpose();
     }
 
     final rightValue = evaluate(right, variables);
@@ -129,7 +133,8 @@ class Evaluator {
         case BinaryOperator.multiply:
           return leftValue * rightValue;
         default:
-          throw EvaluatorException('Operator $operator not supported for matrices');
+          throw EvaluatorException(
+              'Operator $operator not supported for matrices');
       }
     } else if (leftValue is Matrix && rightValue is num) {
       switch (operator) {
@@ -139,16 +144,19 @@ class Evaluator {
           if (rightValue == -1) {
             return leftValue.inverse();
           }
-          throw EvaluatorException('Matrix power only supports -1 (inverse) or T (transpose)');
+          throw EvaluatorException(
+              'Matrix power only supports -1 (inverse) or T (transpose)');
         default:
-          throw EvaluatorException('Operator $operator not supported for matrix and scalar');
+          throw EvaluatorException(
+              'Operator $operator not supported for matrix and scalar');
       }
     } else if (leftValue is num && rightValue is Matrix) {
       switch (operator) {
         case BinaryOperator.multiply:
           return rightValue * leftValue;
         default:
-          throw EvaluatorException('Operator $operator not supported for scalar and matrix');
+          throw EvaluatorException(
+              'Operator $operator not supported for scalar and matrix');
       }
     } else if (leftValue is double && rightValue is double) {
       switch (operator) {
@@ -205,7 +213,8 @@ class Evaluator {
     throw EvaluatorException('Expression must evaluate to a number');
   }
 
-  dynamic _evaluateFunctionCall(FunctionCall func, Map<String, double> variables) {
+  dynamic _evaluateFunctionCall(
+      FunctionCall func, Map<String, double> variables) {
     return FunctionRegistry.instance.evaluate(
       func,
       variables,
@@ -323,9 +332,9 @@ class Evaluator {
 
     final n = 1000; // Number of intervals (must be even for Simpson's)
     final h = (upper - lower) / n;
-    
+
     double sum = 0.0;
-    
+
     // Helper to evaluate body at x
     double f(double x) {
       final newVars = Map<String, double>.from(variables);
@@ -376,16 +385,18 @@ class Evaluator {
     return result ? 1.0 : double.nan;
   }
 
-  double _evaluateChainedComparison(ChainedComparison chain, Map<String, double> variables) {
+  double _evaluateChainedComparison(
+      ChainedComparison chain, Map<String, double> variables) {
     // Evaluate all expressions in the chain
-    final values = chain.expressions.map((e) => _evaluateAsDouble(e, variables)).toList();
-    
+    final values =
+        chain.expressions.map((e) => _evaluateAsDouble(e, variables)).toList();
+
     // Check each comparison in sequence
     for (int i = 0; i < chain.operators.length; i++) {
       final left = values[i];
       final right = values[i + 1];
       final op = chain.operators[i];
-      
+
       bool result;
       switch (op) {
         case ComparisonOperator.less:
@@ -404,28 +415,28 @@ class Evaluator {
           result = (left - right).abs() < 1e-9;
           break;
       }
-      
+
       // If any comparison fails, return NaN
       if (!result) {
         return double.nan;
       }
     }
-    
+
     // All comparisons passed
     return 1.0;
   }
 
-  dynamic _evaluateConditional(ConditionalExpr cond, Map<String, double> variables) {
+  dynamic _evaluateConditional(
+      ConditionalExpr cond, Map<String, double> variables) {
     // Evaluate the condition first
     final conditionResult = _evaluateAsDouble(cond.condition, variables);
-    
+
     // If condition is not satisfied (returns NaN or 0), return NaN
     if (conditionResult.isNaN || conditionResult == 0.0) {
       return double.nan;
     }
-    
+
     // If condition is satisfied, evaluate and return the expression
     return evaluate(cond.expression, variables);
   }
 }
-
