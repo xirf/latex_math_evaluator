@@ -112,7 +112,8 @@ void main() {
       });
 
       test('Complex expression with condition', () {
-        final result = evaluator.evaluate("2*x^2 + 3*x - 1, -5 < x < 5", {'x': 2});
+        final result =
+            evaluator.evaluate("2*x^2 + 3*x - 1, -5 < x < 5", {'x': 2});
         expect(result, 13.0);
       });
 

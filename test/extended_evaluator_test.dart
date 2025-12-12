@@ -88,7 +88,8 @@ void main() {
       test('throws on invalid log base', () {
         expect(() => eval(r'\log_{1}{10}'), throwsA(isA<EvaluatorException>()));
         expect(() => eval(r'\log_{0}{10}'), throwsA(isA<EvaluatorException>()));
-        expect(() => eval(r'\log_{-1}{10}'), throwsA(isA<EvaluatorException>()));
+        expect(
+            () => eval(r'\log_{-1}{10}'), throwsA(isA<EvaluatorException>()));
       });
     });
 
@@ -155,7 +156,7 @@ void main() {
       test('evaluates e', () {
         expect(eval('e'), closeTo(math.e, 1e-10));
       });
-      
+
       test('evaluates phi', () {
         expect(eval(r'\phi'), closeTo((1 + math.sqrt(5)) / 2, 1e-10));
       });
@@ -164,14 +165,15 @@ void main() {
     group('Complex Expressions', () {
       test('evaluates combination of operations', () {
         // sin(pi/2) + log(100) * sqrt(4) = 1 + 2 * 2 = 5
-        expect(eval(r'\sin{\frac{\pi}{2}} + \log{100} \times \sqrt{4}'), closeTo(5.0, 1e-10));
+        expect(eval(r'\sin{\frac{\pi}{2}} + \log{100} \times \sqrt{4}'),
+            closeTo(5.0, 1e-10));
       });
 
       test('evaluates nested functions', () {
         // sqrt(3^2 + 4^2) = 5
         expect(eval(r'\sqrt{3^{2} + 4^{2}}'), 5.0);
       });
-      
+
       test('evaluates expression with negative numbers', () {
         expect(eval(r'-2 + 5'), 3.0);
         expect(eval(r'5 + -2'), 3.0);
@@ -185,11 +187,12 @@ void main() {
       });
 
       test('evaluates implicit multiplication with variable no space', () {
-         // 'xy' is tokenized as 'x' and 'y', so it becomes 'x * y'
-         expect(eval('xy', {'x': 2, 'y': 3}), 6.0);
-         
-         // This should fail because it looks for 'x' and 'y', not 'xy'
-         expect(() => eval('xy', {'xy': 10}), throwsA(isA<EvaluatorException>()));
+        // 'xy' is tokenized as 'x' and 'y', so it becomes 'x * y'
+        expect(eval('xy', {'x': 2, 'y': 3}), 6.0);
+
+        // This should fail because it looks for 'x' and 'y', not 'xy'
+        expect(
+            () => eval('xy', {'xy': 10}), throwsA(isA<EvaluatorException>()));
       });
     });
 
@@ -207,7 +210,7 @@ void main() {
         // Since eval returns dynamic (double or Matrix), we need to cast or check properties.
         // But eval defined in this file returns double.
         // I need to change eval signature or use evaluator.evaluate directly.
-        
+
         final result = evaluator.evaluate(parse('$m1 + $m2'));
         expect(result, isA<Matrix>());
         final m = result as Matrix;
@@ -229,7 +232,8 @@ void main() {
       test('throws on matrix dimension mismatch', () {
         final m1 = r'\begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix}';
         final m2 = r'\begin{matrix} 1 & 2 \end{matrix}';
-        expect(() => evaluator.evaluate(parse('$m1 + $m2')), throwsA(isA<EvaluatorException>()));
+        expect(() => evaluator.evaluate(parse('$m1 + $m2')),
+            throwsA(isA<EvaluatorException>()));
       });
     });
 
@@ -267,17 +271,21 @@ void main() {
     });
 
     group('Implicit Multiplication Options', () {
-      test('treats xy as x*y when implicit multiplication is enabled (default)', () {
+      test('treats xy as x*y when implicit multiplication is enabled (default)',
+          () {
         final evaluator = LatexMathEvaluator();
         expect(evaluator.evaluate('xy', {'x': 2, 'y': 3}), 6.0);
       });
 
-      test('treats xy as variable xy when implicit multiplication is disabled', () {
-        final evaluator = LatexMathEvaluator(allowImplicitMultiplication: false);
+      test('treats xy as variable xy when implicit multiplication is disabled',
+          () {
+        final evaluator =
+            LatexMathEvaluator(allowImplicitMultiplication: false);
         expect(evaluator.evaluate('xy', {'xy': 10}), 10.0);
-        
+
         // Should fail if we try to use x and y
-        expect(() => evaluator.evaluate('xy', {'x': 2, 'y': 3}), throwsA(isA<EvaluatorException>()));
+        expect(() => evaluator.evaluate('xy', {'x': 2, 'y': 3}),
+            throwsA(isA<EvaluatorException>()));
       });
     });
 
@@ -302,7 +310,7 @@ void main() {
       test('evaluates matrix trace', () {
         final expr = r'\trace{\begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix}}';
         expect(eval(expr), 5.0);
-        
+
         final expr2 = r'\tr{\begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix}}';
         expect(eval(expr2), 5.0);
       });

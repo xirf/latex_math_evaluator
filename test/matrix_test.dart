@@ -7,7 +7,7 @@ void main() {
     // Simple 2x2 matrix
     // \begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix}
     final matrix = '\\begin{matrix} 1 & 2 \\\\ 3 & 4 \\end{matrix}';
-    
+
     final result = evaluator.evaluate(matrix);
     expect(result, isA<Matrix>());
     final m = result as Matrix;
@@ -21,7 +21,8 @@ void main() {
 
   test('Matrix addition', () {
     final evaluator = LatexMathEvaluator();
-    final expr = '\\begin{matrix} 1 & 2 \\\\ 3 & 4 \\end{matrix} + \\begin{matrix} 5 & 6 \\\\ 7 & 8 \\end{matrix}';
+    final expr =
+        '\\begin{matrix} 1 & 2 \\\\ 3 & 4 \\end{matrix} + \\begin{matrix} 5 & 6 \\\\ 7 & 8 \\end{matrix}';
     final result = evaluator.evaluate(expr);
     expect(result, isA<Matrix>());
     final m = result as Matrix;
@@ -35,7 +36,8 @@ void main() {
     final evaluator = LatexMathEvaluator();
     // [1 2] * [5 6] = [1*5+2*7 1*6+2*8] = [19 22]
     // [3 4]   [7 8]   [3*5+4*7 3*6+4*8]   [43 50]
-    final expr = '\\begin{matrix} 1 & 2 \\\\ 3 & 4 \\end{matrix} * \\begin{matrix} 5 & 6 \\\\ 7 & 8 \\end{matrix}';
+    final expr =
+        '\\begin{matrix} 1 & 2 \\\\ 3 & 4 \\end{matrix} * \\begin{matrix} 5 & 6 \\\\ 7 & 8 \\end{matrix}';
     final result = evaluator.evaluate(expr);
     expect(result, isA<Matrix>());
     final m = result as Matrix;

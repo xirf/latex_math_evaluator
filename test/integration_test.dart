@@ -151,7 +151,8 @@ void main() {
 
     group('complex real-world expressions', () {
       test('sin(pi^3 * x) with fraction and absolute value', () {
-        final expr = r'\sin(\pi^3 x) \cdot \sqrt{\frac{e^2 - x^2}{2}} + \sqrt{|x|}';
+        final expr =
+            r'\sin(\pi^3 x) \cdot \sqrt{\frac{e^2 - x^2}{2}} + \sqrt{|x|}';
         final result = evaluator.evaluate(expr, {'x': 1});
         expect(result, isA<double>());
         expect(result.isFinite, isTrue);

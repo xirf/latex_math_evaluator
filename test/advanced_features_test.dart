@@ -8,7 +8,8 @@ void main() {
     test('Matrix Transpose', () {
       // A = [[1, 2], [3, 4]]
       // A^T = [[1, 3], [2, 4]]
-      final result = evaluator.evaluate(r'\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}^T');
+      final result =
+          evaluator.evaluate(r'\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}^T');
       expect(result, isA<Matrix>());
       final matrix = result as Matrix;
       expect(matrix.rows, 2);
@@ -21,7 +22,8 @@ void main() {
 
     test('Matrix Determinant (Function)', () {
       // det([[1, 2], [3, 4]]) = 1*4 - 2*3 = 4 - 6 = -2
-      final result = evaluator.evaluate(r'\det(\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix})');
+      final result = evaluator
+          .evaluate(r'\det(\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix})');
       expect(result, -2.0);
     });
 
@@ -29,7 +31,8 @@ void main() {
       // A = [[4, 7], [2, 6]]
       // det(A) = 24 - 14 = 10
       // A^-1 = 1/10 * [[6, -7], [-2, 4]] = [[0.6, -0.7], [-0.2, 0.4]]
-      final result = evaluator.evaluate(r'\begin{pmatrix} 4 & 7 \\ 2 & 6 \end{pmatrix}^{-1}');
+      final result = evaluator
+          .evaluate(r'\begin{pmatrix} 4 & 7 \\ 2 & 6 \end{pmatrix}^{-1}');
       expect(result, isA<Matrix>());
       final matrix = result as Matrix;
       expect(matrix[0][0], closeTo(0.6, 1e-9));

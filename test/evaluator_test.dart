@@ -153,7 +153,8 @@ void main() {
 
       test('evaluates limit of linear function', () {
         // lim_{x -> 2} (x + 3) = 5
-        expect(eval(r'\lim_{x \to 2} (x + 3)', {'x': 2.0}), closeTo(5.0, 0.001));
+        expect(
+            eval(r'\lim_{x \to 2} (x + 3)', {'x': 2.0}), closeTo(5.0, 0.001));
       });
 
       test('evaluates limit with constant', () {
