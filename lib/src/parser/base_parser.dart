@@ -43,14 +43,14 @@ abstract class BaseParser {
     consume(TokenType.rparen, "Expected '}'");
     return buffer.toString();
   }
-  
+
   // Abstract methods for mutual recursion
   Expression parseExpression();
   Expression parsePrimary();
   Expression parseUnary();
   Expression parseTerm();
   Expression parsePower();
-  
+
   Expression parseFunctionCall();
   Expression parseLimitExpr();
   Expression parseSumExpr();

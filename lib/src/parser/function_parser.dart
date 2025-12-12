@@ -130,24 +130,27 @@ mixin FunctionParserMixin on BaseParser {
 
       if (right is Variable) {
         final potentialVar = right.name;
-        
+
         if (left is Variable && left.name == 'd') {
           // Case: \int dx -> d * x
           body = NumberLiteral(1.0);
           variable = potentialVar;
-        } else if (left is BinaryOp && left.operator == BinaryOperator.multiply) {
-           // Case: \int f(x) dx -> f(x) * d * x
-           // left is (f(x) * d)
-           if (left.right is Variable && (left.right as Variable).name == 'd') {
-             body = left.left;
-             variable = potentialVar;
-           }
+        } else if (left is BinaryOp &&
+            left.operator == BinaryOperator.multiply) {
+          // Case: \int f(x) dx -> f(x) * d * x
+          // left is (f(x) * d)
+          if (left.right is Variable && (left.right as Variable).name == 'd') {
+            body = left.left;
+            variable = potentialVar;
+          }
         }
       }
     }
 
     if (body == null || variable == null) {
-      throw ParserException("Expected differential (e.g., 'dx') at the end of integral", tokens[position-1].position);
+      throw ParserException(
+          "Expected differential (e.g., 'dx') at the end of integral",
+          tokens[position - 1].position);
     }
 
     return IntegralExpr(lower, upper, body, variable);

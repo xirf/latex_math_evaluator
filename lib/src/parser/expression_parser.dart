@@ -111,7 +111,7 @@ mixin ExpressionParserMixin on BaseParser {
     return check(TokenType.number) ||
         check(TokenType.variable) ||
         check(TokenType.constant) ||
-        check(TokenType.lparen) || 
+        check(TokenType.lparen) ||
         check(TokenType.function) ||
         check(TokenType.lim) ||
         check(TokenType.sum) ||
@@ -126,12 +126,12 @@ mixin ExpressionParserMixin on BaseParser {
 
     if (match([TokenType.power])) {
       if (check(TokenType.lparen) && current.value == '{') {
-        advance(); 
-        final right = parseExpression(); 
+        advance();
+        final right = parseExpression();
         consume(TokenType.rparen, "Expected '}' after exponent");
         return BinaryOp(left, BinaryOperator.power, right);
       } else {
-        final right = parsePower(); 
+        final right = parsePower();
         return BinaryOp(left, BinaryOperator.power, right);
       }
     }

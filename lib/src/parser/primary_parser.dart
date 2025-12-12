@@ -73,7 +73,7 @@ mixin PrimaryParserMixin on BaseParser {
       if (closingChar == '}' &&
           check(TokenType.lparen) &&
           current.value == '{') {
-        advance(); 
+        advance();
         final condition = parseExpression();
         consume(TokenType.rparen, "Expected '}' after condition");
         return ConditionalExpr(expr, condition);

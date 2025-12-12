@@ -37,7 +37,7 @@ class FunctionCall extends Expression {
   final Expression? base;
 
   FunctionCall(this.name, Expression argument, {this.base}) : args = [argument];
-  
+
   FunctionCall.multivar(this.name, this.args, {this.base});
 
   @override

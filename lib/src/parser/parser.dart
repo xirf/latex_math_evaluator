@@ -8,7 +8,12 @@ import 'function_parser.dart';
 import 'matrix_parser.dart';
 
 /// Recursive descent parser for LaTeX math expressions.
-class Parser extends BaseParser with ExpressionParserMixin, PrimaryParserMixin, FunctionParserMixin, MatrixParserMixin {
+class Parser extends BaseParser
+    with
+        ExpressionParserMixin,
+        PrimaryParserMixin,
+        FunctionParserMixin,
+        MatrixParserMixin {
   Parser(List<Token> tokens) : super(tokens);
 
   /// Parses the token stream and returns the root expression.
