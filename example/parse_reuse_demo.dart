@@ -19,9 +19,21 @@ void main() {
   print('2. Multi-variable: 2x + 3y - z');
   final multiVar = evaluator.parse(r'2x + 3y - z');
 
-  print('   x=1, y=2, z=3: ${evaluator.evaluateParsed(multiVar, {'x': 1, 'y': 2, 'z': 3})}');
-  print('   x=5, y=10, z=15: ${evaluator.evaluateParsed(multiVar, {'x': 5, 'y': 10, 'z': 15})}');
-  print('   x=0, y=0, z=0: ${evaluator.evaluateParsed(multiVar, {'x': 0, 'y': 0, 'z': 0})}');
+  print('   x=1, y=2, z=3: ${evaluator.evaluateParsed(multiVar, {
+        'x': 1,
+        'y': 2,
+        'z': 3
+      })}');
+  print('   x=5, y=10, z=15: ${evaluator.evaluateParsed(multiVar, {
+        'x': 5,
+        'y': 10,
+        'z': 15
+      })}');
+  print('   x=0, y=0, z=0: ${evaluator.evaluateParsed(multiVar, {
+        'x': 0,
+        'y': 0,
+        'z': 0
+      })}');
   print('');
 
   // Example 3: Trigonometric function
@@ -37,14 +49,24 @@ void main() {
   print(r'4. Fraction: \frac{a}{b} + \frac{c}{d}');
   final fraction = evaluator.parse(r'\frac{a}{b} + \frac{c}{d}');
 
-  print('   a=1, b=2, c=1, d=4: ${evaluator.evaluateParsed(fraction, {'a': 1, 'b': 2, 'c': 1, 'd': 4})}');
-  print('   a=3, b=4, c=5, d=6: ${evaluator.evaluateParsed(fraction, {'a': 3, 'b': 4, 'c': 5, 'd': 6})}');
+  print('   a=1, b=2, c=1, d=4: ${evaluator.evaluateParsed(fraction, {
+        'a': 1,
+        'b': 2,
+        'c': 1,
+        'd': 4
+      })}');
+  print('   a=3, b=4, c=5, d=6: ${evaluator.evaluateParsed(fraction, {
+        'a': 3,
+        'b': 4,
+        'c': 5,
+        'd': 6
+      })}');
   print('');
 
   // Example 5: Performance comparison
   print('5. Performance Test (1000 evaluations)');
   final testExpr = r'x^{3} + 2x^{2} - 5x + 3';
-  
+
   final stopwatch1 = Stopwatch()..start();
   for (int i = 0; i < 1000; i++) {
     evaluator.evaluate(testExpr, {'x': i.toDouble()});
@@ -59,5 +81,6 @@ void main() {
   }
   stopwatch2.stop();
   print('   Parse once, reuse: ${stopwatch2.elapsedMilliseconds}ms');
-  print('   Speedup: ${(stopwatch1.elapsedMilliseconds / stopwatch2.elapsedMilliseconds).toStringAsFixed(2)}x');
+  print(
+      '   Speedup: ${(stopwatch1.elapsedMilliseconds / stopwatch2.elapsedMilliseconds).toStringAsFixed(2)}x');
 }
