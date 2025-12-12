@@ -7,7 +7,8 @@ import '../ast.dart';
 import '../exceptions.dart';
 
 /// Square root: \sqrt{x}
-double handleSqrt(FunctionCall func, Map<String, double> vars, double Function(Expression) evaluate) {
+double handleSqrt(FunctionCall func, Map<String, double> vars,
+    double Function(Expression) evaluate) {
   final arg = evaluate(func.argument);
   if (arg < 0) {
     throw EvaluatorException('Square root of negative number');
@@ -16,6 +17,7 @@ double handleSqrt(FunctionCall func, Map<String, double> vars, double Function(E
 }
 
 /// Exponential: \exp{x}
-double handleExp(FunctionCall func, Map<String, double> vars, double Function(Expression) evaluate) {
+double handleExp(FunctionCall func, Map<String, double> vars,
+    double Function(Expression) evaluate) {
   return math.exp(evaluate(func.argument));
 }

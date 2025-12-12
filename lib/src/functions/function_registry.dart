@@ -44,12 +44,18 @@ class FunctionRegistry {
 
   void _registerBuiltins() {
     // Helper to adapt double-returning handlers
-    void reg(String name, double Function(FunctionCall, Map<String, double>, double Function(Expression)) handler) {
-      register(name, (f, v, e) => handler(f, v, (x) {
-        final val = e(x);
-        if (val is double) return val;
-        throw EvaluatorException('Expected number argument for $name');
-      }));
+    void reg(
+        String name,
+        double Function(
+                FunctionCall, Map<String, double>, double Function(Expression))
+            handler) {
+      register(
+          name,
+          (f, v, e) => handler(f, v, (x) {
+                final val = e(x);
+                if (val is double) return val;
+                throw EvaluatorException('Expected number argument for $name');
+              }));
     }
 
     // Logarithmic
@@ -92,7 +98,7 @@ class FunctionRegistry {
     register('det', other.handleDet);
     register('trace', other.handleTrace);
     register('tr', other.handleTrace);
-    
+
     // Combinatorics & Number Theory
     register('gcd', other.handleGcd);
     register('lcm', other.handleLcm);

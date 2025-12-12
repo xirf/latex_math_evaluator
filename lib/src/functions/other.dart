@@ -9,12 +9,14 @@ import '../exceptions.dart';
 import '../matrix.dart';
 
 /// Absolute value: \abs{x}
-double handleAbs(FunctionCall func, Map<String, double> vars, double Function(Expression) evaluate) {
+double handleAbs(FunctionCall func, Map<String, double> vars,
+    double Function(Expression) evaluate) {
   return evaluate(func.argument).abs();
 }
 
 /// Sign function: \sgn{x}
-double handleSgn(FunctionCall func, Map<String, double> vars, double Function(Expression) evaluate) {
+double handleSgn(FunctionCall func, Map<String, double> vars,
+    double Function(Expression) evaluate) {
   final x = evaluate(func.argument);
   if (x > 0) return 1.0;
   if (x < 0) return -1.0;
@@ -22,7 +24,8 @@ double handleSgn(FunctionCall func, Map<String, double> vars, double Function(Ex
 }
 
 /// Factorial: \factorial{n}
-double handleFactorial(FunctionCall func, Map<String, double> vars, double Function(Expression) evaluate) {
+double handleFactorial(FunctionCall func, Map<String, double> vars,
+    double Function(Expression) evaluate) {
   final n = evaluate(func.argument).toInt();
   if (n < 0) {
     throw EvaluatorException('Factorial of negative number');
@@ -38,7 +41,8 @@ double handleFactorial(FunctionCall func, Map<String, double> vars, double Funct
 }
 
 /// Minimum: \min_{a}{b}
-double handleMin(FunctionCall func, Map<String, double> vars, double Function(Expression) evaluate) {
+double handleMin(FunctionCall func, Map<String, double> vars,
+    double Function(Expression) evaluate) {
   if (func.base == null) {
     throw EvaluatorException('min requires two arguments: \\min_{a}{b}');
   }
@@ -46,7 +50,8 @@ double handleMin(FunctionCall func, Map<String, double> vars, double Function(Ex
 }
 
 /// Maximum: \max_{a}{b}
-double handleMax(FunctionCall func, Map<String, double> vars, double Function(Expression) evaluate) {
+double handleMax(FunctionCall func, Map<String, double> vars,
+    double Function(Expression) evaluate) {
   if (func.base == null) {
     throw EvaluatorException('max requires two arguments: \\max_{a}{b}');
   }
@@ -54,7 +59,8 @@ double handleMax(FunctionCall func, Map<String, double> vars, double Function(Ex
 }
 
 /// Determinant: \det{M}
-double handleDet(FunctionCall func, Map<String, double> vars, dynamic Function(Expression) evaluate) {
+double handleDet(FunctionCall func, Map<String, double> vars,
+    dynamic Function(Expression) evaluate) {
   final arg = evaluate(func.argument);
   if (arg is! Matrix) {
     throw EvaluatorException('Argument to det must be a matrix');
@@ -63,7 +69,8 @@ double handleDet(FunctionCall func, Map<String, double> vars, dynamic Function(E
 }
 
 /// Trace: \trace{M}
-double handleTrace(FunctionCall func, Map<String, double> vars, dynamic Function(Expression) evaluate) {
+double handleTrace(FunctionCall func, Map<String, double> vars,
+    dynamic Function(Expression) evaluate) {
   final arg = evaluate(func.argument);
   if (arg is! Matrix) {
     throw EvaluatorException('Argument to trace must be a matrix');
@@ -72,7 +79,8 @@ double handleTrace(FunctionCall func, Map<String, double> vars, dynamic Function
 }
 
 /// GCD: \gcd(a, b)
-double handleGcd(FunctionCall func, Map<String, double> vars, dynamic Function(Expression) evaluate) {
+double handleGcd(FunctionCall func, Map<String, double> vars,
+    dynamic Function(Expression) evaluate) {
   if (func.args.length != 2) {
     throw EvaluatorException('gcd requires two arguments');
   }
@@ -86,7 +94,8 @@ int _gcd(int a, int b) {
 }
 
 /// LCM: \lcm(a, b)
-double handleLcm(FunctionCall func, Map<String, double> vars, dynamic Function(Expression) evaluate) {
+double handleLcm(FunctionCall func, Map<String, double> vars,
+    dynamic Function(Expression) evaluate) {
   if (func.args.length != 2) {
     throw EvaluatorException('lcm requires two arguments');
   }
@@ -97,17 +106,23 @@ double handleLcm(FunctionCall func, Map<String, double> vars, dynamic Function(E
 }
 
 /// Binomial Coefficient: \binom{n}{k}
-double handleBinom(FunctionCall func, Map<String, double> vars, dynamic Function(Expression) evaluate) {
+double handleBinom(FunctionCall func, Map<String, double> vars,
+    dynamic Function(Expression) evaluate) {
   if (func.args.length != 2) {
     throw EvaluatorException('binom requires two arguments');
   }
   final n = (evaluate(func.args[0]) as double).round();
   final k = (evaluate(func.args[1]) as double).round();
-  
+
   if (k < 0 || k > n) return 0;
   if (k == 0 || k == n) return 1;
-  if (k > n / 2) return handleBinom(FunctionCall.multivar('binom', [NumberLiteral(n.toDouble()), NumberLiteral((n - k).toDouble())]), vars, evaluate);
-  
+  if (k > n / 2)
+    return handleBinom(
+        FunctionCall.multivar('binom',
+            [NumberLiteral(n.toDouble()), NumberLiteral((n - k).toDouble())]),
+        vars,
+        evaluate);
+
   double res = 1;
   for (int i = 1; i <= k; i++) {
     res = res * (n - i + 1) / i;

@@ -7,7 +7,8 @@ import '../ast.dart';
 import '../exceptions.dart';
 
 /// Natural logarithm: \ln{x}
-double handleLn(FunctionCall func, Map<String, double> vars, double Function(Expression) evaluate) {
+double handleLn(FunctionCall func, Map<String, double> vars,
+    double Function(Expression) evaluate) {
   final arg = evaluate(func.argument);
   if (arg <= 0) {
     throw EvaluatorException('Logarithm of non-positive number');
@@ -16,7 +17,8 @@ double handleLn(FunctionCall func, Map<String, double> vars, double Function(Exp
 }
 
 /// Logarithm: \log{x} or \log_{base}{x}
-double handleLog(FunctionCall func, Map<String, double> vars, double Function(Expression) evaluate) {
+double handleLog(FunctionCall func, Map<String, double> vars,
+    double Function(Expression) evaluate) {
   final arg = evaluate(func.argument);
   if (arg <= 0) {
     throw EvaluatorException('Logarithm of non-positive number');
