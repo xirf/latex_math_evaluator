@@ -38,6 +38,10 @@ void main() {
         } else if (value < 0) {
           print('  → Note: Result is negative');
         }
+      case ComplexResult(:final value):
+        print('  → Got a complex number: $value');
+        print('  → Real part: ${value.real}');
+        print('  → Imaginary part: ${value.imaginary}');
       case MatrixResult(:final matrix):
         print('  → Got a matrix: ${matrix.rows}×${matrix.cols}');
         print('  → Matrix data: $matrix');

@@ -245,6 +245,12 @@ class Tokenizer {
       case 'max':
         return Token(
             type: TokenType.function, value: command, position: startPos);
+      // Complex functions
+      case 'Re':
+      case 'Im':
+      case 'conjugate':
+        return Token(
+            type: TokenType.function, value: command, position: startPos);
       // Handle arcsin/arccos/arctan aliases
       case 'arcsin':
         return Token(

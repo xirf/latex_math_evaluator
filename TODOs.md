@@ -9,8 +9,7 @@ This section tracks planned improvements and their implementation status.
 These can be implemented quickly and provide immediate value.
 
 #### 1.1 Add Validation API ✅
-**Status**: Complete (December 13, 2025)  
-**Effort**: Low (1-2 hours)  
+**Status**: Complete (December 13, 2025)
 **Impact**: High (improves DX)  
 
 **Implementation**:
@@ -28,8 +27,7 @@ These can be implemented quickly and provide immediate value.
 - `CHANGELOG.md` - Documented changes
 
 #### 1.2 Improve Error Messages ✅
-**Status**: Complete (December 13, 2025)  
-**Effort**: Low (2-3 hours)  
+**Status**: Complete (December 13, 2025)
 **Impact**: High (better debugging)  
 
 **Implementation**:
@@ -52,8 +50,7 @@ These can be implemented quickly and provide immediate value.
 - `example/error_messages_demo.dart` - Created comprehensive demo
 
 #### 1.3 Add Type-Safe Result Class ✅
-**Status**: Complete (December 13, 2025)  
-**Effort**: Medium (3-4 hours)  
+**Status**: Complete (December 13, 2025)
 **Impact**: Medium (better type safety)  
 
 **Implementation**:
@@ -69,9 +66,8 @@ These can be implemented quickly and provide immediate value.
 - All 7 test files - Updated 83 assertions to use `.asNumeric()` and `.asMatrix()`
 - All 260 tests passing ✅
 
-#### 1.4 Add dartdoc Comments ⏳
-**Status**: Not Started  
-**Effort**: Medium (4-5 hours)  
+#### 1.4 Add dartdoc Comments 
+**Status**: Complete (December 13, 2025)
 **Impact**: High (professional documentation)  
 
 **Implementation**:
@@ -85,9 +81,8 @@ These can be implemented quickly and provide immediate value.
 
 ### Phase 2: New Features (Medium Effort)
 
-#### 2.1 Complex Number Support ⏳
-**Status**: Not Started  
-**Effort**: High (6-8 hours)  
+#### 2.1 Complex Number Support ✅
+**Status**: Complete (December 13, 2025)
 **Impact**: High (new capability)  
 
 **Implementation**:
@@ -102,32 +97,12 @@ These can be implemented quickly and provide immediate value.
 - `lib/src/parser.dart` - Parse complex expressions
 - `lib/src/evaluator.dart` - Evaluate complex operations
 - `lib/src/functions/complex.dart` - Complex functions
-- `test/complex_test.dart` - New test file
+- `test/feature/complex_test.dart` - New test file
 - `doc/functions/complex.md` - Documentation
-- `example/complex_demo.dart` - Examples
+- `example/functions/complex_demo.dart` - Examples
 
-#### 2.2 Statistical Functions ⏳
+#### 2.2 Vector Operations ⏳
 **Status**: Not Started  
-**Effort**: Medium (4-5 hours)  
-**Impact**: Medium (useful for data analysis)  
-
-**Implementation**:
-- `\text{mean}(list)`, `\text{median}(list)`
-- `\text{std}(list)`, `\text{var}(list)`
-- Support for list notation: `[1, 2, 3, 4, 5]`
-
-**Files to create/modify**:
-- `lib/src/ast.dart` - Add `ListExpr`
-- `lib/src/tokenizer.dart` - Parse `[` and `]`
-- `lib/src/parser.dart` - Parse lists
-- `lib/src/functions/statistical.dart` - New functions
-- `lib/src/functions/function_registry.dart` - Register
-- `test/statistical_test.dart` - Tests
-- `doc/functions/statistical.md` - Documentation
-
-#### 2.3 Vector Operations ⏳
-**Status**: Not Started  
-**Effort**: Medium (4-5 hours)  
 **Impact**: Medium (extends matrix functionality)  
 
 **Implementation**:
@@ -148,7 +123,6 @@ These can be implemented quickly and provide immediate value.
 
 #### 3.1 Optimize Matrix Operations ⏳
 **Status**: Not Started  
-**Effort**: Medium (5-6 hours)  
 **Impact**: High (performance for large matrices)  
 
 **Implementation**:
@@ -163,7 +137,6 @@ These can be implemented quickly and provide immediate value.
 
 #### 3.2 Add Expression Caching ⏳
 **Status**: Not Started  
-**Effort**: Medium (4-5 hours)  
 **Impact**: Medium (performance for repeated evaluations)  
 
 **Implementation**:
@@ -179,7 +152,6 @@ These can be implemented quickly and provide immediate value.
 
 #### 3.3 Fuzzing & Property-Based Testing ⏳
 **Status**: Not Started  
-**Effort**: Medium (4-6 hours)  
 **Impact**: High (find edge cases)  
 
 **Implementation**:
@@ -195,7 +167,6 @@ These can be implemented quickly and provide immediate value.
 
 #### 4.1 Symbolic Differentiation ⏳
 **Status**: Not Started  
-**Effort**: Very High (10-15 hours)  
 **Impact**: High (powerful new capability)  
 
 **Implementation**:
@@ -206,32 +177,8 @@ These can be implemented quickly and provide immediate value.
 
 **Major undertaking**: Requires symbolic math engine
 
-#### 4.2 Unit Support ⏳
-**Status**: Not Started  
-**Effort**: High (8-10 hours)  
-**Impact**: Medium (useful for physics/engineering)  
-
-**Implementation**:
-- Parse units: `5\text{ m/s}`
-- Unit conversion
-- Dimensional analysis
-
-### Phase 5: Ecosystem & Publishing
-
-#### 5.1 Publish Stable Release ⏳
-**Status**: Not Started  
-**Effort**: Low (1-2 hours)  
-**Impact**: High (discoverability)  
-
-**Tasks**:
-- Update version to `0.2.0` or `1.0.0`
-- Final documentation review
-- Publish to pub.dev
-- Create GitHub release
-
 #### 5.2 CI/CD Pipeline ⏳
-**Status**: Not Started  
-**Effort**: Medium (3-4 hours)  
+**Status**: Not Started
 **Impact**: High (code quality)  
 
 **Implementation**:
@@ -247,7 +194,6 @@ These can be implemented quickly and provide immediate value.
 
 #### 5.3 Platform Testing ⏳
 **Status**: Not Started  
-**Effort**: Medium (2-3 hours)  
 **Impact**: Medium (compatibility assurance)  
 
 **Tasks**:
@@ -280,7 +226,3 @@ These can be implemented quickly and provide immediate value.
 - ✅ Complete
 - 🚫 Blocked
 - ⏸️ Paused
-
-## Current Focus
-
-**Next Task**: To be determined based on user priorities

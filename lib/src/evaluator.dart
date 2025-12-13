@@ -2,6 +2,7 @@
 library;
 
 import 'ast.dart';
+import 'complex.dart';
 import 'constants/constant_registry.dart';
 import 'evaluation_result.dart';
 import 'evaluator/binary_evaluator.dart';
@@ -15,6 +16,23 @@ import 'functions/function_registry.dart';
 import 'matrix.dart';
 
 /// Evaluates an expression tree with variable bindings.
+///
+/// The [Evaluator] class is the core component for calculating the result of
+/// parsed mathematical expressions. It supports:
+/// - Basic arithmetic operations (+, -, *, /, ^)
+/// - Function calls (sin, cos, log, etc.)
+/// - Variable bindings
+/// - Matrix operations
+/// - Complex number operations
+/// - Custom extensions via [ExtensionRegistry]
+///
+/// Example:
+/// ```dart
+/// final evaluator = Evaluator();
+/// final expr = Parser(Tokenizer('2 + x').tokenize()).parse();
+/// final result = evaluator.evaluate(expr, {'x': 3});
+/// print(result.asNumeric()); // 5.0
+/// ```
 class Evaluator {
   final ExtensionRegistry? _extensions;
   late final BinaryEvaluator _binaryEvaluator;
@@ -24,6 +42,8 @@ class Evaluator {
   late final MatrixEvaluator _matrixEvaluator;
 
   /// Creates an evaluator with optional extension registry.
+  ///
+  /// [extensions] allows adding custom functions and variables to the evaluator.
   Evaluator({ExtensionRegistry? extensions}) : _extensions = extensions {
     _binaryEvaluator = BinaryEvaluator();
     _unaryEvaluator = UnaryEvaluator();
@@ -34,16 +54,17 @@ class Evaluator {
 
   /// Evaluates the given expression using the provided variable bindings.
   ///
-  /// [expr] is the expression to evaluate.
+  /// [expr] is the expression tree to evaluate.
   /// [variables] is a map of variable names to their values.
   ///
   /// Returns the computed result as an [EvaluationResult], which can be
-  /// either a [NumericResult] or [MatrixResult].
+  /// either a [NumericResult], [ComplexResult], or [MatrixResult].
   ///
   /// Throws [EvaluatorException] if:
   /// - A variable is not found in the bindings
   /// - Division by zero occurs
   /// - An unknown expression type is encountered
+  /// - Type mismatch (e.g. adding a number to a matrix)
   EvaluationResult evaluate(Expression expr,
       [Map<String, double> variables = const {}]) {
     // Try custom evaluators first
@@ -65,7 +86,7 @@ class Evaluator {
   /// Internal method that evaluates an expression and returns dynamic result.
   ///
   /// This is used internally to maintain backward compatibility with existing
-  /// evaluator code that returns double or Matrix.
+  /// evaluator code that returns double, Complex, or Matrix.
   dynamic _evaluateRaw(Expression expr,
       [Map<String, double> variables = const {}]) {
     // Try custom evaluators first
@@ -95,10 +116,11 @@ class Evaluator {
     } else if (expr is AbsoluteValue) {
       final val = _evaluateRaw(expr.argument, variables);
       if (val is double) return val.abs();
+      if (val is Complex) return val.abs;
       throw EvaluatorException(
         'Absolute value not supported for this type',
         suggestion:
-            'Absolute value can only be used with numbers, not matrices',
+            'Absolute value can only be used with numbers or complex numbers, not matrices',
       );
     } else if (expr is FunctionCall) {
       return _evaluateFunctionCall(expr, variables);
@@ -128,17 +150,20 @@ class Evaluator {
   EvaluationResult _wrapResult(dynamic result) {
     if (result is double) {
       return NumericResult(result);
+    } else if (result is Complex) {
+      return ComplexResult(result);
     } else if (result is Matrix) {
       return MatrixResult(result);
     } else {
       throw EvaluatorException(
         'Invalid result type: ${result.runtimeType}',
-        suggestion: 'Results must be either a number or a matrix',
+        suggestion:
+            'Results must be either a number, complex number, or a matrix',
       );
     }
   }
 
-  double _lookupVariable(String name, Map<String, double> variables) {
+  dynamic _lookupVariable(String name, Map<String, double> variables) {
     // First check user-provided variables
     if (variables.containsKey(name)) {
       return variables[name]!;
@@ -150,6 +175,11 @@ class Evaluator {
       return constant;
     }
 
+    // Check for 'i' (imaginary unit)
+    if (name == 'i') {
+      return Complex(0, 1);
+    }
+
     throw EvaluatorException(
       'Undefined variable: $name',
       suggestion: 'Provide a value for "$name" in the variables map',
@@ -159,9 +189,11 @@ class Evaluator {
   double _evaluateAsDouble(Expression expr, Map<String, double> variables) {
     final val = _evaluateRaw(expr, variables);
     if (val is double) return val;
+    if (val is Complex && val.isReal) return val.real;
     throw EvaluatorException(
-      'Expression must evaluate to a number',
-      suggestion: 'This operation requires a numeric value, not a matrix',
+      'Expression must evaluate to a real number',
+      suggestion:
+          'This operation requires a numeric value, not a matrix or complex number',
     );
   }
 

@@ -1,11 +1,12 @@
 /// Type-safe evaluation result classes.
 library;
 
+import 'complex.dart';
 import 'matrix.dart';
 
 /// Base sealed class for evaluation results.
 ///
-/// All evaluation results are either [NumericResult] or [MatrixResult].
+/// All evaluation results are either [NumericResult], [ComplexResult], or [MatrixResult].
 /// This provides type safety when working with evaluation results.
 ///
 /// Example:
@@ -16,6 +17,8 @@ import 'matrix.dart';
 /// switch (result) {
 ///   case NumericResult(:final value):
 ///     print('Numeric result: $value');
+///   case ComplexResult(:final value):
+///     print('Complex result: $value');
 ///   case MatrixResult(:final matrix):
 ///     print('Matrix result: $matrix');
 /// }
@@ -25,20 +28,35 @@ sealed class EvaluationResult {
 
   /// Converts the result to a numeric value.
   ///
-  /// Throws [StateError] if the result is a [MatrixResult].
+  /// Throws [StateError] if the result is a [MatrixResult] or a non-real [ComplexResult].
   double asNumeric() {
     return switch (this) {
       NumericResult(:final value) => value,
+      ComplexResult(:final value) => value.isReal
+          ? value.real
+          : throw StateError('Result is a complex number, not a real number'),
+      MatrixResult() => throw StateError('Result is a matrix, not a number'),
+    };
+  }
+
+  /// Converts the result to a complex value.
+  ///
+  /// Throws [StateError] if the result is a [MatrixResult].
+  Complex asComplex() {
+    return switch (this) {
+      NumericResult(:final value) => Complex(value),
+      ComplexResult(:final value) => value,
       MatrixResult() => throw StateError('Result is a matrix, not a number'),
     };
   }
 
   /// Converts the result to a matrix.
   ///
-  /// Throws [StateError] if the result is a [NumericResult].
+  /// Throws [StateError] if the result is a [NumericResult] or [ComplexResult].
   Matrix asMatrix() {
     return switch (this) {
       NumericResult() => throw StateError('Result is a number, not a matrix'),
+      ComplexResult() => throw StateError('Result is a number, not a matrix'),
       MatrixResult(:final matrix) => matrix,
     };
   }
@@ -46,12 +64,16 @@ sealed class EvaluationResult {
   /// Returns true if this is a numeric result.
   bool get isNumeric => this is NumericResult;
 
+  /// Returns true if this is a complex result.
+  bool get isComplex => this is ComplexResult;
+
   /// Returns true if this is a matrix result.
   bool get isMatrix => this is MatrixResult;
 
   /// Returns true if the result is Not-a-Number (NaN).
   ///
   /// For [NumericResult], this returns true if the value is NaN.
+  /// For [ComplexResult], this returns true if real or imaginary part is NaN.
   /// For [MatrixResult], this always returns false.
   bool get isNaN;
 }
@@ -79,6 +101,31 @@ final class NumericResult extends EvaluationResult {
 
   @override
   bool get isNaN => value.isNaN;
+}
+
+/// Represents a complex evaluation result.
+final class ComplexResult extends EvaluationResult {
+  /// The complex value of the result.
+  final Complex value;
+
+  /// Creates a complex result with the given [value].
+  const ComplexResult(this.value);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ComplexResult &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => 'ComplexResult($value)';
+
+  @override
+  bool get isNaN => value.real.isNaN || value.imaginary.isNaN;
 }
 
 /// Represents a matrix evaluation result.

@@ -2,7 +2,6 @@
 library;
 
 import '../ast.dart';
-import '../exceptions.dart';
 
 /// Handles evaluation of comparison and conditional expressions.
 class ComparisonEvaluator {

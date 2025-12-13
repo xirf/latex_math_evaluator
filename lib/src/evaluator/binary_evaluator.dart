@@ -1,9 +1,7 @@
-/// Binary operation evaluation logic.
-library;
-
 import 'dart:math' as math;
 
 import '../ast.dart';
+import '../complex.dart';
 import '../exceptions.dart';
 import '../matrix.dart';
 
@@ -11,7 +9,7 @@ import '../matrix.dart';
 class BinaryEvaluator {
   /// Evaluates a binary operation between two expressions.
   ///
-  /// Supports operations on numbers and matrices.
+  /// Supports operations on numbers, complex numbers, and matrices.
   /// Special handling for matrix transpose (M^T) and inverse (M^{-1}).
   ///
   /// [rightValue] may be null for special cases like M^T where the right
@@ -36,6 +34,8 @@ class BinaryEvaluator {
       return _evaluateMatrixScalar(leftValue, operator, rightValue);
     } else if (leftValue is num && rightValue is Matrix) {
       return _evaluateScalarMatrix(leftValue, operator, rightValue);
+    } else if (leftValue is Complex || rightValue is Complex) {
+      return _evaluateComplex(leftValue, operator, rightValue);
     } else if (leftValue is double && rightValue is double) {
       return _evaluateNumberNumber(leftValue, operator, rightValue);
     }
@@ -43,7 +43,7 @@ class BinaryEvaluator {
     throw EvaluatorException(
       'Type mismatch in binary operation',
       suggestion:
-          'Ensure both operands are compatible types (both numbers or both matrices)',
+          'Ensure both operands are compatible types (numbers, complex numbers, or matrices)',
     );
   }
 
@@ -106,6 +106,44 @@ class BinaryEvaluator {
           'Operator $operator not supported for scalar and matrix',
           suggestion:
               'You can multiply a scalar by a matrix, but other operations are not supported',
+        );
+    }
+  }
+
+  Complex _evaluateComplex(
+    dynamic left,
+    BinaryOperator operator,
+    dynamic right,
+  ) {
+    final l = left is Complex ? left : Complex.fromNum(left as num);
+    final r = right is Complex ? right : Complex.fromNum(right as num);
+
+    switch (operator) {
+      case BinaryOperator.add:
+        return l + r;
+      case BinaryOperator.subtract:
+        return l - r;
+      case BinaryOperator.multiply:
+        return l * r;
+      case BinaryOperator.divide:
+        return l / r;
+      case BinaryOperator.power:
+        // Complex power is tricky, for now let's support integer powers via multiplication
+        if (r.isReal && r.real == r.real.roundToDouble()) {
+          final exponent = r.real.toInt();
+          if (exponent == 0) return Complex(1);
+          if (exponent > 0) {
+            var result = l;
+            for (var i = 1; i < exponent; i++) {
+              result = result * l;
+            }
+            return result;
+          }
+        }
+        throw EvaluatorException(
+          'Complex power not fully supported yet',
+          suggestion:
+              'Currently only integer exponents are supported for complex numbers',
         );
     }
   }

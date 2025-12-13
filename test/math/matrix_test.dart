@@ -10,7 +10,7 @@ void main() {
 
     final result = evaluator.evaluate(matrix).asMatrix();
     expect(result, isA<Matrix>());
-    final m = result as Matrix;
+    final m = result;
     expect(m.rows, 2);
     expect(m.cols, 2);
     expect(m.data[0][0], 1.0);
@@ -25,7 +25,7 @@ void main() {
         '\\begin{matrix} 1 & 2 \\\\ 3 & 4 \\end{matrix} + \\begin{matrix} 5 & 6 \\\\ 7 & 8 \\end{matrix}';
     final result = evaluator.evaluate(expr).asMatrix();
     expect(result, isA<Matrix>());
-    final m = result as Matrix;
+    final m = result;
     expect(m.data[0][0], 6.0);
     expect(m.data[0][1], 8.0);
     expect(m.data[1][0], 10.0);
@@ -40,7 +40,7 @@ void main() {
         '\\begin{matrix} 1 & 2 \\\\ 3 & 4 \\end{matrix} * \\begin{matrix} 5 & 6 \\\\ 7 & 8 \\end{matrix}';
     final result = evaluator.evaluate(expr).asMatrix();
     expect(result, isA<Matrix>());
-    final m = result as Matrix;
+    final m = result;
     expect(m.data[0][0], 19.0);
     expect(m.data[0][1], 22.0);
     expect(m.data[1][0], 43.0);
@@ -52,7 +52,7 @@ void main() {
     final expr = '2 * \\begin{matrix} 1 & 2 \\\\ 3 & 4 \\end{matrix}';
     final result = evaluator.evaluate(expr).asMatrix();
     expect(result, isA<Matrix>());
-    final m = result as Matrix;
+    final m = result;
     expect(m.data[0][0], 2.0);
     expect(m.data[0][1], 4.0);
     expect(m.data[1][0], 6.0);

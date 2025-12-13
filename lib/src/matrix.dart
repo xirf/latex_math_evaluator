@@ -1,16 +1,40 @@
 import 'exceptions.dart';
 
-/// A simple matrix class for evaluation.
+/// Represents a mathematical matrix of double values.
+///
+/// This class provides methods for matrix operations such as addition,
+/// subtraction, multiplication, determinant, trace, and inverse.
+///
+/// Example:
+/// ```dart
+/// final matrix = Matrix([
+///   [1, 2],
+///   [3, 4]
+/// ]);
+/// print(matrix.determinant()); // -2.0
+/// ```
 class Matrix {
+  /// The raw data of the matrix, stored as a list of rows.
   final List<List<double>> data;
 
+  /// Creates a matrix from a list of rows.
+  ///
+  /// [data] must be a non-empty list of non-empty lists of doubles,
+  /// and all rows must have the same length.
   Matrix(this.data);
 
+  /// The number of rows in the matrix.
   int get rows => data.length;
+
+  /// The number of columns in the matrix.
   int get cols => data.isEmpty ? 0 : data[0].length;
 
+  /// Returns the row at the given [index].
   List<double> operator [](int index) => data[index];
 
+  /// Returns the transpose of this matrix.
+  ///
+  /// The transpose of a matrix is formed by swapping rows and columns.
   Matrix transpose() {
     return Matrix(List.generate(cols, (i) {
       return List.generate(rows, (j) {
@@ -19,6 +43,10 @@ class Matrix {
     }));
   }
 
+  /// Calculates the determinant of this matrix.
+  ///
+  /// The matrix must be square (rows == cols).
+  /// Throws [EvaluatorException] if the matrix is not square.
   double determinant() {
     if (rows != cols) {
       throw EvaluatorException('Determinant requires a square matrix');
@@ -36,6 +64,11 @@ class Matrix {
     return det;
   }
 
+  /// Calculates the trace of this matrix.
+  ///
+  /// The trace is the sum of the elements on the main diagonal.
+  /// The matrix must be square (rows == cols).
+  /// Throws [EvaluatorException] if the matrix is not square.
   double trace() {
     if (rows != cols) {
       throw EvaluatorException('Trace requires a square matrix');
@@ -47,6 +80,10 @@ class Matrix {
     return sum;
   }
 
+  /// Calculates the inverse of this matrix.
+  ///
+  /// The matrix must be square and non-singular (determinant != 0).
+  /// Throws [EvaluatorException] if the matrix is not square or is singular.
   Matrix inverse() {
     if (rows != cols) {
       throw EvaluatorException('Inverse requires a square matrix');
@@ -86,6 +123,10 @@ class Matrix {
     );
   }
 
+  /// Adds this matrix to [other].
+  ///
+  /// Both matrices must have the same dimensions.
+  /// Throws [EvaluatorException] if dimensions mismatch.
   Matrix operator +(Matrix other) {
     if (rows != other.rows || cols != other.cols) {
       throw EvaluatorException('Matrix dimensions mismatch for addition');
@@ -97,6 +138,10 @@ class Matrix {
     }));
   }
 
+  /// Subtracts [other] from this matrix.
+  ///
+  /// Both matrices must have the same dimensions.
+  /// Throws [EvaluatorException] if dimensions mismatch.
   Matrix operator -(Matrix other) {
     if (rows != other.rows || cols != other.cols) {
       throw EvaluatorException('Matrix dimensions mismatch for subtraction');
@@ -108,6 +153,14 @@ class Matrix {
     }));
   }
 
+  /// Multiplies this matrix by [other].
+  ///
+  /// [other] can be a [num] (scalar multiplication) or a [Matrix] (matrix multiplication).
+  ///
+  /// For matrix multiplication, the number of columns in this matrix must equal
+  /// the number of rows in [other].
+  ///
+  /// Throws [EvaluatorException] if dimensions mismatch or operand is invalid.
   Matrix operator *(dynamic other) {
     if (other is num) {
       // Scalar multiplication

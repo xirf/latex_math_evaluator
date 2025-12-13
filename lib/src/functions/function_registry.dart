@@ -18,6 +18,7 @@ import 'hyperbolic.dart' as hyper;
 import 'rounding.dart' as round;
 import 'power.dart' as pow;
 import 'other.dart' as other;
+import 'complex.dart' as complex;
 
 /// Handler function type for evaluating a function call.
 typedef FunctionHandler = dynamic Function(
@@ -103,6 +104,11 @@ class FunctionRegistry {
     register('gcd', other.handleGcd);
     register('lcm', other.handleLcm);
     register('binom', other.handleBinom);
+
+    // Complex functions
+    register('Re', complex.handleRe);
+    register('Im', complex.handleIm);
+    register('conjugate', complex.handleConjugate);
   }
 
   /// Registers a function handler.

@@ -1,7 +1,5 @@
-/// Unary operation evaluation logic.
-library;
-
 import '../ast.dart';
+import '../complex.dart';
 import '../exceptions.dart';
 import '../matrix.dart';
 
@@ -9,7 +7,7 @@ import '../matrix.dart';
 class UnaryEvaluator {
   /// Evaluates a unary operation on an expression.
   ///
-  /// Supports negation of numbers and matrices.
+  /// Supports negation of numbers, complex numbers, and matrices.
   dynamic evaluate(
     UnaryOperator operator,
     dynamic operandValue,
@@ -24,6 +22,13 @@ class UnaryEvaluator {
       );
     }
 
+    if (operandValue is Complex) {
+      switch (operator) {
+        case UnaryOperator.negate:
+          return -operandValue;
+      }
+    }
+
     if (operandValue is double) {
       switch (operator) {
         case UnaryOperator.negate:
@@ -33,7 +38,8 @@ class UnaryEvaluator {
 
     throw EvaluatorException(
       'Type mismatch in unary operation',
-      suggestion: 'Unary operators can only be applied to numbers',
+      suggestion:
+          'Unary operators can only be applied to numbers, complex numbers, or matrices',
     );
   }
 }
