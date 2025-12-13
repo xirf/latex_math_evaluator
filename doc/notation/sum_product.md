@@ -14,16 +14,16 @@ Computes the sum of an expression over a range.
 
 ```latex
 % Sum of 1 to 5
-\sum_{i=1}^{5} i         → 15 (1+2+3+4+5)
+\sum_{i=1}^{5} i         -> 15 (1+2+3+4+5)
 
 % Sum of squares
-\sum_{i=1}^{3} i^{2}     → 14 (1+4+9)
+\sum_{i=1}^{3} i^{2}     -> 14 (1+4+9)
 
 % Sum of constants
-\sum_{i=1}^{10} 2        → 20 (2×10)
+\sum_{i=1}^{10} 2        -> 20 (2×10)
 
 % Using variables
-\sum_{k=1}^{n} k         → With n=4: 10
+\sum_{k=1}^{n} k         -> With n=4: 10
 ```
 
 ### Dart Example
@@ -51,13 +51,13 @@ Computes the product of an expression over a range.
 
 ```latex
 % Factorial: 5!
-\prod_{i=1}^{5} i        → 120 (1×2×3×4×5)
+\prod_{i=1}^{5} i        -> 120 (1×2×3×4×5)
 
 % Powers of 2
-\prod_{i=1}^{3} 2        → 8 (2³)
+\prod_{i=1}^{3} 2        -> 8 (2³)
 
 % Product of expressions
-\prod_{i=1}^{3} (i + 1)  → 24 (2×3×4)
+\prod_{i=1}^{3} (i + 1)  -> 24 (2×3×4)
 ```
 
 ### Dart Example

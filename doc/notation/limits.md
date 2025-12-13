@@ -16,13 +16,13 @@ Limits are computed using **numeric approximation**. The evaluator approaches th
 
 ```latex
 % Simple limit
-\lim_{x \to 0} x          → 0
+\lim_{x \to 0} x          -> 0
 
 % Polynomial
-\lim_{x \to 2} x^{2}      → 4
+\lim_{x \to 2} x^{2}      -> 4
 
 % Linear function
-\lim_{x \to 3} (2x + 1)   → 7
+\lim_{x \to 3} (2x + 1)   -> 7
 ```
 
 ## Infinity
@@ -30,8 +30,8 @@ Limits are computed using **numeric approximation**. The evaluator approaches th
 Use `\infty` for limits at infinity:
 
 ```latex
-\lim_{x \to \infty} (1/x)      → 0
-\lim_{x \to -\infty} (1/x)     → 0
+\lim_{x \to \infty} (1/x)      -> 0
+\lim_{x \to -\infty} (1/x)     -> 0
 ```
 
 ## Dart Example

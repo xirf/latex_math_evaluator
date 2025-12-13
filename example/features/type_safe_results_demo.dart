@@ -30,21 +30,21 @@ void main() {
     print('Expression: $expr');
     switch (result) {
       case NumericResult(:final value):
-        print('  → Got a number: $value');
+        print('  -> Got a number: $value');
         if (value.isNaN) {
-          print('  → Warning: Result is NaN');
+          print('  -> Warning: Result is NaN');
         } else if (value.isInfinite) {
-          print('  → Warning: Result is infinite');
+          print('  -> Warning: Result is infinite');
         } else if (value < 0) {
-          print('  → Note: Result is negative');
+          print('  -> Note: Result is negative');
         }
       case ComplexResult(:final value):
-        print('  → Got a complex number: $value');
-        print('  → Real part: ${value.real}');
-        print('  → Imaginary part: ${value.imaginary}');
+        print('  -> Got a complex number: $value');
+        print('  -> Real part: ${value.real}');
+        print('  -> Imaginary part: ${value.imaginary}');
       case MatrixResult(:final matrix):
-        print('  → Got a matrix: ${matrix.rows}×${matrix.cols}');
-        print('  → Matrix data: $matrix');
+        print('  -> Got a matrix: ${matrix.rows}×${matrix.cols}');
+        print('  -> Matrix data: $matrix');
     }
     print('');
   }

@@ -4,14 +4,14 @@ This library supports standard LaTeX mathematical notation for summation, produc
 
 ## Supported Notation
 
-| Notation | LaTeX | Example |
-|----------|-------|---------|
-| [Summation](sum_product.md) | `\sum_{i=a}^{b} expr` | `\sum_{i=1}^{5} i` → 15 |
-| [Product](sum_product.md) | `\prod_{i=a}^{b} expr` | `\prod_{i=1}^{5} i` → 120 |
-| [Limit](limits.md) | `\lim_{x \to a} expr` | `\lim_{x \to 0} x` → 0 |
-| [Matrices](matrices.md) | `\begin{matrix} ... \end{matrix}` | `\begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix}` |
-| Absolute Value | `|expr|` | `|-5|` → 5 |
-| Conditional | `expr, condition` or `expr{condition}` | `x^2, x > 0` |
+| Notation                    | LaTeX                                  | Example                                      |
+| --------------------------- | -------------------------------------- | -------------------------------------------- |
+| [Summation](sum_product.md) | `\sum_{i=a}^{b} expr`                  | `\sum_{i=1}^{5} i` -> 15                     |
+| [Product](sum_product.md)   | `\prod_{i=a}^{b} expr`                 | `\prod_{i=1}^{5} i` -> 120                   |
+| [Limit](limits.md)          | `\lim_{x \to a} expr`                  | `\lim_{x \to 0} x` -> 0                      |
+| [Matrices](matrices.md)     | `\begin{matrix} ... \end{matrix}`      | `\begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix}` |
+| Absolute Value              | `\| expr\|`                            | `\| -5\|` -> 5                               |
+| Conditional                 | `expr, condition` or `expr{condition}` | `x^2, x > 0`                                 |
 
 ## Common Patterns
 

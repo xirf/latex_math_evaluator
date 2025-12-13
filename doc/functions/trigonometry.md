@@ -7,8 +7,8 @@
 Returns the sine of x (in radians).
 
 ```latex
-\sin{0}          → 0
-\sin{1.5707963}  → 1  (π/2)
+\sin{0}          -> 0
+\sin{1.5707963}  -> 1  (π/2)
 ```
 
 ### `\cos{x}` - Cosine
@@ -16,8 +16,8 @@ Returns the sine of x (in radians).
 Returns the cosine of x (in radians).
 
 ```latex
-\cos{0}          → 1
-\cos{3.1415926}  → -1 (π)
+\cos{0}          -> 1
+\cos{3.1415926}  -> -1 (π)
 ```
 
 ### `\tan{x}` - Tangent
@@ -25,7 +25,7 @@ Returns the cosine of x (in radians).
 Returns the tangent of x (in radians).
 
 ```latex
-\tan{0}          → 0
+\tan{0}          -> 0
 ```
 
 ## Inverse Trigonometric
@@ -35,8 +35,8 @@ Returns the tangent of x (in radians).
 Returns the arcsine of x. Domain: [-1, 1]
 
 ```latex
-\asin{0}         → 0
-\asin{1}         → 1.5707963 (π/2)
+\asin{0}         -> 0
+\asin{1}         -> 1.5707963 (π/2)
 ```
 
 ### `\acos{x}` / `\arccos{x}` - Arccosine
@@ -44,8 +44,8 @@ Returns the arcsine of x. Domain: [-1, 1]
 Returns the arccosine of x. Domain: [-1, 1]
 
 ```latex
-\acos{1}         → 0
-\acos{0}         → 1.5707963 (π/2)
+\acos{1}         -> 0
+\acos{0}         -> 1.5707963 (π/2)
 ```
 
 ### `\atan{x}` / `\arctan{x}` - Arctangent
@@ -53,8 +53,8 @@ Returns the arccosine of x. Domain: [-1, 1]
 Returns the arctangent of x.
 
 ```latex
-\atan{0}         → 0
-\atan{1}         → 0.7853981 (π/4)
+\atan{0}         -> 0
+\atan{1}         -> 0.7853981 (π/4)
 ```
 
 ## Hyperbolic Functions
@@ -62,19 +62,19 @@ Returns the arctangent of x.
 ### `\sinh{x}` - Hyperbolic Sine
 
 ```latex
-\sinh{0}         → 0
+\sinh{0}         -> 0
 ```
 
 ### `\cosh{x}` - Hyperbolic Cosine
 
 ```latex
-\cosh{0}         → 1
+\cosh{0}         -> 1
 ```
 
 ### `\tanh{x}` - Hyperbolic Tangent
 
 ```latex
-\tanh{0}         → 0
+\tanh{0}         -> 0
 ```
 
 ## Inverse Hyperbolic Functions
@@ -84,7 +84,7 @@ Returns the arctangent of x.
 Returns the inverse hyperbolic sine of x.
 
 ```latex
-\asinh{0}        → 0
+\asinh{0}        -> 0
 ```
 
 ### `\acosh{x}` - Inverse Hyperbolic Cosine
@@ -92,7 +92,7 @@ Returns the inverse hyperbolic sine of x.
 Returns the inverse hyperbolic cosine of x. Domain: x ≥ 1
 
 ```latex
-\acosh{1}        → 0
+\acosh{1}        -> 0
 ```
 
 ### `\atanh{x}` - Inverse Hyperbolic Tangent
@@ -100,7 +100,7 @@ Returns the inverse hyperbolic cosine of x. Domain: x ≥ 1
 Returns the inverse hyperbolic tangent of x. Domain: -1 < x < 1
 
 ```latex
-\atanh{0}        → 0
+\atanh{0}        -> 0
 ```
 
 ## Example

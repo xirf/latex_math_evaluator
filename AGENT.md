@@ -3,13 +3,13 @@
 ## Quick Overview
 
 **Purpose**: Parse and evaluate mathematical expressions written in LaTeX format.
-**Pipeline**: LaTeX → Tokens → AST → Result (with variables injected during evaluation)
+**Pipeline**: LaTeX -> Tokens -> AST -> Result (with variables injected during evaluation)
 
 ```
 1. User Input: "\sin{x}" with {x: 0}
 2. Tokenizer: [function:'sin', lbrace, variable:'x', rbrace]
 3. Parser: FunctionCall('sin', Variable('x'))
-4. Evaluator: Looks up 'sin' → evaluates Variable('x') with vars → sin(0) → 0.0
+4. Evaluator: Looks up 'sin' -> evaluates Variable('x') with vars -> sin(0) -> 0.0
 ```
 
 **Key Insight**: Variables aren't injected into AST structure. They're passed alongside during evaluation, allowing AST reuse with different variable values.

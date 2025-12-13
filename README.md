@@ -118,7 +118,7 @@ ParserException at position 10: Expected '}' after numerator
 Suggestion: Add a closing brace } or check for matching braces
 ```
 
-[Learn more about validation →](doc/validation.md)
+[Learn more about validation ->](doc/validation.md)
 
 ### 3. Type-Safe Results
 
@@ -172,101 +172,43 @@ evaluator.evaluateMatrix(r'A^{T}', {
 
 ### Functions by Category
 
-**Trigonometric**
-```dart
-\sin, \cos, \tan, \asin, \acos, \atan
-```
-
-**Hyperbolic**
-```dart
-\sinh, \cosh, \tanh, \asinh, \acosh, \atanh
-```
-
-**Logarithmic**
-```dart
-\ln, \log, \log_{2}{8}  // Custom base
-```
-
-**Rounding**
-```dart
-\ceil, \floor, \round
-```
-
-**Power and Roots**
-```dart
-\sqrt, \sqrt[3]{27}, \exp
-```
-
-**Matrix Operations**
-```dart
-\det, \trace, \tr
-```
-
-**Combinatorics**
-```dart
-\binom{n}{k}  // Binomial coefficient
-```
-
-**Number Theory**
-```dart
-\gcd(a, b), \lcm(a, b)
-```
-
-**Other**
-```dart
-\abs, |x|, \sgn, \factorial, \min_{a}{b}, \max_{a}{b}
-```
+| Category          | Functions / Examples                                                |
+| ----------------- | ------------------------------------------------------------------- |
+| Trigonometric     | `\sin`, `\cos`, `\tan`, `\asin`, `\acos`, `\atan`                   |
+| Hyperbolic        | `\sinh`, `\cosh`, `\tanh`, `\asinh`, `\acosh`, `\atanh`             |
+| Logarithmic       | `\ln`, `\log`, `\log_{b}{x}` (e.g. `\log_{2}{8}`)                   |
+| Rounding          | `\ceil`, `\floor`, `\round`                                         |
+| Power & Roots     | `\sqrt`, `\sqrt[3]{27}`, `\exp`                                     |
+| Matrix Operations | `\det`, `\trace`, `\tr`                                             |
+| Combinatorics     | `\binom{n}{k}`                                                      |
+| Number Theory     | `\gcd(a, b)`, `\lcm(a, b)`                                          |
+| Other             | `\abs`, `\|x\|`, `\sgn`, `\factorial`, `\min_{a}{b}`, `\max_{a}{b}` |
 
 ### Mathematical Constants
 
 Constants are available with or without backslash notation:
 
-| Constant | LaTeX    | Symbol | Value      | Usage       |
-|----------|----------|--------|------------|-------------|
-| Pi       | `\pi`    | π      | 3.14159... | `\pi` or `pi` |
-| Euler    | `\e`     | e      | 2.71828... | `\e` or `e`   |
-| Tau      | `\tau`   | τ      | 6.28318... | `\tau` or `tau` |
-| Phi      | `\phi`   | φ      | 1.61803... | `\phi` or `phi` |
+| Constant | LaTeX    | Symbol | Value      | Usage               |
+| -------- | -------- | ------ | ---------- | ------------------- |
+| Pi       | `\pi`    | π      | 3.14159... | `\pi` or `pi`       |
+| Euler    | `\e`     | e      | 2.71828... | `\e` or `e`         |
+| Tau      | `\tau`   | τ      | 6.28318... | `\tau` or `tau`     |
+| Phi      | `\phi`   | φ      | 1.61803... | `\phi` or `phi`     |
 | Gamma    | `\gamma` | γ      | 0.57721... | `\gamma` or `gamma` |
 
 > **Note:** User-provided variables always override built-in constants.
 
 ### Advanced Notation
 
-**Fractions**
-```latex
-\frac{a + b}{c}
-```
-
-**Summation**
-```latex
-\sum_{i=1}^{10} i^{2}
-```
-
-**Products**
-```latex
-\prod_{i=1}^{5} i  // Factorial: 120
-```
-
-**Limits** (numeric approximation)
-```latex
-\lim_{x \to 0} \frac{\sin{x}}{x}
-```
-
-**Numerical Integration** (Simpson's Rule)
-```latex
-\int_{0}^{\pi} \sin{x} dx
-```
-
-**Absolute Value**
-```latex
-|x|, |-5|, |x^2 - 4|
-```
-
-**Domain Constraints**
-```latex
-f(x) = 2x - 3, 3 < x < 5
-```
+| Feature                                | Equation                           | LaTeX                                |
+| -------------------------------------- | :----------------------------------: | ------------------------------------ |
+| Fractions                              | $\frac{a+b}{c}$                    | `\frac{a + b}{c}`                    |
+| Summation                              | $\sum_{i=1}^{10} i^{2}$            | `\sum_{i=1}^{10} i^{2}`              |
+| Products                               | $\prod_{i=1}^{5} i$                | `\prod_{i=1}^{5} i` (Factorial: 120) |
+| Limits (numeric approximation)         | $\lim_{x \to 0} \frac{\sin{x}}{x}$ | `\lim_{x \to 0} \frac{\sin{x}}{x}`   |
+| Numerical Integration (Simpson's Rule) | $\int_{0}^{\pi} \sin{x}\, dx$      | `\int_{0}^{\pi} \sin{x}\, dx`        |
+| Absolute Value                         | $\|x\|$, $\|-5\|$, $\|x^2 - 4\|$   | `\|x\|`, `\|-5\|`, `\|x^2 - 4\|`     |
+| Domain Constraints                     | $f(x) = 2x - 3, 3 < x < 5$         | `f(x) = 2x - 3, 3 < x < 5`           |
 
 ## Configuration Options
 
@@ -314,7 +256,7 @@ final evaluator = LatexMathEvaluator(extensions: registry);
 print(evaluator.evaluate(r'\cbrt{27}'));  // 3.0
 ```
 
-[Learn more about extensions →](doc/extensions.md)
+[Learn more about extensions ->](doc/extensions.md)
 
 ## Performance Tips
 

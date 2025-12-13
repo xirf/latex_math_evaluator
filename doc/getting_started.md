@@ -39,9 +39,9 @@ void main() {
 
 The evaluator works in 3 stages:
 
-1. **Tokenization**: LaTeX string → Tokens
-2. **Parsing**: Tokens → Abstract Syntax Tree (AST)
-3. **Evaluation**: AST + Variables → Result
+1. **Tokenization**: LaTeX string -> Tokens
+2. **Parsing**: Tokens -> Abstract Syntax Tree (AST)
+3. **Evaluation**: AST + Variables -> Result
 
 ```dart
 // Manual pipeline (for advanced use)
