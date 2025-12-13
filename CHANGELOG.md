@@ -4,6 +4,22 @@
 
 ### Added
 
+- Added **Symbolic Differentiation** with full calculus support:
+  - Parse derivatives using standard LaTeX notation: `\frac{d}{dx}(expression)`
+  - Higher order derivatives: `\frac{d^{2}}{dx^{2}}(expression)`, `\frac{d^{n}}{dx^{n}}(expression)`
+  - Implemented all standard differentiation rules:
+    - Power rule, sum rule, difference rule, product rule, quotient rule
+    - Chain rule with full composite function support
+    - Trigonometric functions (sin, cos, tan, cot, sec, csc)
+    - Inverse trigonometric functions (arcsin, arccos, arctan)
+    - Hyperbolic functions (sinh, cosh, tanh)
+    - Exponential and logarithmic functions (e^x, a^x, ln, log)
+    - Special cases (√x, |x|, x^x)
+  - Basic algebraic simplification of derivative results
+  - `differentiate(expression, variable, {order})` API method for symbolic derivatives
+  - 45+ comprehensive tests covering all differentiation rules
+  - Full documentation in `doc/notation/differentiation.md`
+  - Example file: `example/features/differentiation_demo.dart`
 - Added support for variable binding
 - Added **Convenience Methods** for simplified developer experience:
   - `evaluateNumeric(expression, variables)` - Direct numeric evaluation without type conversion

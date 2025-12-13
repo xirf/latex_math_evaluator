@@ -2,7 +2,7 @@
 
 > A powerful Flutter/Dart library for parsing and evaluating mathematical expressions written in LaTeX format.
 
-[![Tests](https://img.shields.io/badge/tests-294%20passed-brightgreen)](https://github.com/xirf/latex_math_evaluator)
+[![Tests](https://img.shields.io/badge/tests-393%20passed-brightgreen)](https://github.com/xirf/latex_math_evaluator)
 [![Dart](https://img.shields.io/badge/dart-%3E%3D3.0.0-blue)](https://github.com/xirf/latex_math_evaluator)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Pub Version](https://img.shields.io/pub/v/latex_math_evaluator)](https://pub.dev/packages/latex_math_evaluator)
@@ -110,7 +110,7 @@ if (!result.isValid) {
 
 **Error messages** show exactly where problems occur:
 
-```
+```plain
 ParserException at position 10: Expected '}' after numerator
 
 \frac{1{2}
@@ -182,7 +182,7 @@ evaluator.evaluateMatrix(r'A^{T}', {
 | Matrix Operations | `\det`, `\trace`, `\tr`                                             |
 | Combinatorics     | `\binom{n}{k}`                                                      |
 | Number Theory     | `\gcd(a, b)`, `\lcm(a, b)`                                          |
-| Other             | `\abs`, `|x|`, `\sgn`, `\factorial`, `\min_{a}{b}`, `\max_{a}{b}` |
+| Other             | `\abs`, `\|x\|`, `\sgn`, `\factorial`, `\min_{a}{b}`, `\max_{a}{b}` |
 
 ### Mathematical Constants
 
@@ -207,8 +207,46 @@ Constants are available with or without backslash notation:
 | Products                               | $\prod_{i=1}^{5} i$                | `\prod_{i=1}^{5} i` (Factorial: 120) |
 | Limits (numeric approximation)         | $\lim_{x \to 0} \frac{\sin{x}}{x}$ | `\lim_{x \to 0} \frac{\sin{x}}{x}`   |
 | Numerical Integration (Simpson's Rule) | $\int_{0}^{\pi} \sin{x}\, dx$      | `\int_{0}^{\pi} \sin{x}\, dx`        |
-| Absolute Value                         | $|x|$, $|-5|$, $|x^2 - 4|$   | `|x|`, `|-5|`, `|x^2 - 4|`     |
+| Symbolic Differentiation               | $\frac{d}{dx}(x^{2})$              | `\frac{d}{dx}(x^{2})`                |
+| Higher Order Derivatives               | $\frac{d^{2}}{dx^{2}}(x^{3})$      | `\frac{d^{2}}{dx^{2}}(x^{3})`        |
+| Absolute Value                         | $\|x\|$, $\|-5\|$, $\|x^2 - 4\|$   | `\|x\|`, `\|-5\|`, `\|x^2 - 4\|`     |
 | Domain Constraints                     | $f(x) = 2x - 3, 3 < x < 5$         | `f(x) = 2x - 3, 3 < x < 5`           |
+
+### Symbolic Differentiation
+
+Compute derivatives symbolically with full support for all standard calculus rules:
+
+```dart
+final evaluator = LatexMathEvaluator();
+
+// Basic derivative: d/dx(x^2) = 2x
+print(evaluator.evaluateNumeric(r'\frac{d}{dx}(x^{2})', {'x': 3}));  // 6.0
+
+// Product rule: d/dx(x * sin(x))
+print(evaluator.evaluateNumeric(r'\frac{d}{dx}(x \cdot \sin{x})', {'x': 0}));  // 1.0
+
+// Chain rule: d/dx(sin(x^2))
+print(evaluator.evaluateNumeric(r'\frac{d}{dx}(\sin{x^{2}})', {'x': 0}));  // 0.0
+
+// Higher order derivatives: d²/dx²(x^3) = 6x
+print(evaluator.evaluateNumeric(r'\frac{d^{2}}{dx^{2}}(x^{3})', {'x': 2}));  // 12.0
+
+// Get symbolic derivative for reuse
+final expr = evaluator.parse(r'x^{2} + 3x + 1');
+final derivative = evaluator.differentiate(expr, 'x');
+print(evaluator.evaluateParsed(derivative, {'x': 2}).asNumeric());  // 7.0
+```
+
+Supported rules:
+
+- **Power, sum, difference, product, quotient, chain rules**
+- **Trigonometric**: sin, cos, tan, cot, sec, csc
+- **Inverse trig**: arcsin, arccos, arctan
+- **Exponential & logarithmic**: e^x, a^x, ln(x), log(x)
+- **Hyperbolic**: sinh, cosh, tanh
+- **Special cases**: √x, |x|, x^x
+
+[See full differentiation documentation →](doc/notation/differentiation.md)
 
 ## Configuration Options
 

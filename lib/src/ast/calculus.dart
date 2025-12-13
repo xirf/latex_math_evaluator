@@ -130,3 +130,37 @@ class IntegralExpr extends Expression {
   int get hashCode =>
       lower.hashCode ^ upper.hashCode ^ body.hashCode ^ variable.hashCode;
 }
+
+/// A derivative expression: \frac{d}{dx} body or \frac{d^n}{dx^n} body.
+class DerivativeExpr extends Expression {
+  /// The expression body to differentiate.
+  final Expression body;
+
+  /// The variable to differentiate with respect to (e.g., 'x' in d/dx).
+  final String variable;
+
+  /// The order of differentiation (1 for first derivative, 2 for second, etc.).
+  final int order;
+
+  const DerivativeExpr(this.body, this.variable, {this.order = 1});
+
+  @override
+  String toString() {
+    if (order == 1) {
+      return 'DerivativeExpr(d/d$variable, $body)';
+    }
+    return 'DerivativeExpr(d^$order/d$variable^$order, $body)';
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DerivativeExpr &&
+          runtimeType == other.runtimeType &&
+          body == other.body &&
+          variable == other.variable &&
+          order == other.order;
+
+  @override
+  int get hashCode => body.hashCode ^ variable.hashCode ^ order.hashCode;
+}

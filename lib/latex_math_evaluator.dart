@@ -314,4 +314,42 @@ class LatexMathEvaluator {
       );
     }
   }
+
+  /// Computes the symbolic derivative of an expression.
+  ///
+  /// This method performs symbolic differentiation and returns a simplified
+  /// expression representing the derivative. The result is not evaluated
+  /// numerically unless you later call [evaluateParsed] on it.
+  ///
+  /// [expression] is the parsed expression AST or can be a string that will be parsed.
+  /// [variable] is the variable to differentiate with respect to (e.g., 'x').
+  /// [order] is the order of differentiation (default is 1 for first derivative).
+  ///
+  /// Returns the symbolic derivative as an [Expression] AST node.
+  ///
+  /// Example:
+  /// ```dart
+  /// final evaluator = LatexMathEvaluator();
+  ///
+  /// // Parse expression
+  /// final expr = evaluator.parse('x^{2}');
+  ///
+  /// // First derivative: d/dx(x^2) = 2x
+  /// final derivative = evaluator.differentiate(expr, 'x');
+  ///
+  /// // Evaluate at x = 3
+  /// final result = evaluator.evaluateParsed(derivative, {'x': 3});
+  /// print(result.asNumeric()); // 6.0
+  ///
+  /// // Second derivative: d²/dx²(x^3) = 6x
+  /// final expr2 = evaluator.parse('x^{3}');
+  /// final secondDerivative = evaluator.differentiate(expr2, 'x', order: 2);
+  /// ```
+  Expression differentiate(Expression expression, String variable, {int order = 1}) {
+    return _evaluator.differentiationEvaluator.differentiate(
+      expression,
+      variable,
+      order: order,
+    );
+  }
 }

@@ -99,6 +99,17 @@ mixin PrimaryParserMixin on BaseParser {
 
   Expression parseFraction() {
     consume(TokenType.lparen, "Expected '{' after \\frac");
+    
+    // Save position before parsing numerator to check for derivative notation
+    final numeratorStartPos = position;
+    
+    // Check if this looks like derivative notation: \frac{d}{dx} or \frac{d^n}{dx^n}
+    // We need to check the raw tokens before parsing
+    if (_isDerivativeNotation()) {
+      return _parseDerivative();
+    }
+    
+    // Otherwise, parse as a regular fraction
     final numerator = parseExpression();
     consume(TokenType.rparen, "Expected '}' after numerator");
 
@@ -108,6 +119,138 @@ mixin PrimaryParserMixin on BaseParser {
 
     return BinaryOp(numerator, BinaryOperator.divide, denominator);
   }
+
+  /// Checks if the current fraction represents derivative notation by examining tokens.
+  bool _isDerivativeNotation() {
+    // Save current position
+    final savedPos = position;
+    
+    try {
+      // Numerator should be 'd' or 'd^n'
+      if (!check(TokenType.variable) || current.value != 'd') {
+        return false;
+      }
+      advance(); // consume 'd'
+      
+      // Check for optional ^n
+      int order = 1;
+      if (check(TokenType.power)) {
+        advance(); // consume '^'
+        if (check(TokenType.lparen)) {
+          advance(); // consume '{'
+          if (!check(TokenType.number)) {
+            return false;
+          }
+          order = int.tryParse(current.value) ?? 1;
+          advance(); // consume number
+          if (!check(TokenType.rparen)) {
+            return false;
+          }
+          advance(); // consume '}'
+        } else if (check(TokenType.number)) {
+          order = int.tryParse(current.value) ?? 1;
+          advance(); // consume number
+        }
+      }
+      
+      // Must have closing brace for numerator
+      if (!check(TokenType.rparen)) {
+        return false;
+      }
+      advance(); // consume '}'
+      
+      // Must have opening brace for denominator
+      if (!check(TokenType.lparen)) {
+        return false;
+      }
+      advance(); // consume '{'
+      
+      // Denominator should be 'd' followed by variable
+      if (!check(TokenType.variable) || current.value != 'd') {
+        return false;
+      }
+      advance(); // consume 'd'
+      
+      // Must have a variable after 'd'
+      if (!check(TokenType.variable)) {
+        return false;
+      }
+      
+      // Looks like derivative notation!
+      return true;
+    } finally {
+      // Restore position
+      position = savedPos;
+    }
+  }
+
+  /// Parses a derivative from \frac{d}{dx} or \frac{d^n}{dx^n} notation.
+  Expression _parseDerivative() {
+    // Parse numerator to get order
+    int order = 1;
+    
+    // Should be 'd'
+    consume(TokenType.variable, "Expected 'd' in derivative numerator");
+    
+    // Check for ^n
+    if (check(TokenType.power)) {
+      advance(); // consume '^'
+      if (check(TokenType.lparen)) {
+        consume(TokenType.lparen, "Expected '{' after ^");
+        if (check(TokenType.number)) {
+          order = int.parse(current.value);
+          advance();
+        }
+        consume(TokenType.rparen, "Expected '}' after exponent");
+      } else if (check(TokenType.number)) {
+        order = int.parse(current.value);
+        advance();
+      }
+    }
+    
+    consume(TokenType.rparen, "Expected '}' after derivative numerator");
+    consume(TokenType.lparen, "Expected '{' for denominator");
+    
+    // Parse denominator to get variable
+    consume(TokenType.variable, "Expected 'd' in derivative denominator");
+    
+    if (!check(TokenType.variable)) {
+      throw ParserException(
+        'Expected variable after d in derivative notation',
+        position: current.position,
+        expression: sourceExpression,
+        suggestion: 'Use \\frac{d}{dx} where x is the variable',
+      );
+    }
+    
+    final variable = current.value;
+    advance();
+    
+    // Check for optional ^n in denominator (should match numerator order)
+    if (check(TokenType.power)) {
+      advance(); // consume '^'
+      if (check(TokenType.lparen)) {
+        consume(TokenType.lparen, "Expected '{' after ^");
+        if (check(TokenType.number)) {
+          // We could validate this matches the numerator order, but we'll ignore for now
+          advance();
+        }
+        consume(TokenType.rparen, "Expected '}' after exponent");
+      } else if (check(TokenType.number)) {
+        advance();
+      }
+    }
+    
+    consume(TokenType.rparen, "Expected '}' after derivative denominator");
+    
+    // Now parse the function body in parentheses
+    consume(TokenType.lparen, "Expected '(' after derivative operator");
+    final body = parseExpression();
+    consume(TokenType.rparen, "Expected ')' after derivative body");
+
+    return DerivativeExpr(body, variable, order: order);
+  }
+
 
   Expression parseBinom() {
     consume(TokenType.lparen, "Expected '{' after \\binom");

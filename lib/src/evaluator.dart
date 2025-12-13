@@ -8,6 +8,7 @@ import 'evaluation_result.dart';
 import 'evaluator/binary_evaluator.dart';
 import 'evaluator/calculus_evaluator.dart';
 import 'evaluator/comparison_evaluator.dart';
+import 'evaluator/differentiation_evaluator.dart';
 import 'evaluator/matrix_evaluator.dart';
 import 'evaluator/unary_evaluator.dart';
 import 'exceptions.dart';
@@ -41,6 +42,7 @@ class Evaluator {
   late final CalculusEvaluator _calculusEvaluator;
   late final ComparisonEvaluator _comparisonEvaluator;
   late final MatrixEvaluator _matrixEvaluator;
+  late final DifferentiationEvaluator _differentiationEvaluator;
 
   /// Creates an evaluator with optional extension registry.
   ///
@@ -51,7 +53,12 @@ class Evaluator {
     _calculusEvaluator = CalculusEvaluator(_evaluateAsDouble);
     _comparisonEvaluator = ComparisonEvaluator(_evaluateAsDouble, _evaluateRaw);
     _matrixEvaluator = MatrixEvaluator(_evaluateRaw);
+    _differentiationEvaluator = DifferentiationEvaluator(_evaluateAsDouble);
   }
+
+  /// Gets the differentiation evaluator (for internal use by public API).
+  DifferentiationEvaluator get differentiationEvaluator =>
+      _differentiationEvaluator;
 
   /// Evaluates the given expression using the provided variable bindings.
   ///
@@ -141,6 +148,8 @@ class Evaluator {
       return _calculusEvaluator.evaluateProduct(expr, variables);
     } else if (expr is IntegralExpr) {
       return _calculusEvaluator.evaluateIntegral(expr, variables);
+    } else if (expr is DerivativeExpr) {
+      return _differentiationEvaluator.evaluateDerivative(expr, variables);
     } else if (expr is Comparison) {
       return _comparisonEvaluator.evaluateComparison(expr, variables);
     } else if (expr is ChainedComparison) {

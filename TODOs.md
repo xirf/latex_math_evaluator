@@ -168,17 +168,28 @@ These can be implemented quickly and provide immediate value.
 
 ### Phase 4: Advanced Features (High Effort)
 
-#### 4.1 Symbolic Differentiation ⏳
-**Status**: Not Started  
+#### 4.1 Symbolic Differentiation ✅
+**Status**: Complete (December 14, 2025)
 **Impact**: High (powerful new capability)  
 
 **Implementation**:
-- `\frac{d}{dx}(expression)` syntax
-- Derivative rules (power, product, chain, etc.)
-- Simplification engine
-- Return symbolic expression or evaluate at point
+- `\frac{d}{dx}(expression)` syntax ✅
+- `\frac{d^{n}}{dx^{n}}(expression)` for higher-order derivatives ✅
+- Derivative rules (power, product, quotient, chain, etc.) ✅
+- Simplification engine for basic algebraic simplifications ✅
+- Returns symbolic expression and evaluates at point ✅
 
-**Major undertaking**: Requires symbolic math engine
+**Files created/modified**:
+- `lib/src/ast/calculus.dart` - Added DerivativeExpr AST node
+- `lib/src/evaluator/differentiation_evaluator.dart` - Complete differentiation engine
+- `lib/src/parser/primary_parser.dart` - Parse derivative notation from \frac
+- `lib/src/evaluator.dart` - Integrated differentiation evaluator
+- `lib/latex_math_evaluator.dart` - Added differentiate() public API method
+- `test/features/differentiation_test.dart` - 45 comprehensive tests ✅
+- `doc/notation/differentiation.md` - Complete documentation
+- `example/features/differentiation_demo.dart` - Working examples
+- `README.md` - Added differentiation section with examples
+- `CHANGELOG.md` - Documented new feature
 
 #### 5.2 CI/CD Pipeline ⏳
 **Status**: Not Started
