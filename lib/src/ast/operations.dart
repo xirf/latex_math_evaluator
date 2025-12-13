@@ -14,8 +14,10 @@ class BinaryOp extends Expression {
   final Expression left;
   final BinaryOperator operator;
   final Expression right;
+  /// The source token value (e.g., '\times', '\cdot', '*') for disambiguation.
+  final String? sourceToken;
 
-  const BinaryOp(this.left, this.operator, this.right);
+  const BinaryOp(this.left, this.operator, this.right, {this.sourceToken});
 
   @override
   String toString() => 'BinaryOp($left, $operator, $right)';
@@ -27,10 +29,11 @@ class BinaryOp extends Expression {
           runtimeType == other.runtimeType &&
           left == other.left &&
           operator == other.operator &&
-          right == other.right;
+          right == other.right &&
+          sourceToken == other.sourceToken;
 
   @override
-  int get hashCode => left.hashCode ^ operator.hashCode ^ right.hashCode;
+  int get hashCode => left.hashCode ^ operator.hashCode ^ right.hashCode ^ (sourceToken?.hashCode ?? 0);
 }
 
 /// Unary operation types.

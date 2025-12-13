@@ -66,6 +66,7 @@ export 'src/evaluator.dart';
 export 'src/exceptions.dart';
 export 'src/extensions.dart';
 export 'src/matrix.dart';
+export 'src/vector.dart';
 export 'src/parser.dart';
 export 'src/token.dart';
 export 'src/tokenizer.dart';
@@ -281,7 +282,7 @@ class LatexMathEvaluator {
       return ValidationResult(
         isValid: false,
         errorMessage: 'Unexpected error: $e',
-        suggestion: 'Please report this as a bug',
+        suggestion: 'If this is unexpected, please report this as a bug at https://github.com/xirf/latex_math_evaluator/issues',
       );
     }
   }

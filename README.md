@@ -182,7 +182,7 @@ evaluator.evaluateMatrix(r'A^{T}', {
 | Matrix Operations | `\det`, `\trace`, `\tr`                                             |
 | Combinatorics     | `\binom{n}{k}`                                                      |
 | Number Theory     | `\gcd(a, b)`, `\lcm(a, b)`                                          |
-| Other             | `\abs`, `\|x\|`, `\sgn`, `\factorial`, `\min_{a}{b}`, `\max_{a}{b}` |
+| Other             | `\abs`, `|x|`, `\sgn`, `\factorial`, `\min_{a}{b}`, `\max_{a}{b}` |
 
 ### Mathematical Constants
 
@@ -207,7 +207,7 @@ Constants are available with or without backslash notation:
 | Products                               | $\prod_{i=1}^{5} i$                | `\prod_{i=1}^{5} i` (Factorial: 120) |
 | Limits (numeric approximation)         | $\lim_{x \to 0} \frac{\sin{x}}{x}$ | `\lim_{x \to 0} \frac{\sin{x}}{x}`   |
 | Numerical Integration (Simpson's Rule) | $\int_{0}^{\pi} \sin{x}\, dx$      | `\int_{0}^{\pi} \sin{x}\, dx`        |
-| Absolute Value                         | $\|x\|$, $\|-5\|$, $\|x^2 - 4\|$   | `\|x\|`, `\|-5\|`, `\|x^2 - 4\|`     |
+| Absolute Value                         | $|x|$, $|-5|$, $|x^2 - 4|$   | `|x|`, `|-5|`, `|x^2 - 4|`     |
 | Domain Constraints                     | $f(x) = 2x - 3, 3 < x < 5$         | `f(x) = 2x - 3, 3 < x < 5`           |
 
 ## Configuration Options

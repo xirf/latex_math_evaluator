@@ -14,6 +14,7 @@ import 'exceptions.dart';
 import 'extensions.dart';
 import 'functions/function_registry.dart';
 import 'matrix.dart';
+import 'vector.dart';
 
 /// Evaluates an expression tree with variable bindings.
 ///
@@ -108,6 +109,14 @@ class Evaluator {
       return _lookupVariable(expr.name, variables);
     } else if (expr is MatrixExpr) {
       return _matrixEvaluator.evaluate(expr, variables);
+    } else if (expr is VectorExpr) {
+      // Evaluate all components
+      final evalComponents = expr.components
+          .map((c) => _evaluateAsDouble(c, variables))
+          .toList();
+      final vec = Vector(evalComponents);
+      // If it's marked as a unit vector (\hat{}), normalize it
+      return expr.isUnitVector ? vec.normalize() : vec;
     } else if (expr is BinaryOp) {
       return _evaluateBinaryOp(expr, variables);
     } else if (expr is UnaryOp) {
@@ -117,10 +126,11 @@ class Evaluator {
       final val = _evaluateRaw(expr.argument, variables);
       if (val is double) return val.abs();
       if (val is Complex) return val.abs;
+      if (val is Vector) return val.magnitude;
       throw EvaluatorException(
         'Absolute value not supported for this type',
         suggestion:
-            'Absolute value can only be used with numbers or complex numbers, not matrices',
+            'Absolute value can be used with numbers, complex numbers, or vectors, but not matrices',
       );
     } else if (expr is FunctionCall) {
       return _evaluateFunctionCall(expr, variables);
@@ -154,11 +164,13 @@ class Evaluator {
       return ComplexResult(result);
     } else if (result is Matrix) {
       return MatrixResult(result);
+    } else if (result is Vector) {
+      return VectorResult(result);
     } else {
       throw EvaluatorException(
         'Invalid result type: ${result.runtimeType}',
         suggestion:
-            'Results must be either a number, complex number, or a matrix',
+            'Results must be either a number, complex number, matrix, or vector',
       );
     }
   }
@@ -207,12 +219,12 @@ class Evaluator {
         expr.right is Variable &&
         (expr.right as Variable).name == 'T') {
       return _binaryEvaluator.evaluate(
-          leftValue, expr.operator, null, expr.right);
+          leftValue, expr.operator, null, expr);
     }
 
     final rightValue = _evaluateRaw(expr.right, variables);
     return _binaryEvaluator.evaluate(
-        leftValue, expr.operator, rightValue, expr.right);
+        leftValue, expr.operator, rightValue, expr);
   }
 
   dynamic _evaluateFunctionCall(

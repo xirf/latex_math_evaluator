@@ -239,6 +239,8 @@ class Tokenizer {
       case 'floor':
       case 'round':
       case 'exp':
+      case 'vec':
+      case 'hat':
       case 'sgn':
       case 'factorial':
       case 'min':

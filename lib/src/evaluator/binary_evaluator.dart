@@ -4,13 +4,15 @@ import '../ast.dart';
 import '../complex.dart';
 import '../exceptions.dart';
 import '../matrix.dart';
+import '../vector.dart';
 
 /// Handles evaluation of binary operations.
 class BinaryEvaluator {
   /// Evaluates a binary operation between two expressions.
   ///
-  /// Supports operations on numbers, complex numbers, and matrices.
-  /// Special handling for matrix transpose (M^T) and inverse (M^{-1}).
+  /// Supports operations on numbers, complex numbers, matrices, and vectors.
+  /// Special handling for matrix transpose (M^T), inverse (M^{-1}),
+  /// and vector cross product.
   ///
   /// [rightValue] may be null for special cases like M^T where the right
   /// expression is not evaluated.
@@ -18,16 +20,30 @@ class BinaryEvaluator {
     dynamic leftValue,
     BinaryOperator operator,
     dynamic rightValue,
-    Expression right,
+    Expression expr,
   ) {
     // Special handling for Matrix Transpose: M^T
     if (leftValue is Matrix &&
         operator == BinaryOperator.power &&
-        right is Variable &&
-        right.name == 'T') {
+        expr is BinaryOp &&
+        expr.right is Variable &&
+        (expr.right as Variable).name == 'T') {
       return leftValue.transpose();
     }
 
+    // Get source token for vector operations
+    final sourceToken = expr is BinaryOp ? expr.sourceToken : null;
+
+    // Vector operations
+    if (leftValue is Vector && rightValue is Vector) {
+      return _evaluateVectorVector(leftValue, operator, rightValue, sourceToken ?? '');
+    } else if (leftValue is Vector && rightValue is num) {
+      return _evaluateVectorScalar(leftValue, operator, rightValue);
+    } else if (leftValue is num && rightValue is Vector) {
+      return _evaluateScalarVector(leftValue, operator, rightValue);
+    }
+
+    // Matrix operations
     if (leftValue is Matrix && rightValue is Matrix) {
       return _evaluateMatrixMatrix(leftValue, operator, rightValue);
     } else if (leftValue is Matrix && rightValue is num) {
@@ -43,7 +59,7 @@ class BinaryEvaluator {
     throw EvaluatorException(
       'Type mismatch in binary operation',
       suggestion:
-          'Ensure both operands are compatible types (numbers, complex numbers, or matrices)',
+          'Ensure both operands are compatible types (numbers, complex numbers, matrices, or vectors)',
     );
   }
 
@@ -175,5 +191,68 @@ class BinaryEvaluator {
       );
     }
     return left / right;
+  }
+
+  dynamic _evaluateVectorVector(
+    Vector left,
+    BinaryOperator operator,
+    Vector right,
+    String sourceToken,
+  ) {
+    switch (operator) {
+      case BinaryOperator.add:
+        return left + right;
+      case BinaryOperator.subtract:
+        return left - right;
+      case BinaryOperator.multiply:
+        // Check source token: \times = cross product, others = dot product
+        if (sourceToken == r'\times') {
+          return left.cross(right);
+        }
+        // Vector dot product (using \cdot, *, or implicit mult)
+        return left.dot(right);
+      default:
+        throw EvaluatorException(
+          'Operator $operator not supported for vectors',
+          suggestion:
+              'Vectors support +, -, * or \\cdot (dot product), and \\times (cross product)',
+        );
+    }
+  }
+
+  Vector _evaluateVectorScalar(
+    Vector left,
+    BinaryOperator operator,
+    num right,
+  ) {
+    switch (operator) {
+      case BinaryOperator.multiply:
+        return left * right;
+      case BinaryOperator.divide:
+        return left / right;
+      default:
+        throw EvaluatorException(
+          'Operator $operator not supported for vector and scalar',
+          suggestion:
+              'You can multiply or divide a vector by a scalar, but other operations are not supported',
+        );
+    }
+  }
+
+  Vector _evaluateScalarVector(
+    num left,
+    BinaryOperator operator,
+    Vector right,
+  ) {
+    switch (operator) {
+      case BinaryOperator.multiply:
+        return right * left;
+      default:
+        throw EvaluatorException(
+          'Operator $operator not supported for scalar and vector',
+          suggestion:
+              'You can multiply a scalar by a vector, but other operations are not supported',
+        );
+    }
   }
 }

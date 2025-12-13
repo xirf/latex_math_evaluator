@@ -46,6 +46,8 @@ class Matrix {
   /// Calculates the determinant of this matrix.
   ///
   /// The matrix must be square (rows == cols).
+  /// Uses direct formulas for 1x1 and 2x2, Laplace expansion for 3x3,
+  /// and LU decomposition for larger matrices for better performance.
   /// Throws [EvaluatorException] if the matrix is not square.
   double determinant() {
     if (rows != cols) {
@@ -55,11 +57,70 @@ class Matrix {
     if (rows == 2) {
       return data[0][0] * data[1][1] - data[0][1] * data[1][0];
     }
+    if (rows == 3) {
+      // Direct formula for 3x3 (still faster than LU)
+      return _determinant3x3();
+    }
 
-    // Laplace expansion for larger matrices (not efficient for very large matrices but simple)
-    double det = 0;
-    for (int j = 0; j < cols; j++) {
-      det += data[0][j] * _cofactor(0, j);
+    // For 4x4 and larger, use LU decomposition (much faster than Laplace)
+    return _determinantLU();
+  }
+
+  /// Calculates 3x3 determinant using direct formula.
+  double _determinant3x3() {
+    return data[0][0] * (data[1][1] * data[2][2] - data[1][2] * data[2][1]) -
+        data[0][1] * (data[1][0] * data[2][2] - data[1][2] * data[2][0]) +
+        data[0][2] * (data[1][0] * data[2][1] - data[1][1] * data[2][0]);
+  }
+
+  /// Calculates determinant using LU decomposition.
+  ///
+  /// Decomposes the matrix into lower and upper triangular matrices,
+  /// then computes det(A) = det(L) * det(U) * (-1)^numSwaps.
+  /// Much faster than Laplace expansion for large matrices: O(n^3) vs O(n!).
+  double _determinantLU() {
+    final n = rows;
+    // Create a copy to work with
+    final a = List.generate(n, (i) => List.generate(n, (j) => data[i][j]));
+    
+    var swaps = 0;
+
+    // Perform LU decomposition with partial pivoting
+    for (var k = 0; k < n; k++) {
+      // Find pivot
+      var maxRow = k;
+      for (var i = k + 1; i < n; i++) {
+        if (a[i][k].abs() > a[maxRow][k].abs()) {
+          maxRow = i;
+        }
+      }
+
+      // Swap rows if necessary
+      if (maxRow != k) {
+        final temp = a[k];
+        a[k] = a[maxRow];
+        a[maxRow] = temp;
+        swaps++;
+      }
+
+      // Check for singular matrix
+      if (a[k][k].abs() < 1e-10) {
+        return 0.0;
+      }
+
+      // Eliminate column
+      for (var i = k + 1; i < n; i++) {
+        final factor = a[i][k] / a[k][k];
+        for (var j = k; j < n; j++) {
+          a[i][j] -= factor * a[k][j];
+        }
+      }
+    }
+
+    // Calculate determinant as product of diagonal elements
+    var det = (swaps % 2 == 0) ? 1.0 : -1.0;
+    for (var i = 0; i < n; i++) {
+      det *= a[i][i];
     }
     return det;
   }

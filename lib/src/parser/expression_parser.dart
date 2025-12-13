@@ -98,6 +98,7 @@ mixin ExpressionParserMixin on BaseParser {
               ? BinaryOperator.multiply
               : BinaryOperator.divide,
           right,
+          sourceToken: operator.value,
         );
       } else if (checkImplicitMultiplication()) {
         final right = parsePower();

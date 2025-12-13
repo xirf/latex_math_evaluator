@@ -3,10 +3,12 @@ library;
 
 import 'complex.dart';
 import 'matrix.dart';
+import 'vector.dart';
 
 /// Base sealed class for evaluation results.
 ///
-/// All evaluation results are either [NumericResult], [ComplexResult], or [MatrixResult].
+/// All evaluation results are either [NumericResult], [ComplexResult],
+/// [MatrixResult], or [VectorResult].
 /// This provides type safety when working with evaluation results.
 ///
 /// Example:
@@ -21,6 +23,8 @@ import 'matrix.dart';
 ///     print('Complex result: $value');
 ///   case MatrixResult(:final matrix):
 ///     print('Matrix result: $matrix');
+///   case VectorResult(:final vector):
+///     print('Vector result: $vector');
 /// }
 /// ```
 sealed class EvaluationResult {
@@ -28,7 +32,8 @@ sealed class EvaluationResult {
 
   /// Converts the result to a numeric value.
   ///
-  /// Throws [StateError] if the result is a [MatrixResult] or a non-real [ComplexResult].
+  /// Throws [StateError] if the result is a [MatrixResult], [VectorResult],
+  /// or a non-real [ComplexResult].
   double asNumeric() {
     return switch (this) {
       NumericResult(:final value) => value,
@@ -36,28 +41,43 @@ sealed class EvaluationResult {
           ? value.real
           : throw StateError('Result is a complex number, not a real number'),
       MatrixResult() => throw StateError('Result is a matrix, not a number'),
+      VectorResult() => throw StateError('Result is a vector, not a number'),
     };
   }
 
   /// Converts the result to a complex value.
   ///
-  /// Throws [StateError] if the result is a [MatrixResult].
+  /// Throws [StateError] if the result is a [MatrixResult] or [VectorResult].
   Complex asComplex() {
     return switch (this) {
       NumericResult(:final value) => Complex(value),
       ComplexResult(:final value) => value,
       MatrixResult() => throw StateError('Result is a matrix, not a number'),
+      VectorResult() => throw StateError('Result is a vector, not a number'),
     };
   }
 
   /// Converts the result to a matrix.
   ///
-  /// Throws [StateError] if the result is a [NumericResult] or [ComplexResult].
+  /// Throws [StateError] if the result is a [NumericResult], [ComplexResult], or [VectorResult].
   Matrix asMatrix() {
     return switch (this) {
       NumericResult() => throw StateError('Result is a number, not a matrix'),
       ComplexResult() => throw StateError('Result is a number, not a matrix'),
       MatrixResult(:final matrix) => matrix,
+      VectorResult() => throw StateError('Result is a vector, not a matrix'),
+    };
+  }
+
+  /// Converts the result to a vector.
+  ///
+  /// Throws [StateError] if the result is a [NumericResult], [ComplexResult], or [MatrixResult].
+  Vector asVector() {
+    return switch (this) {
+      NumericResult() => throw StateError('Result is a number, not a vector'),
+      ComplexResult() => throw StateError('Result is a number, not a vector'),
+      MatrixResult() => throw StateError('Result is a matrix, not a vector'),
+      VectorResult(:final vector) => vector,
     };
   }
 
@@ -70,11 +90,14 @@ sealed class EvaluationResult {
   /// Returns true if this is a matrix result.
   bool get isMatrix => this is MatrixResult;
 
+  /// Returns true if this is a vector result.
+  bool get isVector => this is VectorResult;
+
   /// Returns true if the result is Not-a-Number (NaN).
   ///
   /// For [NumericResult], this returns true if the value is NaN.
   /// For [ComplexResult], this returns true if real or imaginary part is NaN.
-  /// For [MatrixResult], this always returns false.
+  /// For [MatrixResult] and [VectorResult], this always returns false.
   bool get isNaN;
 }
 
@@ -148,6 +171,31 @@ final class MatrixResult extends EvaluationResult {
 
   @override
   String toString() => 'MatrixResult($matrix)';
+
+  @override
+  bool get isNaN => false;
+}
+
+/// Represents a vector evaluation result.
+final class VectorResult extends EvaluationResult {
+  /// The vector value of the result.
+  final Vector vector;
+
+  /// Creates a vector result with the given [vector].
+  const VectorResult(this.vector);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is VectorResult &&
+          runtimeType == other.runtimeType &&
+          vector == other.vector;
+
+  @override
+  int get hashCode => vector.hashCode;
+
+  @override
+  String toString() => 'VectorResult($vector)';
 
   @override
   bool get isNaN => false;

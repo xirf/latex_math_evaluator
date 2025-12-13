@@ -9,6 +9,18 @@ mixin FunctionParserMixin on BaseParser {
     final name = tokens[position - 1].value;
     Expression? base;
 
+    // Special handling for \vec{} and \hat{}
+    if (name == 'vec' || name == 'hat') {
+      consume(TokenType.lparen, "Expected '{' after \\$name");
+      final components = <Expression>[];
+      components.add(parseExpression());
+      while (match([TokenType.comma])) {
+        components.add(parseExpression());
+      }
+      consume(TokenType.rparen, "Expected '}' after vector components");
+      return VectorExpr(components, isUnitVector: name == 'hat');
+    }
+
     if (match([TokenType.underscore])) {
       consume(TokenType.lparen, "Expected '{' after '_'");
       base = parseExpression();
