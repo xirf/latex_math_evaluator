@@ -133,7 +133,6 @@ mixin PrimaryParserMixin on BaseParser {
       advance(); // consume 'd'
       
       // Check for optional ^n
-      int order = 1;
       if (check(TokenType.power)) {
         advance(); // consume '^'
         if (check(TokenType.lparen)) {
@@ -141,14 +140,12 @@ mixin PrimaryParserMixin on BaseParser {
           if (!check(TokenType.number)) {
             return false;
           }
-          order = int.tryParse(current.value) ?? 1;
           advance(); // consume number
           if (!check(TokenType.rparen)) {
             return false;
           }
           advance(); // consume '}'
         } else if (check(TokenType.number)) {
-          order = int.tryParse(current.value) ?? 1;
           advance(); // consume number
         }
       }

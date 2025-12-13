@@ -1,10 +1,7 @@
 /// Symbolic differentiation evaluator.
 library;
 
-import 'dart:math' as math;
-
 import '../ast.dart';
-import '../constants/constant_registry.dart';
 import '../exceptions.dart';
 
 /// Handles symbolic differentiation of expressions.
