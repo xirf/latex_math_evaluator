@@ -78,18 +78,41 @@ import 'src/extensions.dart';
 import 'src/matrix.dart';
 import 'src/parser.dart';
 import 'src/tokenizer.dart';
+import 'src/cache/lru_cache.dart';
 
 /// A convenience class that combines tokenizing, parsing, and evaluation.
 class LatexMathEvaluator {
   final ExtensionRegistry? _extensions;
   final bool allowImplicitMultiplication;
   late final Evaluator _evaluator;
+  final LruCache<String, Expression>? _parsedExpressionCache;
+
+  /// Maximum number of parsed expressions kept in the LRU cache.
+  ///
+  /// Set to 0 to disable caching.
+  final int parsedExpressionCacheSize;
 
   /// Creates an evaluator with optional extension registry.
+  ///
+  /// [extensions]: Optional [ExtensionRegistry] instance for custom commands.
+  /// [allowImplicitMultiplication]: When true (default), adjacent tokens are
+  /// interpreted as multiplication (e.g. `xy` -> `x * y`).
+  /// [parsedExpressionCacheSize]: Size of the internal parsed-expression LRU
+  /// cache. Set to 0 to disable caching. Defaults to 128.
   LatexMathEvaluator(
-      {ExtensionRegistry? extensions, this.allowImplicitMultiplication = true})
-      : _extensions = extensions {
+      {ExtensionRegistry? extensions,
+      this.allowImplicitMultiplication = true,
+      this.parsedExpressionCacheSize = 128})
+      : _extensions = extensions,
+        _parsedExpressionCache = (parsedExpressionCacheSize <= 0)
+            ? null
+            : LruCache<String, Expression>(maxSize: parsedExpressionCacheSize) {
     _evaluator = Evaluator(extensions: _extensions);
+  }
+
+  /// Clears the internal parsed-expression cache.
+  void clearParsedExpressionCache() {
+    _parsedExpressionCache?.clear();
   }
 
   /// Parses a LaTeX math expression into an AST without evaluating.
@@ -112,11 +135,15 @@ class LatexMathEvaluator {
   /// final result3 = evaluator.evaluateParsed(equation, {'x': 3}); // 16.0
   /// ```
   Expression parse(String expression) {
+    final cached = _parsedExpressionCache?.get(expression);
+    if (cached != null) return cached;
     final tokens = Tokenizer(expression,
             extensions: _extensions,
             allowImplicitMultiplication: allowImplicitMultiplication)
         .tokenize();
-    return Parser(tokens, expression).parse();
+    final ast = Parser(tokens, expression).parse();
+    _parsedExpressionCache?.put(expression, ast);
+    return ast;
   }
 
   /// Evaluates a pre-parsed expression with variable bindings.
@@ -282,7 +309,8 @@ class LatexMathEvaluator {
       return ValidationResult(
         isValid: false,
         errorMessage: 'Unexpected error: $e',
-        suggestion: 'If this is unexpected, please report this as a bug at https://github.com/xirf/latex_math_evaluator/issues',
+        suggestion:
+            'If this is unexpected, please report this as a bug at https://github.com/xirf/latex_math_evaluator/issues',
       );
     }
   }

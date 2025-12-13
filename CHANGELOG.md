@@ -21,6 +21,9 @@
   - Migrated `evaluate()` and `evaluateParsed()` to return `EvaluationResult` instead of `dynamic`
 - Added support for complex numbers `\text{Re}`, `\text{Im}`, `\overline{z}` (conjugate)
 - Added `evaluator.evaluateNumeric()` and `evaluator.evaluateMatrix()` methods for direct evaluation to specific types
+- Added parsed-expression LRU caching via `LatexMathEvaluator(parsedExpressionCacheSize: ...)` (enabled by default)
+- Added `\fibonacci{n}` function (0-indexed: 0, 1, 1, 2, ...)
+- Added micro-benchmark demonstrating parsed-expression caching and fibonacci memoization (`benchmark/expression_cache_benchmark.dart`)
 
 ### Improved
 

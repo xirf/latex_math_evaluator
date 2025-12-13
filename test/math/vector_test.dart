@@ -36,7 +36,8 @@ void main() {
     });
 
     test('creates vector with variables', () {
-      final result = evaluator.evaluate(r'\vec{x, y, z}', {'x': 1, 'y': 2, 'z': 3});
+      final result =
+          evaluator.evaluate(r'\vec{x, y, z}', {'x': 1, 'y': 2, 'z': 3});
       final vec = result.asVector();
       expect(vec[0], equals(1.0));
       expect(vec[1], equals(2.0));
@@ -243,8 +244,8 @@ void main() {
 
   group('Complex Expressions', () {
     test('combines multiple operations', () {
-      final result = evaluator.evaluate(
-          r'(\vec{1, 2} + \vec{3, 4}) \cdot \vec{2, 1}');
+      final result =
+          evaluator.evaluate(r'(\vec{1, 2} + \vec{3, 4}) \cdot \vec{2, 1}');
       expect(result.asNumeric(), equals(14.0)); // (4,6) · (2,1) = 8+6 = 14
     });
 

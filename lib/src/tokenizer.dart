@@ -243,6 +243,7 @@ class Tokenizer {
       case 'hat':
       case 'sgn':
       case 'factorial':
+      case 'fibonacci':
       case 'min':
       case 'max':
         return Token(

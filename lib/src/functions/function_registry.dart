@@ -6,7 +6,7 @@
 /// - [hyperbolic.dart] - sinh, cosh, tanh
 /// - [rounding.dart] - ceil, floor, round
 /// - [power.dart] - sqrt, exp
-/// - [other.dart] - abs, sgn, factorial, min, max
+/// - [other.dart] - abs, sgn, factorial, fibonacci, min, max
 library;
 
 import '../ast.dart';
@@ -92,6 +92,7 @@ class FunctionRegistry {
     reg('abs', other.handleAbs);
     reg('sgn', other.handleSgn);
     reg('factorial', other.handleFactorial);
+    reg('fibonacci', other.handleFibonacci);
     reg('min', other.handleMin);
     reg('max', other.handleMax);
 

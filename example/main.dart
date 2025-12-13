@@ -14,7 +14,8 @@ void main() {
   print('2^{10} = ${evaluator.evaluateNumeric(r"2^{10}")}');
 
   print('\n=== Variables ===');
-  print('x² + 1 where x=3: ${evaluator.evaluateNumeric(r"x^{2} + 1", {"x": 3})}');
+  print(
+      'x² + 1 where x=3: ${evaluator.evaluateNumeric(r"x^{2} + 1", {"x": 3})}');
   print('a × b where a=5, b=7: ${evaluator.evaluateNumeric(r"a \times b", {
         "a": 5,
         "b": 7
@@ -43,14 +44,23 @@ void main() {
 
   print('\n=== Summation ===');
   print('∑(i=1 to 5) i = ${evaluator.evaluateNumeric(r"\sum_{i=1}^{5} i")}');
-  print('∑(i=1 to 3) i² = ${evaluator.evaluateNumeric(r"\sum_{i=1}^{3} i^{2}")}');
+  print(
+      '∑(i=1 to 3) i² = ${evaluator.evaluateNumeric(r"\sum_{i=1}^{3} i^{2}")}');
 
   print('\n=== Product ===');
-  print('∏(i=1 to 5) i = 5! = ${evaluator.evaluateNumeric(r"\prod_{i=1}^{5} i")}');
-  print('∏(i=1 to 3) 2 = 2³ = ${evaluator.evaluateNumeric(r"\prod_{i=1}^{3} 2")}');
+  print(
+      '∏(i=1 to 5) i = 5! = ${evaluator.evaluateNumeric(r"\prod_{i=1}^{5} i")}');
+  print(
+      '∏(i=1 to 3) 2 = 2³ = ${evaluator.evaluateNumeric(r"\prod_{i=1}^{3} 2")}');
 
   print('\n=== Custom Extensions ===');
   customExtensionExample();
+
+  print('\n=== Fibonacci (memoized) ===');
+  fibonacciExample();
+
+  print('\n=== Parsed Expression Cache ===');
+  cachingExample();
 }
 
 void customExtensionExample() {
@@ -76,4 +86,26 @@ void customExtensionExample() {
   final evaluator = LatexMathEvaluator(extensions: registry);
   print('∛27 = ${evaluator.evaluate(r"\cbrt{27}")}');
   print('∛8 = ${evaluator.evaluate(r"\cbrt{8}")}');
+}
+
+void fibonacciExample() {
+  final evaluator = LatexMathEvaluator();
+  print('fibonacci(0) = ${evaluator.evaluateNumeric(r"\fibonacci{0}")}');
+  print('fibonacci(1) = ${evaluator.evaluateNumeric(r"\fibonacci{1}")}');
+  print('fibonacci(10) = ${evaluator.evaluateNumeric(r"\fibonacci{10}")}');
+}
+
+void cachingExample() {
+  // Show parsed expression cache usage and performance advantage.
+  final evaluator = LatexMathEvaluator(parsedExpressionCacheSize: 32);
+  final expression = r'x^{2} + 2x + 1';
+
+  final parsed = evaluator.parse(expression);
+  print('Parsed AST reused: ${identical(parsed, evaluator.parse(expression))}');
+  print('Evaluate (x=2): ${evaluator.evaluateParsed(parsed, {
+        'x': 2
+      }).asNumeric()}');
+  // Clear cache demonstration
+  evaluator.clearParsedExpressionCache();
+  print('Cache cleared.');
 }

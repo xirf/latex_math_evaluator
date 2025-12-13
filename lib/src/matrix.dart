@@ -82,7 +82,7 @@ class Matrix {
     final n = rows;
     // Create a copy to work with
     final a = List.generate(n, (i) => List.generate(n, (j) => data[i][j]));
-    
+
     var swaps = 0;
 
     // Perform LU decomposition with partial pivoting

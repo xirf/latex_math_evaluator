@@ -14,6 +14,7 @@ class BinaryOp extends Expression {
   final Expression left;
   final BinaryOperator operator;
   final Expression right;
+
   /// The source token value (e.g., '\times', '\cdot', '*') for disambiguation.
   final String? sourceToken;
 
@@ -33,7 +34,11 @@ class BinaryOp extends Expression {
           sourceToken == other.sourceToken;
 
   @override
-  int get hashCode => left.hashCode ^ operator.hashCode ^ right.hashCode ^ (sourceToken?.hashCode ?? 0);
+  int get hashCode =>
+      left.hashCode ^
+      operator.hashCode ^
+      right.hashCode ^
+      (sourceToken?.hashCode ?? 0);
 }
 
 /// Unary operation types.

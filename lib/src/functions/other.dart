@@ -8,6 +8,10 @@ import '../exceptions.dart';
 
 import '../matrix.dart';
 
+final List<double?> _factorialCache = List<double?>.filled(171, null);
+
+final List<double> _fibonacciCache = <double>[0.0, 1.0];
+
 /// Absolute value: \abs{x}
 double handleAbs(FunctionCall func, Map<String, double> vars,
     double Function(Expression) evaluate) {
@@ -33,11 +37,42 @@ double handleFactorial(FunctionCall func, Map<String, double> vars,
   if (n > 170) {
     throw EvaluatorException('Factorial overflow');
   }
+  final cached = _factorialCache[n];
+  if (cached != null) return cached;
   double result = 1;
   for (int i = 2; i <= n; i++) {
     result *= i;
   }
+  _factorialCache[n] = result;
   return result;
+}
+
+/// Fibonacci: \fibonacci{n}
+///
+/// Uses 0-indexed definition: fibonacci(0) = 0, fibonacci(1) = 1.
+double handleFibonacci(FunctionCall func, Map<String, double> vars,
+    double Function(Expression) evaluate) {
+  final n = evaluate(func.argument).toInt();
+  if (n < 0) {
+    throw EvaluatorException('Fibonacci of negative number');
+  }
+  if (n >= 1477) {
+    // fib(1477) overflows double to Infinity.
+    throw EvaluatorException('Fibonacci overflow');
+  }
+
+  if (n < _fibonacciCache.length) {
+    return _fibonacciCache[n];
+  }
+
+  for (int i = _fibonacciCache.length; i <= n; i++) {
+    final next = _fibonacciCache[i - 1] + _fibonacciCache[i - 2];
+    if (!next.isFinite) {
+      throw EvaluatorException('Fibonacci overflow');
+    }
+    _fibonacciCache.add(next);
+  }
+  return _fibonacciCache[n];
 }
 
 /// Minimum: \min_{a}{b}

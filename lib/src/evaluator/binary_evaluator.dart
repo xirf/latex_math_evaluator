@@ -36,7 +36,8 @@ class BinaryEvaluator {
 
     // Vector operations
     if (leftValue is Vector && rightValue is Vector) {
-      return _evaluateVectorVector(leftValue, operator, rightValue, sourceToken ?? '');
+      return _evaluateVectorVector(
+          leftValue, operator, rightValue, sourceToken ?? '');
     } else if (leftValue is Vector && rightValue is num) {
       return _evaluateVectorScalar(leftValue, operator, rightValue);
     } else if (leftValue is num && rightValue is Vector) {

@@ -40,6 +40,7 @@ Vector handleNormalize(
   }
   throw EvaluatorException(
     'normalize requires a vector argument',
-    suggestion: 'Use \\vec{...} to create a vector or \\hat{...} for unit vector',
+    suggestion:
+        'Use \\vec{...} to create a vector or \\hat{...} for unit vector',
   );
 }

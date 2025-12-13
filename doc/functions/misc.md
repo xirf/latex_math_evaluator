@@ -82,10 +82,26 @@ Returns n! (n factorial). Limited to n ≤ 170 to prevent overflow.
 
 **Domain**: n ≥ 0, integer
 
+The implementation includes memoization to speed up repeated calls to factorial for the same arguments.
+
 ```latex
 \factorial{0}    -> 1
 \factorial{5}    -> 120  (5! = 5×4×3×2×1)
 \factorial{10}   -> 3628800
+```
+
+## `\fibonacci{n}` - Fibonacci
+
+Returns the n-th Fibonacci number using 0-based indexing: `\fibonacci{0} = 0`, `\fibonacci{1} = 1`.
+The implementation memoizes previous values to improve performance on repeated calls; very large n may overflow double.
+
+**Domain**: n ≥ 0, integer
+
+```latex
+\fibonacci{0}    -> 0
+\fibonacci{1}    -> 1
+\fibonacci{2}    -> 1
+\fibonacci{10}   -> 55
 ```
 
 ## `\min_{a}{b}` / `\max_{a}{b}` - Min/Max

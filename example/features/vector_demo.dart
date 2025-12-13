@@ -27,9 +27,7 @@ void main() {
 
   // 4) Dot product.
   print('4) Dot product');
-  final dot1 = e
-      .evaluate(r'\vec{1, 2, 3} \cdot \vec{4, 5, 6}')
-      .asNumeric();
+  final dot1 = e.evaluate(r'\vec{1, 2, 3} \cdot \vec{4, 5, 6}').asNumeric();
   final dot2 = e.evaluate(r'\vec{1, 2, 3} * \vec{4, 5, 6}').asNumeric();
   final dot3 = e.evaluate(r'\vec{1, 2, 3}\vec{4, 5, 6}').asNumeric();
   print(r"Expression: \vec{1, 2, 3} \cdot \vec{4, 5, 6}");
@@ -41,8 +39,7 @@ void main() {
 
   // 5) Cross product (3D only).
   print('5) Cross product');
-  final cross =
-      e.evaluate(r'\vec{1, 0, 0} \times \vec{0, 1, 0}').asVector();
+  final cross = e.evaluate(r'\vec{1, 0, 0} \times \vec{0, 1, 0}').asVector();
   print(r"Expression: \vec{1, 0, 0} \times \vec{0, 1, 0}");
   print('Result: ${cross.components}\n');
 

@@ -265,6 +265,23 @@ print(evaluator.evaluate(r'\cbrt{27}'));  // 3.0
 3. **Disable implicit multiplication** if you need to support multi-character variable names
 4. **Cache parsed expressions** for repeated evaluations
 
+How to enable and use caching:
+
+```dart
+// Configure LRU cache size for parsed expressions.
+final evaluator = LatexMathEvaluator(parsedExpressionCacheSize: 512);
+
+// Reuse parsed expression manually to avoid re-parsing.
+final parsed = evaluator.parse(r'x^{2} + 2x + 1');
+print(evaluator.evaluateParsed(parsed, {'x': 1}));
+
+// Clear cache when extensions or runtime tokens change.
+evaluator.clearParsedExpressionCache();
+```
+
+New functions: `\fibonacci{n}` is available with memoized implementations.
+Quick benchmark: Run `dart run benchmark/expression_cache_benchmark.dart` to measure parsed-expression caching benefits and fibonacci memoization.
+
 ## Documentation
 
 The guides available in the [doc/](doc/) folder:
@@ -275,6 +292,7 @@ The guides available in the [doc/](doc/) folder:
 - [Constants](doc/constants.md) - Built-in mathematical constants
 - [Validation](doc/validation.md) - Error handling and validation
 - [Extensions](doc/extensions.md) - Creating custom functions
+- [Caching](doc/performance/caching.md) - Parsed expression cache and memoization
 
 ## Contributing
 

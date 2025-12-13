@@ -10,7 +10,7 @@ This library includes 30+ built-in mathematical functions organized by category.
 | [Hyperbolic](trigonometry.md#hyperbolic) | sinh, cosh, tanh | Hyperbolic functions |
 | [Logarithms](logarithms.md) | ln, log | Natural and base-10/custom |
 | [Rounding](rounding.md) | ceil, floor, round | Round to integers |
-| [Miscellaneous](misc.md) | sqrt, exp, abs, sgn, factorial | Other common functions |
+| [Miscellaneous](misc.md) | sqrt, exp, abs, sgn, factorial, fibonacci | Other common functions |
 
 - **Vector and Matrix operations**: See [Vectors](../notation/vectors.md) and [Matrices](../notation/matrices.md) for notation and behavior.  
 

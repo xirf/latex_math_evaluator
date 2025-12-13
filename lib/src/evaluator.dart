@@ -111,9 +111,8 @@ class Evaluator {
       return _matrixEvaluator.evaluate(expr, variables);
     } else if (expr is VectorExpr) {
       // Evaluate all components
-      final evalComponents = expr.components
-          .map((c) => _evaluateAsDouble(c, variables))
-          .toList();
+      final evalComponents =
+          expr.components.map((c) => _evaluateAsDouble(c, variables)).toList();
       final vec = Vector(evalComponents);
       // If it's marked as a unit vector (\hat{}), normalize it
       return expr.isUnitVector ? vec.normalize() : vec;
@@ -218,8 +217,7 @@ class Evaluator {
         expr.operator == BinaryOperator.power &&
         expr.right is Variable &&
         (expr.right as Variable).name == 'T') {
-      return _binaryEvaluator.evaluate(
-          leftValue, expr.operator, null, expr);
+      return _binaryEvaluator.evaluate(leftValue, expr.operator, null, expr);
     }
 
     final rightValue = _evaluateRaw(expr.right, variables);

@@ -70,3 +70,29 @@ try {
 - [Notation](notation/README.md) - Sum, product, and limit notation
 - [Constants](constants.md) - Built-in mathematical constants
 - [Extensions](extensions.md) - Adding custom functions
+
+## Parsed Expression Caching
+
+The evaluator supports an LRU cache to reuse parsed ASTs for repeated evaluations of the same expression string. By default caching is enabled with a sensible size.
+
+**Configure cache size**:
+
+```dart
+// Enable caching (default 128 entries)
+final evaluator = LatexMathEvaluator(parsedExpressionCacheSize: 256);
+
+// Disable caching
+final noCache = LatexMathEvaluator(parsedExpressionCacheSize: 0);
+```
+
+**Cache management**:
+
+```dart
+final evaluator = LatexMathEvaluator();
+// Parse and evaluate
+var result = evaluator.evaluate('\sqrt{16}');
+
+// Clear internal parsed-expression cache when you want to free memory
+// or invalidate cached ASTs after dynamic extension changes.
+evaluator.clearParsedExpressionCache();
+```

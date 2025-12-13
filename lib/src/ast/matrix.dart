@@ -44,9 +44,8 @@ class VectorExpr extends Expression {
   const VectorExpr(this.components, {this.isUnitVector = false});
 
   @override
-  String toString() => isUnitVector
-      ? 'UnitVector($components)'
-      : 'VectorExpr($components)';
+  String toString() =>
+      isUnitVector ? 'UnitVector($components)' : 'VectorExpr($components)';
 
   @override
   bool operator ==(Object other) =>
