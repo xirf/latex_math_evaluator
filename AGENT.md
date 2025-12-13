@@ -1,561 +1,321 @@
-# AGENT.md - AI Agent Guide
+# AI Agent Guide - LaTeX Math Evaluator
 
-This document helps AI agents understand and work with the LaTeX Math Evaluator package.
-
-## Package Overview
+## Quick Overview
 
 **Purpose**: Parse and evaluate mathematical expressions written in LaTeX format.
-
-**Architecture**: Four-stage pipeline:
-1. **Tokenization** - LaTeX string → Tokens
-2. **Parsing** - Tokens → Abstract Syntax Tree (AST)
-3. **Variable Injection** - Variables bound to AST during evaluation
-4. **Evaluation** - AST + Variables → Result (number or matrix)
-
-## Project Structure
+**Pipeline**: LaTeX → Tokens → AST → Result (with variables injected during evaluation)
 
 ```
-lib/src/
-├── token.dart              # Token types and definitions
-├── exceptions.dart         # Custom exceptions
-├── ast.dart                # Abstract Syntax Tree nodes
-├── tokenizer.dart          # LaTeX → Tokens
-├── parser.dart             # Tokens → AST
-├── evaluator.dart          # AST + Variables → Result
-├── extensions.dart         # User extension system
-├── constants/              # Mathematical constants (organized by category)
-│   ├── constant_registry.dart
-│   ├── circle.dart         # pi, tau
-│   ├── mathematical.dart   # e, phi, gamma, omega, delta, zeta3, G
-│   └── common.dart         # sqrt2, sqrt3, ln2, ln10
-└── functions/              # Function handlers (organized by category)
-    ├── function_registry.dart
-    ├── logarithmic.dart    # ln, log
-    ├── trigonometric.dart  # sin, cos, tan, asin, acos, atan
-    ├── hyperbolic.dart     # sinh, cosh, tanh
-    ├── power.dart          # sqrt, exp
-    ├── rounding.dart       # ceil, floor, round
-    └── other.dart          # abs, sgn, factorial, min, max
+1. User Input: "\sin{x}" with {x: 0}
+2. Tokenizer: [function:'sin', lbrace, variable:'x', rbrace]
+3. Parser: FunctionCall('sin', Variable('x'))
+4. Evaluator: Looks up 'sin' → evaluates Variable('x') with vars → sin(0) → 0.0
 ```
 
-## Key Design Patterns
+**Key Insight**: Variables aren't injected into AST structure. They're passed alongside during evaluation, allowing AST reuse with different variable values.
 
-### 1. Registry Pattern
-- `FunctionRegistry`: Centralized function handler registration
-- `ConstantRegistry`: Mathematical constants with fallback behavior
-- Both use singleton pattern with `.instance` accessor
-
-### 2. Visitor Pattern (Implicit)
-- `Evaluator.evaluate()` recursively evaluates AST nodes
-- Each expression type handled separately
-
-### 3. Extension System
-- `ExtensionRegistry`: Allows users to add custom LaTeX commands
-- Custom evaluators run before built-in evaluation
-
-### 4. Separation of Concerns
-- Functions separated by mathematical category (trig, log, etc.)
-- Constants separated by type (circle, mathematical, common)
-- Each file focused on single responsibility
+---
 
 ## Adding New Features
 
-### Adding a New Function
+### New Function (5 Steps)
 
-1. **Create handler** in appropriate category file:
-   ```dart
-   // lib/src/functions/trigonometric.dart
-   double handleNewFunc(FunctionCall func, Map<String, double> vars, 
-                        double Function(Expression) evaluate) {
-     return someCalculation(evaluate(func.argument));
-   }
-   ```
+1. **Create handler** in category file:
+
+```dart
+// lib/src/functions/trigonometric.dart
+double handleNewFunc(FunctionCall func, Map<String, double> vars,
+                     double Function(Expression) evaluate) {
+  return calculation(evaluate(func.argument));
+}
+```
 
 2. **Register** in `function_registry.dart`:
-   ```dart
-   register('newfunc', trig.handleNewFunc);
-   ```
+
+```dart
+register('newfunc', trig.handleNewFunc);
+```
 
 3. **Add tokenizer support** in `tokenizer.dart`:
-   ```dart
-   case 'newfunc':
-     return Token(type: TokenType.function, value: 'newfunc', position: startPos);
-   ```
+
+```dart
+case 'newfunc':
+  return Token(type: TokenType.function, value: 'newfunc', position: startPos);
+```
 
 4. **Add tests** in `test/evaluator_test.dart`
 
-5. **Update docs** in `docs/functions/`
+5. **Update docs** (see Post-Implementation Checklist)
 
-### Adding a New Constant
+### New Constant (3 Steps)
 
-1. **Add to category file** (e.g., `lib/src/constants/mathematical.dart`):
-   ```dart
-   const double myConstant = 1.23456;
-   ```
+1. **Add to category file** (e.g., `lib/src/constants/mathematical.dart`)
+2. **Register** in `constant_registry.dart`
+3. **Add tests and docs**
 
-2. **Register** in `constant_registry.dart`:
-   ```dart
-   register('myconst', mathematical.myConstant);
-   ```
+### New AST Node (4 Steps)
 
-3. **Add tests** and update `docs/constants.md`
-
-### Adding New AST Node
-
-1. **Define in `ast.dart`**:
-   ```dart
-   class MyExpr extends Expression {
-     final Expression child;
-     const MyExpr(this.child);
-     // Add toString, ==, hashCode
-   }
-   ```
-
+1. **Define in `ast.dart`** with toString, ==, hashCode
 2. **Update parser** to create the node
 3. **Update evaluator** to handle the node
 4. **Add tests**
 
-## Important Conventions
+---
 
-### Naming
-- Handler functions: `handleFunctionName` (e.g., `handleSin`)
-- Private methods: `_prefixedWithUnderscore`
-- Constants: `camelCase` for multi-word (e.g., `gravitationalConstant`)
+## Key Design Patterns
 
-### Error Handling
-- Use custom exceptions: `TokenizerException`, `ParserException`, `EvaluatorException`
-- Include position information when possible
-- Provide clear error messages
+**Registry Pattern**: Centralized function/constant registration with singleton `.instance`
+**Implicit Visitor**: `Evaluator.evaluate()` recursively handles each AST node type
+**Extension System**: `ExtensionRegistry` allows custom LaTeX commands with custom evaluators
+**Separation of Concerns**: Functions/constants organized by category, each file has single responsibility
 
-### Testing
-- All features must have tests
-- Use descriptive test names
-- Group related tests with `group()`
-- Current: 122 tests, all passing
+---
 
-### Commit Messages
-Follow Conventional Commits:
-- `feat:` - New features
-- `fix:` - Bug fixes
-- `docs:` - Documentation
-- `test:` - Tests
-- `refactor:` - Code refactoring
-- `chore:` - Maintenance
+## Variable Resolution Order
 
-## Common Tasks
-
-### Running Tests
-```bash
-dart test                    # All tests
-dart test test/evaluator_test.dart  # Specific file
-```
-
-### Code Formatting
-### Understanding Evaluation Flow
-
-1. **User calls**: `evaluator.evaluate(r'\sin{x}', {'x': 0})`
-
-2. **Tokenization Phase**: 
-   - Input: `\sin{x}`
-   - Output: `[Token(function, 'sin'), Token(lbrace), Token(variable, 'x'), Token(rbrace)]`
-   - Creates token stream from LaTeX string
-
-3. **Parsing Phase**: 
-   - Input: Token stream
-   - Output: AST → `FunctionCall('sin', Variable('x'))`
-   - Builds Abstract Syntax Tree
-
-4. **Variable Injection & Evaluation Phase**: 
-   - Input: AST + `{'x': 0}`
-   - Process:
-     - Looks up 'sin' in `FunctionRegistry`
-     - Calls `handleSin(FunctionCall, {'x': 0}, evaluateCallback)`
-     - Evaluates `Variable('x')` → looks up in variables map → 0
-     - Computes `math.sin(0)`
-   - Output: `0.0`
-
-**Key Insight**: Variables are NOT injected into the AST structure. Instead, they're passed alongside the AST during evaluation, allowing the same parsed AST to be reused with different variable values.
-   - Looks up 'sin' in `FunctionRegistry`
-   - Calls `handleSin(FunctionCall, {'x': 0}, evaluateCallback)`
-   - Evaluates `Variable('x')` → looks up in variables → 0
-   - Returns `math.sin(0)` → 0.0
-
-## Variable Resolution
-
-Variables are resolved in this order:
 1. User-provided variables (from function call)
-2. Built-in constants (from `ConstantRegistry`)
+2. Built-in constants (`ConstantRegistry`)
 3. Error if not found
 
-This allows users to override constants like `e` or `pi`.
+User provided parameter always overrides built-in constants.
 
-## Extension Points
-
-Users can extend via `ExtensionRegistry`:
-- **Custom commands**: Register new LaTeX commands
-- **Custom evaluators**: Add evaluation logic for custom expressions
-- Extensions run before built-in logic
-
-## File Organization Philosophy
-
-- **Flat when simple**: Core files (token, ast, parser) are single files
-- **Grouped when complex**: Functions and constants split by category
-- **Registry pattern**: Central registry imports and coordinates category files
-- **Easy navigation**: Related code grouped together, clear naming
-
-## Testing Philosophy
-
-- **Comprehensive**: Test all functions, edge cases, error conditions
-- **Organized**: Group tests by feature/category
-- **Clear**: Descriptive names, comments for complex cases
-- **Fast**: Pure Dart, no external dependencies
-
-## Documentation
-
-- **README.md**: Quick start, feature overview
-- **docs/**: Detailed guides organized by topic
-- **example/**: Working code examples
-- **Inline docs**: Public APIs have doc comments
+---
 
 ## Post-Implementation Checklist
 
-After successfully implementing ANY new feature, follow these steps in order:
+**Critical**: Follow this after ANY new feature implementation.
 
-### 1. Update Tests ✅
-**Location**: `test/`
-- Add comprehensive tests for the new feature
-- Include edge cases and error conditions
-- Run `dart test` to ensure all tests pass
-- Aim for high code coverage
+### 1. Tests (FIRST)
 
-**Example**:
 ```dart
-// test/evaluator_test.dart or create new test file
+// test/[category]/[test_name]_test.dart
 group('New Feature', () {
-  test('basic functionality', () {
-    expect(evaluator.evaluate(r'\newfeature{5}'), equals(expectedResult));
-  });
-  
-  test('edge case: zero', () {
-    expect(evaluator.evaluate(r'\newfeature{0}'), equals(0));
-  });
-  
-  test('error handling', () {
-    expect(
-      () => evaluator.evaluate(r'\newfeature{invalid}'),
-      throwsA(isA<EvaluatorException>()),
-    );
-  });
+  test('basic', () => expect(evaluator.evaluate(r'\new{5}'), equals(result)));
+  test('edge case: zero', () => expect(evaluator.evaluate(r'\new{0}'), equals(0)));
+  test('error', () => expect(() => evaluator.evaluate(r'\new{bad}'),
+  throwsA(isA<EvaluatorException>())));
 });
 ```
 
-### 2. Update CHANGELOG.md 📝
-**Location**: `CHANGELOG.md`
-**Format**: Follow existing structure
-
-Add entry at the TOP under current version section (or create new version):
+### 2. CHANGELOG.md
 
 ```markdown
-## [Version] - YYYY-MM-DD (or ## Version Nightly)
+## [Version] - YYYY-MM-DD
 
 ### Added
-- Added support for **New Feature**: `\newcommand{args}` - brief description
-- Added `functionName()` for specific use case
+
+- Added support for **Feature**: `\command{args}` - description
 
 ### Changed
-- Modified `existingFunction()` to support new parameter
-- Improved error messages for feature X
+
+- Modified `function()` to support new parameter
 
 ### Fixed
-- Fixed bug where feature Y failed on edge case Z
 
-### Breaking Changes (if any)
-- **BREAKING**: Changed return type of `method()` from X to Y
+- Fixed bug where X failed on edge case Y
+
+### Breaking Changes
+
+- **BREAKING**: Changed return type from X to Y
 ```
 
-**Categories**:
-- **Added**: New features, functions, commands
-- **Changed**: Modifications to existing functionality
-- **Deprecated**: Soon-to-be removed features
-- **Removed**: Deleted features
-- **Fixed**: Bug fixes
-- **Security**: Security patches
-- **Breaking Changes**: API changes requiring user action
+### 3. Documentation
 
-### 3. Update Documentation 📚
+**README.md** (if user-facing):
 
-#### A. Update README.md (if user-facing feature)
-**Location**: `README.md`
+- Add to Supported Functions table
+- Add quick example
 
-Add to appropriate section:
-- **Supported Functions table**: If new function
-- **Quick Start examples**: If fundamental feature
-- **Feature list**: If major capability
+**Detailed docs** (`doc/[category]/[newcategory].md`):
 
 ```markdown
-## Supported Functions
+# Category Functions
 
-| Category | Functions |
-|----------|-----------|
-| **New Category** | `\newfunc`, `\anotherfunc` |
-
-## Examples
-
-// Add brief, clear example
-evaluator.evaluate(r'\newfunc{5}');  // expectedResult
-```
-
-#### B. Create/Update Detailed Documentation
-**Location**: `doc/` (organized by category)
-
-Create new file or update existing:
-- `doc/functions/` - For function documentation
-- `doc/notation/` - For notation features
-- `doc/` - For general features
-
-**Template** (`doc/functions/newcategory.md`):
-```markdown
-# New Category Functions
-
-## Overview
-Brief description of this category.
-
-## Functions
-
-### `\functionname{arg}`
+## `\functionname{arg}`
 
 **Description**: What it does
 
-**Syntax**: 
+**Syntax**:
 \`\`\`latex
 \functionname{argument}
-\functionname_{subscript}{argument}  // if applicable
 \`\`\`
 
-**Parameters**:
-- `argument`: Description (type: number/expression)
+**Parameters**: `argument` - description (type)
 
-**Returns**: Description of return value
+**Returns**: Description
 
 **Examples**:
 \`\`\`dart
-// Basic usage
-evaluator.evaluate(r'\functionname{5}');  // Result
-
-// With variables
-evaluator.evaluate(r'\functionname{x}', {'x': 10});  // Result
-
-// Nested
-evaluator.evaluate(r'\functionname{\sin{0}}');  // Result
+evaluator.evaluate(r'\functionname{5}'); // Result
+evaluator.evaluate(r'\functionname{x}', {'x': 10}); // Result
 \`\`\`
 
-**Mathematical Definition**:
-$$
-f(x) = \text{mathematical notation}
-$$
-
 **Edge Cases**:
-- Zero: `\functionname{0}` returns X
-- Negative: `\functionname{-5}` returns Y
-- Undefined: Throws `EvaluatorException` when...
 
-**Notes**:
-- Implementation uses [algorithm/approach]
-- Computational complexity: O(n)
-- Related functions: `\otherfunc`, `\relatedfunc`
+- Zero: returns X
+- Negative: returns Y
+- Undefined: Throws exception when...
+
+**Notes**: Implementation details, complexity, related functions
 ```
 
-#### C. Update Function/Constant READMEs
-**Location**: `doc/functions/README.md` or `doc/constants.md`
+### 4. Examples
 
-Add link to new documentation:
-```markdown
-## Function Categories
-
-- [New Category](newcategory.md) - Brief description
-```
-
-### 4. Update Examples 💡
-**Location**: `example/`
-
-Add practical example demonstrating the feature:
-
-**Option A**: Add to existing example file if related
 ```dart
-// example/advanced_math_demo.dart
-void demonstrateNewFeature() {
-  print('=== New Feature Demo ===');
-  
-  final evaluator = LatexMathEvaluator();
-  
-  // Basic example
-  final result1 = evaluator.evaluate(r'\newfeature{5}');
-  print('Basic: $result1');
-  
-  // Practical use case
-  final result2 = evaluator.evaluate(r'\newfeature{x^2}', {'x': 3});
-  print('With expression: $result2');
-}
-```
-
-**Option B**: Create new example file for major features
-```dart
-// example/newfeature_demo.dart
-import 'package:latex_math_evaluator/latex_math_evaluator.dart';
-
-/// Demonstrates the new feature functionality
+// example/[category]/[newfeature_demo].dart
 void main() {
   final evaluator = LatexMathEvaluator();
-  
-  print('=== New Feature Examples ===\n');
-  
-  // Example 1: Basic usage
-  print('1. Basic Usage:');
+
+  // Basic usage
   print(evaluator.evaluate(r'\newfeature{5}'));
-  
-  // Example 2: Real-world application
-  print('\n2. Real-World Use Case:');
-  // Demonstrate practical scenario
-  
-  // Example 3: Edge cases
-  print('\n3. Edge Cases:');
-  // Show important edge cases
+
+  // Real-world use case
+  print(evaluator.evaluate(r'\newfeature{x^2}', {'x': 3}));
 }
 ```
 
-**Update example/main.dart** to reference new example:
-```dart
-// Add import if new file created
-import 'newfeature_demo.dart' as newfeature;
+### 5. API Documentation (dartdoc)
 
-void main() {
-  // ... existing examples ...
-  newfeature.main();  // Add call to new example
-}
-```
-
-### 5. Update API Documentation (dartdoc) 📖
-
-Add comprehensive dartdoc comments to all public APIs:
-
-```dart
+````dart
 /// Brief one-line description.
 ///
-/// Detailed description explaining:
-/// - What the function/class does
-/// - When to use it
-/// - Important behavior notes
+/// Detailed explanation of behavior and usage.
 ///
 /// **Parameters**:
-/// - [param1]: Description
-/// - [param2]: Description
+/// - [param]: Description
 ///
-/// **Returns**: Description of return value
+/// **Returns**: Description
 ///
 /// **Throws**:
-/// - [ExceptionType]: When this occurs
+/// - [Exception]: When this occurs
 ///
 /// **Example**:
 /// ```dart
-/// final result = functionName(arg1, arg2);
-/// print(result); // expectedOutput
+/// final result = function(arg);
 /// ```
-///
-/// See also:
-/// - [RelatedFunction]
-/// - [RelatedClass]
-double functionName(double param1, String param2) {
-  // implementation
-}
-```
+double function(double param) { }
+````
 
-### 6. Version Update Strategy 🔢
+### 6. Final Verification
 
-**For Nightly/Development**:
-- Keep version as `X.Y.Z-nightly` in `pubspec.yaml`
-- Add changes under `## X.Y.Z Nightly` in CHANGELOG
-
-**For Release**:
-1. Update `pubspec.yaml` version: `X.Y.Z-nightly` → `X.Y.Z`
-2. Update CHANGELOG: `## X.Y.Z Nightly` → `## X.Y.Z - YYYY-MM-DD`
-3. Create git tag: `git tag vX.Y.Z`
-4. Publish: `dart pub publish`
-
-**Semantic Versioning**:
-- **Patch** (0.0.X): Bug fixes, documentation
-- **Minor** (0.X.0): New features, backward compatible
-- **Major** (X.0.0): Breaking changes
-
-### 7. Final Verification ✓
-
-Before marking task complete:
 - [ ] All tests pass: `dart test`
 - [ ] Code formatted: `dart format .`
-- [ ] No analysis issues: `dart analyze`
-- [ ] CHANGELOG.md updated
-- [ ] Documentation added/updated
-- [ ] Examples demonstrate feature
-- [ ] README.md updated (if user-facing)
-- [ ] dartdoc comments added
-- [ ] Git committed with conventional commit message
+- [ ] No warnings: `dart analyze`
+- [ ] CHANGELOG updated
+- [ ] Docs added/updated
+- [ ] Examples added
+- [ ] README updated (if user-facing)
+- [ ] Dartdoc comments added
 
-**Conventional Commit Message Format**:
-```
-type(scope): brief description
+### 7. Commit
 
-Detailed explanation if needed
-
-BREAKING CHANGE: description (if applicable)
-```
-
-**Types**: feat, fix, docs, test, refactor, perf, chore
-
-**Example**:
 ```bash
 git add .
-git commit -m "feat(functions): add complex number support
+git commit -m "feat(scope): brief description
 
-- Add Complex class for complex arithmetic
-- Add support for i notation in expressions
-- Add conjugate, real, imag functions
+Detailed explanation if needed
 
 Closes #123"
 ```
 
-## Quick Reference: File Locations
-
-| What to Update | Where | When |
-|----------------|-------|------|
-| Tests | `test/*.dart` | Always (first step) |
-| Changelog | `CHANGELOG.md` | Always |
-| Function docs | `doc/functions/*.md` | New functions |
-| Notation docs | `doc/notation/*.md` | New notation |
-| General docs | `doc/*.md` | General features |
-| Examples | `example/*.dart` | Always (demonstrate usage) |
-| README | `README.md` | User-facing features |
-| API docs | Inline dartdoc | All public APIs |
-| Version | `pubspec.yaml` | Release time |
-
-## Priority Order for Documentation
-
-1. **Critical** (Must have): Tests, CHANGELOG, basic example
-2. **Important** (Should have): Detailed docs, dartdoc comments
-3. **Nice to have**: Advanced examples, edge case documentation
-
-## Templates Location
-
-All templates above can be copied and adapted for specific features.
-Key principle: **Make it easy for users to understand and use the feature.**
+**Commit types**: feat, fix, docs, test, refactor, perf, chore
 
 ---
 
-## Notes for AI Agents
+## Quick Reference
 
-When implementing improvements:
-1. **One task at a time** - Complete entire workflow including docs
-2. **Follow post-implementation checklist** - Don't skip steps
-3. **Update this roadmap** - Change status indicators
-4. **Commit with conventional commits** - Maintain clean history
-5. **Ask for clarification** - If requirements unclear
+### File Locations
 
-**Remember**: Quality over speed. A well-documented, tested feature is worth more than quick, undocumented code.
+| Update        | Location            | When                 |
+| ------------- | ------------------- | -------------------- |
+| Tests         | `test/**/*.dart`    | Always (first)       |
+| Changelog     | `CHANGELOG.md`      | Always               |
+| Function docs | `doc/**/*.md`       | New functions        |
+| Examples      | `example/**/*.dart` | Always               |
+| README        | `README.md`         | User-facing features |
+| API docs      | Inline dartdoc      | All public APIs      |
+
+### Naming Conventions
+
+- Handler functions: `handleFunctionName`
+- Private methods: `_prefixWithUnderscore`
+- Constants: `camelCase` for multi-word
+
+### Error Handling
+
+- Use custom exceptions with position info
+- Provide clear error messages
+- Include context when possible
+
+### Testing
+
+- All features must have tests
+- All test should cover edge cases if applicable
+- Group related tests
+- Descriptive test names
+
+---
+
+## Common Tasks
+
+```bash
+# Run tests
+dart test
+dart test test/evaluator_test.dart  # Specific file
+
+# Format code
+dart format .
+
+# Analyze
+dart analyze
+
+# Run examples
+dart run example/main.dart
+```
+
+---
+
+## Priority Documentation Order
+
+1. **Critical**: Tests, CHANGELOG, basic example
+2. **Important**: Detailed docs, dartdoc comments
+3. **Nice to have**: Advanced examples, edge case docs
+
+## Implementation Guidelines
+
+### Before Starting
+
+1. Understand scope and dependencies
+2. Review existing code
+3. Plan architecture
+
+### During Implementation
+
+1. Write tests first (TDD)
+2. Implement incrementally
+3. Run tests frequently
+4. Keep commits small
+
+### After Implementation
+
+**Follow the Post-Implementation Checklist** (above)
+
+### **IMPORTANT**
+
+- One task at a time with complete workflow
+- Don't skip documentation steps
+- Update roadmap status indicators
+- Use conventional commits
+- Quality over speed
+
+---
+
+## Semantic Versioning
+
+- **Patch** (0.0.X): Bug fixes, docs
+- **Minor** (0.X.0): New features, backward compatible
+- **Major** (X.0.0): Breaking changes
+
+**For Nightly**: Keep `X.Y.Z-nightly` in pubspec, use `## X.Y.Z Nightly` in CHANGELOG
+
+**For Release**: Update version, date CHANGELOG, create git tag, publish
