@@ -152,7 +152,8 @@ mixin FunctionParserMixin on BaseParser {
         "Expected differential (e.g., 'dx') at the end of integral",
         position: tokens[position - 1].position,
         expression: sourceExpression,
-        suggestion: 'Add dx, dy, or another differential at the end of the integral',
+        suggestion:
+            'Add dx, dy, or another differential at the end of the integral',
       );
     }
 

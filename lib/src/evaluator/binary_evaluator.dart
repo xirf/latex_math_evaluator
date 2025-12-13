@@ -13,7 +13,7 @@ class BinaryEvaluator {
   ///
   /// Supports operations on numbers and matrices.
   /// Special handling for matrix transpose (M^T) and inverse (M^{-1}).
-  /// 
+  ///
   /// [rightValue] may be null for special cases like M^T where the right
   /// expression is not evaluated.
   dynamic evaluate(

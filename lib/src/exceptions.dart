@@ -24,41 +24,41 @@ sealed class LatexMathException implements Exception {
     final buffer = StringBuffer();
     buffer.writeln(message);
     buffer.writeln();
-    
+
     // Show expression with position marker
     final snippetStart = (position! - 20).clamp(0, expression!.length);
     final snippetEnd = (position! + 20).clamp(0, expression!.length);
     final snippet = expression!.substring(snippetStart, snippetEnd);
     final markerPos = position! - snippetStart;
-    
+
     if (snippetStart > 0) buffer.write('...');
     buffer.write(snippet);
     if (snippetEnd < expression!.length) buffer.write('...');
     buffer.writeln();
-    
+
     // Add position marker (^)
     if (snippetStart > 0) buffer.write('   '); // account for "..."
     buffer.write(' ' * markerPos);
     buffer.write('^');
-    
+
     return buffer.toString();
   }
 
   @override
   String toString() {
     final buffer = StringBuffer('$runtimeType');
-    
+
     if (position != null) {
       buffer.write(' at position $position');
     }
-    
+
     buffer.write(': ');
     buffer.write(_formatWithPositionMarker());
-    
+
     if (suggestion != null) {
       buffer.write('\nSuggestion: $suggestion');
     }
-    
+
     return buffer.toString();
   }
 }

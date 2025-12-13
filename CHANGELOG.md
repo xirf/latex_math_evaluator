@@ -9,6 +9,12 @@
   - `isValid(expression)` - Quick boolean check for valid syntax
   - `validate(expression)` - Detailed validation with error messages, positions, and suggestions
   - `ValidationResult` class with helpful error information and fix suggestions
+- Added **Type-Safe Result API**: `EvaluationResult` sealed class for better type safety
+  - `NumericResult` for numeric results with `.asNumeric()` accessor
+  - `MatrixResult` for matrix results with `.asMatrix()` accessor
+  - Pattern matching support for result types
+  - Helper methods: `.isNumeric`, `.isMatrix`
+  - Migrated `evaluate()` and `evaluateParsed()` to return `EvaluationResult` instead of `dynamic`
 
 ### Improved
 

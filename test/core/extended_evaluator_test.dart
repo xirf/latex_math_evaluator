@@ -12,7 +12,7 @@ void main() {
     }
 
     double eval(String input, [Map<String, double> vars = const {}]) {
-      return evaluator.evaluate(parse(input), vars);
+      return evaluator.evaluate(parse(input), vars).asNumeric();
     }
 
     group('Trigonometry', () {
@@ -211,7 +211,7 @@ void main() {
         // But eval defined in this file returns double.
         // I need to change eval signature or use evaluator.evaluate directly.
 
-        final result = evaluator.evaluate(parse('$m1 + $m2'));
+        final result = evaluator.evaluate(parse('$m1 + $m2')).asMatrix();
         expect(result, isA<Matrix>());
         final m = result as Matrix;
         expect(m.data[0][0], 6.0);
@@ -222,7 +222,7 @@ void main() {
         final m1 = r'\begin{matrix} 5 & 6 \\ 7 & 8 \end{matrix}';
         final m2 = r'\begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix}';
         // Result: [[4, 4], [4, 4]]
-        final result = evaluator.evaluate(parse('$m1 - $m2'));
+        final result = evaluator.evaluate(parse('$m1 - $m2')).asMatrix();
         expect(result, isA<Matrix>());
         final m = result as Matrix;
         expect(m.data[0][0], 4.0);
@@ -274,14 +274,14 @@ void main() {
       test('treats xy as x*y when implicit multiplication is enabled (default)',
           () {
         final evaluator = LatexMathEvaluator();
-        expect(evaluator.evaluate('xy', {'x': 2, 'y': 3}), 6.0);
+        expect(evaluator.evaluate('xy', {'x': 2, 'y': 3}).asNumeric(), 6.0);
       });
 
       test('treats xy as variable xy when implicit multiplication is disabled',
           () {
         final evaluator =
             LatexMathEvaluator(allowImplicitMultiplication: false);
-        expect(evaluator.evaluate('xy', {'xy': 10}), 10.0);
+        expect(evaluator.evaluate('xy', {'xy': 10}).asNumeric(), 10.0);
 
         // Should fail if we try to use x and y
         expect(() => evaluator.evaluate('xy', {'x': 2, 'y': 3}),

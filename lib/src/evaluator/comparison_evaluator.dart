@@ -51,9 +51,8 @@ class ComparisonEvaluator {
   double evaluateChainedComparison(
       ChainedComparison chain, Map<String, double> variables) {
     // Evaluate all expressions in the chain
-    final values = chain.expressions
-        .map((e) => _evaluateAsDouble(e, variables))
-        .toList();
+    final values =
+        chain.expressions.map((e) => _evaluateAsDouble(e, variables)).toList();
 
     // Check each comparison in sequence
     for (int i = 0; i < chain.operators.length; i++) {

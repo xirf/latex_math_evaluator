@@ -7,19 +7,28 @@
 ///
 /// // Parse and evaluate a simple expression
 /// final result = LatexMathEvaluator().evaluate('2 + 3 \\times 4');
-/// print(result); // 14.0
+/// print(result.asNumeric()); // 14.0
 ///
 /// // With variables
 /// final result2 = LatexMathEvaluator().evaluate('x^{2} + 1', {'x': 3});
-/// print(result2); // 10.0
+/// print(result2.asNumeric()); // 10.0
 ///
 /// // Logarithms
 /// final result3 = LatexMathEvaluator().evaluate('\\log_{2}{8}');
-/// print(result3); // 3.0
+/// print(result3.asNumeric()); // 3.0
 ///
 /// // Limits
 /// final result4 = LatexMathEvaluator().evaluate('\\lim_{x \\to 0} x');
-/// print(result4); // 0.0
+/// print(result4.asNumeric()); // 0.0
+///
+/// // Pattern matching on result type
+/// final result5 = LatexMathEvaluator().evaluate('2 + 3');
+/// switch (result5) {
+///   case NumericResult(:final value):
+///     print('Got number: $value');
+///   case MatrixResult(:final matrix):
+///     print('Got matrix: $matrix');
+/// }
 /// ```
 ///
 /// ## Parse Once, Evaluate Many Times (Memory Efficient)
@@ -31,9 +40,9 @@
 /// final equation = evaluator.parse('x^{2} + 2x + 1');
 ///
 /// // Reuse with different variable values
-/// print(evaluator.evaluateParsed(equation, {'x': 1})); // 4.0
-/// print(evaluator.evaluateParsed(equation, {'x': 2})); // 9.0
-/// print(evaluator.evaluateParsed(equation, {'x': 3})); // 16.0
+/// print(evaluator.evaluateParsed(equation, {'x': 1}).asNumeric()); // 4.0
+/// print(evaluator.evaluateParsed(equation, {'x': 2}).asNumeric()); // 9.0
+/// print(evaluator.evaluateParsed(equation, {'x': 3}).asNumeric()); // 16.0
 /// ```
 ///
 /// ## Custom Extensions
@@ -113,15 +122,17 @@ class LatexMathEvaluator {
   /// [ast] is the parsed expression from [parse()].
   /// [variables] is a map of variable names to their values.
   ///
-  /// Returns the computed result as a [double] or [Matrix].
+  /// Returns the computed result as an [EvaluationResult], which can be
+  /// either a [NumericResult] or [MatrixResult].
   ///
   /// Example:
   /// ```dart
   /// final evaluator = LatexMathEvaluator();
   /// final equation = evaluator.parse('x + y');
-  /// final result = evaluator.evaluateParsed(equation, {'x': 10, 'y': 5}); // 15.0
+  /// final result = evaluator.evaluateParsed(equation, {'x': 10, 'y': 5});
+  /// print(result.asNumeric()); // 15.0
   /// ```
-  dynamic evaluateParsed(Expression ast,
+  EvaluationResult evaluateParsed(Expression ast,
       [Map<String, double> variables = const {}]) {
     return _evaluator.evaluate(ast, variables);
   }
@@ -131,17 +142,25 @@ class LatexMathEvaluator {
   /// [expression] is the LaTeX math string to evaluate.
   /// [variables] is an optional map of variable names to their numeric values.
   ///
-  /// Returns the computed result as a [double] or [Matrix].
+  /// Returns the computed result as an [EvaluationResult], which can be
+  /// either a [NumericResult] or [MatrixResult].
   ///
   /// Example:
   /// ```dart
   /// final evaluator = LatexMathEvaluator();
-  /// evaluator.evaluate('2 + 3'); // 5.0
-  /// evaluator.evaluate('x + 1', {'x': 2}); // 3.0
-  /// evaluator.evaluate('\\log{10}'); // 1.0
-  /// evaluator.evaluate('\\lim_{x \\to 1} x^{2}'); // 1.0
+  /// final result = evaluator.evaluate('2 + 3');
+  /// print(result.asNumeric()); // 5.0
+  ///
+  /// final result2 = evaluator.evaluate('x + 1', {'x': 2});
+  /// print(result2.asNumeric()); // 3.0
+  ///
+  /// final result3 = evaluator.evaluate('\\log{10}');
+  /// print(result3.asNumeric()); // 1.0
+  ///
+  /// final result4 = evaluator.evaluate('\\lim_{x \\to 1} x^{2}');
+  /// print(result4.asNumeric()); // 1.0
   /// ```
-  dynamic evaluate(String expression,
+  EvaluationResult evaluate(String expression,
       [Map<String, double> variables = const {}]) {
     final ast = parse(expression);
     return _evaluator.evaluate(ast, variables);

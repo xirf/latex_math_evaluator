@@ -140,7 +140,8 @@ class Tokenizer {
           'Unexpected character: $char',
           position: startPos,
           expression: _source,
-          suggestion: 'Remove this character or check if it should be part of a LaTeX command',
+          suggestion:
+              'Remove this character or check if it should be part of a LaTeX command',
         );
     }
   }
@@ -179,7 +180,8 @@ class Tokenizer {
         'Unexpected end after backslash',
         position: startPos,
         expression: _source,
-        suggestion: 'Add a LaTeX command after the backslash (e.g., \\sin, \\pi)',
+        suggestion:
+            'Add a LaTeX command after the backslash (e.g., \\sin, \\pi)',
       );
     }
 

@@ -11,7 +11,7 @@ void main() {
     }
 
     double eval(String input, [Map<String, double> vars = const {}]) {
-      return evaluator.evaluate(parse(input), vars);
+      return evaluator.evaluate(parse(input), vars).asNumeric();
     }
 
     group('arithmetic', () {

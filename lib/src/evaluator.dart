@@ -3,6 +3,7 @@ library;
 
 import 'ast.dart';
 import 'constants/constant_registry.dart';
+import 'evaluation_result.dart';
 import 'evaluator/binary_evaluator.dart';
 import 'evaluator/calculus_evaluator.dart';
 import 'evaluator/comparison_evaluator.dart';
@@ -27,8 +28,8 @@ class Evaluator {
     _binaryEvaluator = BinaryEvaluator();
     _unaryEvaluator = UnaryEvaluator();
     _calculusEvaluator = CalculusEvaluator(_evaluateAsDouble);
-    _comparisonEvaluator = ComparisonEvaluator(_evaluateAsDouble, evaluate);
-    _matrixEvaluator = MatrixEvaluator(evaluate);
+    _comparisonEvaluator = ComparisonEvaluator(_evaluateAsDouble, _evaluateRaw);
+    _matrixEvaluator = MatrixEvaluator(_evaluateRaw);
   }
 
   /// Evaluates the given expression using the provided variable bindings.
@@ -36,20 +37,43 @@ class Evaluator {
   /// [expr] is the expression to evaluate.
   /// [variables] is a map of variable names to their values.
   ///
-  /// Returns the computed result as a [double] or [Matrix].
+  /// Returns the computed result as an [EvaluationResult], which can be
+  /// either a [NumericResult] or [MatrixResult].
   ///
   /// Throws [EvaluatorException] if:
   /// - A variable is not found in the bindings
   /// - Division by zero occurs
   /// - An unknown expression type is encountered
-  dynamic evaluate(Expression expr,
+  EvaluationResult evaluate(Expression expr,
       [Map<String, double> variables = const {}]) {
     // Try custom evaluators first
     if (_extensions != null) {
       final result = _extensions!.tryEvaluate(
         expr,
         variables,
-        (e) => evaluate(e, variables),
+        (e) => _evaluateRaw(e, variables),
+      );
+      if (result != null) {
+        return _wrapResult(result);
+      }
+    }
+
+    final rawResult = _evaluateRaw(expr, variables);
+    return _wrapResult(rawResult);
+  }
+
+  /// Internal method that evaluates an expression and returns dynamic result.
+  ///
+  /// This is used internally to maintain backward compatibility with existing
+  /// evaluator code that returns double or Matrix.
+  dynamic _evaluateRaw(Expression expr,
+      [Map<String, double> variables = const {}]) {
+    // Try custom evaluators first
+    if (_extensions != null) {
+      final result = _extensions!.tryEvaluate(
+        expr,
+        variables,
+        (e) => _evaluateRaw(e, variables),
       );
       if (result != null) {
         return result;
@@ -66,10 +90,10 @@ class Evaluator {
     } else if (expr is BinaryOp) {
       return _evaluateBinaryOp(expr, variables);
     } else if (expr is UnaryOp) {
-      final operandValue = evaluate(expr.operand, variables);
+      final operandValue = _evaluateRaw(expr.operand, variables);
       return _unaryEvaluator.evaluate(expr.operator, operandValue);
     } else if (expr is AbsoluteValue) {
-      final val = evaluate(expr.argument, variables);
+      final val = _evaluateRaw(expr.argument, variables);
       if (val is double) return val.abs();
       throw EvaluatorException(
         'Absolute value not supported for this type',
@@ -100,6 +124,20 @@ class Evaluator {
     );
   }
 
+  /// Wraps a raw dynamic result into an EvaluationResult.
+  EvaluationResult _wrapResult(dynamic result) {
+    if (result is double) {
+      return NumericResult(result);
+    } else if (result is Matrix) {
+      return MatrixResult(result);
+    } else {
+      throw EvaluatorException(
+        'Invalid result type: ${result.runtimeType}',
+        suggestion: 'Results must be either a number or a matrix',
+      );
+    }
+  }
+
   double _lookupVariable(String name, Map<String, double> variables) {
     // First check user-provided variables
     if (variables.containsKey(name)) {
@@ -119,7 +157,7 @@ class Evaluator {
   }
 
   double _evaluateAsDouble(Expression expr, Map<String, double> variables) {
-    final val = evaluate(expr, variables);
+    final val = _evaluateRaw(expr, variables);
     if (val is double) return val;
     throw EvaluatorException(
       'Expression must evaluate to a number',
@@ -128,7 +166,7 @@ class Evaluator {
   }
 
   dynamic _evaluateBinaryOp(BinaryOp expr, Map<String, double> variables) {
-    final leftValue = evaluate(expr.left, variables);
+    final leftValue = _evaluateRaw(expr.left, variables);
 
     // Special handling for Matrix Transpose: M^T
     // Don't evaluate 'T' as a variable
@@ -140,7 +178,7 @@ class Evaluator {
           leftValue, expr.operator, null, expr.right);
     }
 
-    final rightValue = evaluate(expr.right, variables);
+    final rightValue = _evaluateRaw(expr.right, variables);
     return _binaryEvaluator.evaluate(
         leftValue, expr.operator, rightValue, expr.right);
   }
@@ -150,7 +188,7 @@ class Evaluator {
     return FunctionRegistry.instance.evaluate(
       func,
       variables,
-      (e) => evaluate(e, variables),
+      (e) => _evaluateRaw(e, variables),
     );
   }
 }

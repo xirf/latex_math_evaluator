@@ -8,7 +8,7 @@ void main() {
     // \begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix}
     final matrix = '\\begin{matrix} 1 & 2 \\\\ 3 & 4 \\end{matrix}';
 
-    final result = evaluator.evaluate(matrix);
+    final result = evaluator.evaluate(matrix).asMatrix();
     expect(result, isA<Matrix>());
     final m = result as Matrix;
     expect(m.rows, 2);
@@ -23,7 +23,7 @@ void main() {
     final evaluator = LatexMathEvaluator();
     final expr =
         '\\begin{matrix} 1 & 2 \\\\ 3 & 4 \\end{matrix} + \\begin{matrix} 5 & 6 \\\\ 7 & 8 \\end{matrix}';
-    final result = evaluator.evaluate(expr);
+    final result = evaluator.evaluate(expr).asMatrix();
     expect(result, isA<Matrix>());
     final m = result as Matrix;
     expect(m.data[0][0], 6.0);
@@ -38,7 +38,7 @@ void main() {
     // [3 4]   [7 8]   [3*5+4*7 3*6+4*8]   [43 50]
     final expr =
         '\\begin{matrix} 1 & 2 \\\\ 3 & 4 \\end{matrix} * \\begin{matrix} 5 & 6 \\\\ 7 & 8 \\end{matrix}';
-    final result = evaluator.evaluate(expr);
+    final result = evaluator.evaluate(expr).asMatrix();
     expect(result, isA<Matrix>());
     final m = result as Matrix;
     expect(m.data[0][0], 19.0);
@@ -50,7 +50,7 @@ void main() {
   test('Matrix scalar multiplication', () {
     final evaluator = LatexMathEvaluator();
     final expr = '2 * \\begin{matrix} 1 & 2 \\\\ 3 & 4 \\end{matrix}';
-    final result = evaluator.evaluate(expr);
+    final result = evaluator.evaluate(expr).asMatrix();
     expect(result, isA<Matrix>());
     final m = result as Matrix;
     expect(m.data[0][0], 2.0);
