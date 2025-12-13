@@ -2,8 +2,10 @@
 
 A Flutter/Dart library for parsing and evaluating mathematical expressions written in LaTeX format.
 
-[![Tests](https://img.shields.io/badge/tests-260%20passed-brightgreen)]()
-[![Dart](https://img.shields.io/badge/dart-%3E%3D3.0.0-blue)]()
+[![Tests](https://img.shields.io/badge/tests-294%20passed-brightgreen)](https://github.com/xirf/latex_math_evaluator)
+[![Dart](https://img.shields.io/badge/dart-%3E%3D3.0.0-blue)](https://github.com/xirf/latex_math_evaluator)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Pub Version](https://img.shields.io/pub/v/latex_math_evaluator)](https://pub.dev/packages/latex_math_evaluator)
 
 ## Features
 
@@ -16,8 +18,23 @@ A Flutter/Dart library for parsing and evaluating mathematical expressions writt
 - **Summation & Product notation**: `\sum_{i=1}^{n}`, `\prod_{i=1}^{n}`
 - **Limit notation**: `\lim_{x \to a}`
 - **Numerical Integration**: `\int_{a}^{b} f(x) dx` (Simpson's Rule)
-- **Matrix support**: `\begin{matrix} ... \end{matrix}` with operations (+, -, *, ^T, ^-1) and `\det`
+- **Matrix support**: `\begin{matrix} ... \end{matrix}` with operations (+, -, \*, ^T, ^-1) and `\det`
 - **Extensible**: Add custom functions and commands
+
+## Table of Contents
+
+- [Features](#features)
+- [Table of Contents](#table-of-contents)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Variable Binding](#variable-binding)
+- [Validation](#validation)
+- [Supported Functions](#supported-functions)
+- [Built-in Constants](#built-in-constants)
+- [Implicit Multiplication](#implicit-multiplication)
+- [Notation Support](#notation-support)
+- [Custom Extensions](#custom-extensions)
+- [Documentation](#documentation)
 
 ## Installation
 
@@ -43,32 +60,53 @@ import 'package:latex_math_evaluator/latex_math_evaluator.dart';
 final evaluator = LatexMathEvaluator();
 
 // Basic arithmetic
-evaluator.evaluate(r'2 + 3 \times 4');  // 14.0
+evaluator.evaluateNumeric(r'2 + 3 \times 4');  // 14.0
 
 // Variables
-evaluator.evaluate(r'x^{2} + 1', {'x': 3});  // 10.0
+evaluator.evaluateNumeric(r'x^{2} + 1', {'x': 3});  // 10.0
 
 // Functions
-evaluator.evaluate(r'\sin{0}');            // 0.0
-evaluator.evaluate(r'\sqrt{16}');          // 4.0
-evaluator.evaluate(r'\log_{2}{8}');        // 3.0
+evaluator.evaluateNumeric(r'\sin{0}');            // 0.0
+evaluator.evaluateNumeric(r'\sqrt{16}');          // 4.0
+evaluator.evaluateNumeric(r'\log_{2}{8}');        // 3.0
 
 // Matrices
-final matrix = evaluator.evaluate(r'\begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix}');
-// Returns a Matrix object
+final matrix = evaluator.evaluateMatrix(r'\begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix}');
+print(matrix); // [[1.0, 2.0], [3.0, 4.0]]
 
-evaluator.evaluate(r'|-5|');               // 5.0 (absolute value)
-evaluator.evaluate(r'\frac{1}{2}');        // 0.5 (fraction)
+evaluator.evaluateNumeric(r'|-5|');               // 5.0 (absolute value)
+evaluator.evaluateNumeric(r'\frac{1}{2}');        // 0.5 (fraction)
 
 // Constants (used when variable not provided)
-evaluator.evaluate('e');                    // 2.71828...
-evaluator.evaluate(r'\pi');                 // 3.14159...
+evaluator.evaluateNumeric('e');                    // 2.71828...
+evaluator.evaluateNumeric(r'\pi');                 // 3.14159...
 
 // Summation
-evaluator.evaluate(r'\sum_{i=1}^{5} i');   // 15.0 (1+2+3+4+5)
+evaluator.evaluateNumeric(r'\sum_{i=1}^{5} i');   // 15.0 (1+2+3+4+5)
 
 // Factorial
-evaluator.evaluate(r'\prod_{i=1}^{5} i');  // 120.0 (5!)
+evaluator.evaluateNumeric(r'\prod_{i=1}^{5} i');  // 120.0 (5!)
+```
+
+### Type-Safe Results
+
+When you need to handle different result types dynamically:
+
+```dart
+final result = evaluator.evaluate('2 + 3');
+
+// Pattern matching
+switch (result) {
+  case NumericResult(:final value):
+    print('Numeric: $value');
+  case MatrixResult(:final matrix):
+    print('Matrix: $matrix');
+}
+
+// Or use type checking
+if (result.isNumeric) {
+  print(result.asNumeric());
+}
 ```
 
 ## Variable Binding
@@ -114,12 +152,14 @@ if (!result.isValid) {
 ```
 
 **Enhanced Error Messages** help you debug expressions quickly:
+
 - **Position markers** show exactly where the error occurred
 - **Expression snippets** provide context around the error
 - **Helpful suggestions** offer actionable fixes
 
 Example error output:
-```
+
+```plain
 ParserException at position 10: Expected '}' after numerator
 
 \frac{1{2}
@@ -131,16 +171,16 @@ Suggestion: Add a closing brace } or check for matching braces
 
 ## Supported Functions
 
-| Category          | Functions                                                  |
-| ----------------- | ---------------------------------------------------------- |
-| **Trigonometric** | `\sin`, `\cos`, `\tan`, `\asin`, `\acos`, `\atan`          |
-| **Hyperbolic**    | `\sinh`, `\cosh`, `\tanh`, `\asinh`, `\acosh`, `\atanh`    |
-| **Logarithmic**   | `\ln`, `\log`, `\log_{base}`                               |
-| **Rounding**      | `\ceil`, `\floor`, `\round`                                |
-| **Power/Root**    | `\sqrt`, `\exp`                                            |
-| **Matrix**        | `\det`, `\trace`, `\tr`                                    |
-| **Combinatorics** | `\binom{n}{k}`                                             |
-| **Number Theory** | `\gcd(a,b)`, `\lcm(a,b)`                                   |
+| Category          | Functions                                                           |
+| ----------------- | ------------------------------------------------------------------- |
+| **Trigonometric** | `\sin`, `\cos`, `\tan`, `\asin`, `\acos`, `\atan`                   |
+| **Hyperbolic**    | `\sinh`, `\cosh`, `\tanh`, `\asinh`, `\acosh`, `\atanh`             |
+| **Logarithmic**   | `\ln`, `\log`, `\log_{base}`                                        |
+| **Rounding**      | `\ceil`, `\floor`, `\round`                                         |
+| **Power/Root**    | `\sqrt`, `\exp`                                                     |
+| **Matrix**        | `\det`, `\trace`, `\tr`                                             |
+| **Combinatorics** | `\binom{n}{k}`                                                      |
+| **Number Theory** | `\gcd(a,b)`, `\lcm(a,b)`                                            |
 | **Other**         | `\abs`, `\|x\|`, `\sgn`, `\factorial`, `\min_{a}{b}`, `\max_{a}{b}` |
 
 Also support equation with domain constraints: `f(x) = 2x - 3, 3 < x < 5`
@@ -149,16 +189,17 @@ Also support equation with domain constraints: `f(x) = 2x - 3, 3 < x < 5`
 
 LaTeX constants can be used with backslash notation:
 
-| Name      | LaTeX    | Symbol | Value      |
-| --------- | -------- | ------ | ---------- |
-| `e`       | `\e`     | e      | 2.71828... |
-| `pi`      | `\pi`    | π      | 3.14159... |
-| `tau`     | `\tau`   | τ      | 6.28318... |
-| `phi`     | `\phi`   | φ      | 1.61803... |
-| `gamma`   | `\gamma` | γ      | 0.57721... |
-| `Omega`   | `\Omega` | Ω      | 0.56714... |
-| `delta`   | `\delta` | δ      | 2.41421... |
+| Name    | LaTeX    | Symbol | Value      |
+| ------- | -------- | ------ | ---------- |
+| `e`     | `\e`     | e      | 2.71828... |
+| `pi`    | `\pi`    | π      | 3.14159... |
+| `tau`   | `\tau`   | τ      | 6.28318... |
+| `phi`   | `\phi`   | φ      | 1.61803... |
+| `gamma` | `\gamma` | γ      | 0.57721... |
+| `Omega` | `\Omega` | Ω      | 0.56714... |
+| `delta` | `\delta` | δ      | 2.41421... |
 
+> [!NOTE]
 > User-provided variables override built-in constants.
 
 ## Implicit Multiplication

@@ -5,6 +5,10 @@
 ### Added
 
 - Added support for variable binding
+- Added **Convenience Methods** for simplified developer experience:
+  - `evaluateNumeric(expression, variables)` - Direct numeric evaluation without type conversion
+  - `evaluateMatrix(expression, variables)` - Direct matrix evaluation without type conversion
+  - These methods provide a cleaner API when you know the expected result type
 - Added **Validation API**: `isValid()` and `validate()` methods for syntax validation
   - `isValid(expression)` - Quick boolean check for valid syntax
   - `validate(expression)` - Detailed validation with error messages, positions, and suggestions
@@ -15,6 +19,8 @@
   - Pattern matching support for result types
   - Helper methods: `.isNumeric`, `.isMatrix`
   - Migrated `evaluate()` and `evaluateParsed()` to return `EvaluationResult` instead of `dynamic`
+- Added support for complex numbers `\text{Re}`, `\text{Im}`, `\overline{z}` (conjugate)
+- Added `evaluator.evaluateNumeric()` and `evaluator.evaluateMatrix()` methods for direct evaluation to specific types
 
 ### Improved
 

@@ -74,6 +74,7 @@ import 'src/ast.dart';
 import 'src/evaluator.dart';
 import 'src/exceptions.dart';
 import 'src/extensions.dart';
+import 'src/matrix.dart';
 import 'src/parser.dart';
 import 'src/tokenizer.dart';
 
@@ -164,6 +165,55 @@ class LatexMathEvaluator {
       [Map<String, double> variables = const {}]) {
     final ast = parse(expression);
     return _evaluator.evaluate(ast, variables);
+  }
+
+  /// Evaluates a LaTeX expression and returns a numeric result.
+  ///
+  /// This is a convenience method that evaluates the expression and automatically
+  /// extracts the numeric value. Use this when you know the result will be numeric.
+  ///
+  /// [expression] is the LaTeX math string to evaluate.
+  /// [variables] is an optional map of variable names to their numeric values.
+  ///
+  /// Returns the computed result as a [double].
+  ///
+  /// Throws [StateError] if the result is a matrix or non-real complex number.
+  ///
+  /// Example:
+  /// ```dart
+  /// final evaluator = LatexMathEvaluator();
+  ///
+  /// final result = evaluator.evaluateNumeric('2 + 3'); // 5.0
+  /// final result2 = evaluator.evaluateNumeric('x^{2}', {'x': 3}); // 9.0
+  /// final result3 = evaluator.evaluateNumeric('\sin{0}'); // 0.0
+  /// ```
+  double evaluateNumeric(String expression,
+      [Map<String, double> variables = const {}]) {
+    return evaluate(expression, variables).asNumeric();
+  }
+
+  /// Evaluates a LaTeX expression and returns a matrix result.
+  ///
+  /// This is a convenience method that evaluates the expression and automatically
+  /// extracts the matrix value. Use this when you know the result will be a matrix.
+  ///
+  /// [expression] is the LaTeX math string to evaluate.
+  /// [variables] is an optional map of variable names to their numeric values.
+  ///
+  /// Returns the computed result as a [Matrix].
+  ///
+  /// Throws [StateError] if the result is not a matrix.
+  ///
+  /// Example:
+  /// ```dart
+  /// final evaluator = LatexMathEvaluator();
+  ///
+  /// final matrix = evaluator.evaluateMatrix(r'\begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix}');
+  /// print(matrix); // [[1.0, 2.0], [3.0, 4.0]]
+  /// ```
+  Matrix evaluateMatrix(String expression,
+      [Map<String, double> variables = const {}]) {
+    return evaluate(expression, variables).asMatrix();
   }
 
   /// Checks if a LaTeX math expression is syntactically valid.
