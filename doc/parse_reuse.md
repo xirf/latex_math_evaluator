@@ -33,6 +33,8 @@ final result = evaluator.evaluateParsed(equation, {'x': 5});
 
 ## Usage Examples
 
+See the runnable demo in example/misc/parse_reuse_example.dart for a parse-once benchmark and demo.
+
 ### Basic Usage
 
 ```dart
