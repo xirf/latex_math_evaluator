@@ -369,10 +369,10 @@ class DifferentiationEvaluator {
         _simplify(left),
 
       // Simplify 0 * x = 0, x * 0 = 0
-      BinaryOp(left: NumberLiteral(value: 0), :final operator, :final right)
+      BinaryOp(left: NumberLiteral(value: 0), :final operator, right: _)
           when operator == BinaryOperator.multiply =>
         const NumberLiteral(0),
-      BinaryOp(:final left, :final operator, right: NumberLiteral(value: 0))
+      BinaryOp(left: _, :final operator, right: NumberLiteral(value: 0))
           when operator == BinaryOperator.multiply =>
         const NumberLiteral(0),
 
@@ -390,7 +390,7 @@ class DifferentiationEvaluator {
         _simplify(left),
 
       // Simplify x ^ 0 = 1
-      BinaryOp(:final left, :final operator, right: NumberLiteral(value: 0))
+      BinaryOp(left: _, :final operator, right: NumberLiteral(value: 0))
           when operator == BinaryOperator.power =>
         const NumberLiteral(1),
 
