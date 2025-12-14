@@ -53,13 +53,13 @@ if (!result.isValid) {
 
 ### ValidationResult Properties
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `isValid` | `bool` | Whether the expression is valid |
-| `errorMessage` | `String?` | Error description (null if valid) |
-| `position` | `int?` | Character position of error (null if unavailable) |
-| `suggestion` | `String?` | Suggested fix (null if unavailable) |
-| `exceptionType` | `Type?` | Type of exception (TokenizerException, ParserException, etc.) |
+| Property        | Type      | Description                                                   |
+| --------------- | --------- | ------------------------------------------------------------- |
+| `isValid`       | `bool`    | Whether the expression is valid                               |
+| `errorMessage`  | `String?` | Error description (null if valid)                             |
+| `position`      | `int?`    | Character position of error (null if unavailable)             |
+| `suggestion`    | `String?` | Suggested fix (null if unavailable)                           |
+| `exceptionType` | `Type?`   | Type of exception (TokenizerException, ParserException, etc.) |
 
 ## Common Validation Scenarios
 
@@ -200,24 +200,24 @@ To check for undefined variables, you need to evaluate with an empty variable ma
 
 ### Validation vs Evaluation
 
-| Aspect | Validation | Evaluation |
-|--------|-----------|-----------|
-| **Purpose** | Check syntax | Compute result |
-| **Speed** | Fast (stops at first error) | Slower (full computation) |
-| **Variables** | Not required | Required for undefined vars |
-| **Errors caught** | Syntax errors | Syntax + runtime errors |
-| **Returns** | bool or ValidationResult | double or Matrix |
+| Aspect            | Validation                  | Evaluation                  |
+| ----------------- | --------------------------- | --------------------------- |
+| **Purpose**       | Check syntax                | Compute result              |
+| **Speed**         | Fast (stops at first error) | Slower (full computation)   |
+| **Variables**     | Not required                | Required for undefined vars |
+| **Errors caught** | Syntax errors               | Syntax + runtime errors     |
+| **Returns**       | bool or ValidationResult    | double or Matrix            |
 
 ### Error Suggestions
 
 The validator provides helpful suggestions for common errors:
 
-| Error Type | Suggestion |
-|------------|-----------|
-| Unclosed braces (`\sin{`) | "Check syntax near this position" |
-| Unknown command (`\unknown{5}`) | "Verify the LaTeX command is supported" |
-| Unexpected end | "Check for unclosed braces or parentheses" |
-| Undefined variable (evaluation) | "Provide a value for this variable" |
+| Error Type                      | Suggestion                                 |
+| ------------------------------- | ------------------------------------------ |
+| Unclosed braces (`\sin{`)       | "Check syntax near this position"          |
+| Unknown command (`\unknown{5}`) | "Verify the LaTeX command is supported"    |
+| Unexpected end                  | "Check for unclosed braces or parentheses" |
+| Undefined variable (evaluation) | "Provide a value for this variable"        |
 
 ## Performance Considerations
 
@@ -262,9 +262,3 @@ print(evaluator.isValid(r'\custom{5}'));  // true
 4. **Debounce real-time validation** to avoid excessive parsing
 5. **Combine with evaluation errors** for comprehensive error handling
 6. **Cache validation results** if validating the same expression multiple times
-
-## See Also
-
-- [Getting Started](getting_started.md) - Basic usage
-- [Parse Reuse](parse_reuse.md) - Efficient expression reuse
-- [Extensions](extensions.md) - Custom commands and functions

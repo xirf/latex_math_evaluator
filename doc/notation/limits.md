@@ -10,7 +10,8 @@
 
 Limits are computed using **numeric approximation**. The evaluator approaches the target value from both sides with decreasing step sizes.
 
-> **Note**: This is not symbolic limit computation. Complex limits (like L'Hôpital's rule cases) may not evaluate correctly.
+> [!NOTE]
+> This is not symbolic limit computation. Complex limits (like L'Hôpital's rule cases) may not evaluate correctly.
 
 ## Examples
 

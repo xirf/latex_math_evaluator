@@ -46,7 +46,8 @@ print(vec[1]);          // 0.8
 print(vec.magnitude);   // 1.0
 ```
 
-⚠️ **Error:** Cannot normalize a zero vector:
+> [!CAUTION]
+> Cannot create a unit vector from the zero vector:
 
 ```dart
 evaluator.evaluate(r'\hat{0, 0}');  // Throws EvaluatorException
@@ -95,7 +96,8 @@ final ortho = evaluator.evaluate(r'\vec{1, 0} \cdot \vec{0, 1}');
 print(ortho.asNumeric());   // 0.0
 ```
 
-⚠️ **Error:** Vectors must have the same dimension:
+> [!CAUTION]
+> Dot product requires vectors of the same dimension:
 
 ```dart
 evaluator.evaluate(r'\vec{1, 2} \cdot \vec{3, 4, 5}');  // Throws!
@@ -130,7 +132,8 @@ final v2 = evaluator.evaluate(r'\vec{4, 5, 6} \times \vec{1, 2, 3}').asVector();
 print(v1[0] == -v2[0]);  // true
 ```
 
-⚠️ **Error:** Cross product requires 3D vectors:
+> [!CAUTION]
+> Cross product requires 3D vectors:
 
 ```dart
 evaluator.evaluate(r'\vec{1, 2} \times \vec{3, 4}');  // Throws!
@@ -154,7 +157,8 @@ print(vec[0]);  // 4.0
 print(vec[1]);  // 6.0
 ```
 
-⚠️ **Error:** Vectors must have the same dimension:
+> [!CAUTION]
+> Addition and subtraction require same-dimension vectors:
 
 ```dart
 evaluator.evaluate(r'\vec{1, 2} + \vec{3, 4, 5}');  // Throws!

@@ -32,6 +32,7 @@ Matrices are defined using the standard LaTeX syntax:
 The following operations are supported for matrices:
 
 ### Addition and Subtraction
+
 Matrices of the same dimensions can be added or subtracted.
 
 ```latex
@@ -39,6 +40,7 @@ Matrices of the same dimensions can be added or subtracted.
 ```
 
 ### Matrix Multiplication
+
 Matrices can be multiplied if their dimensions are compatible (columns of A = rows of B).
 
 ```latex
@@ -46,6 +48,7 @@ Matrices can be multiplied if their dimensions are compatible (columns of A = ro
 ```
 
 ### Scalar Multiplication
+
 Matrices can be multiplied by a scalar value.
 
 ```latex
@@ -53,6 +56,7 @@ Matrices can be multiplied by a scalar value.
 ```
 
 ### Negation
+
 Matrices can be negated.
 
 ```latex
@@ -60,6 +64,7 @@ Matrices can be negated.
 ```
 
 ### Determinant Calculation
+
 The library calculates matrix determinants using optimized algorithms:
 
 - **1x1, 2x2, 3x3 matrices**: Direct formulas (O(1) complexity)
@@ -73,6 +78,7 @@ The library calculates matrix determinants using optimized algorithms:
 **Performance**: For large matrices (10x10), determinant calculation typically takes 0.04-0.07 milliseconds.
 
 ### Transpose
+
 Matrix transpose is supported using the `^T` notation:
 
 ```latex
@@ -82,6 +88,7 @@ Matrix transpose is supported using the `^T` notation:
 ## Examples
 
 ### Solving a System of Linear Equations (Representation)
+
 While the library doesn't currently have a built-in solver, you can represent systems using matrices.
 
 ```latex
@@ -93,6 +100,7 @@ While the library doesn't currently have a built-in solver, you can represent sy
 ```
 
 ### Transformations
+
 Representing a 2D rotation matrix:
 
 ```latex
@@ -105,19 +113,22 @@ Representing a 2D rotation matrix:
 ## Performance Optimizations
 
 ### Optimized Determinant Calculation
+
 The library uses specialized algorithms for determinant calculation:
 
 - **Small matrices (1x1, 2x2, 3x3)**: Direct mathematical formulas for maximum speed
 - **Large matrices (4x4 and larger)**: LU decomposition algorithm for numerical stability
 
 **Benchmark Results** (typical execution times):
+
 - 3x3: 0.07 ms
-- 4x4: 0.04 ms  
+- 4x4: 0.04 ms
 - 5x5: 0.05 ms
 - 6x6: 0.06 ms
 - 10x10: 0.07 ms
 
 ### Memory Efficiency
+
 - Matrix operations are performed in-place where possible
 - LU decomposition uses partial pivoting for numerical stability
 - Large matrices (up to 100x100) are supported efficiently
@@ -129,7 +140,7 @@ The library uses specialized algorithms for determinant calculation:
 final small = Matrix([[1, 2], [3, 4]]);
 print(small.determinant);  // Very fast (direct calculation)
 
-// Large matrix - LU decomposition  
+// Large matrix - LU decomposition
 final large = Matrix(generate10x10Matrix());
 print(large.determinant);  // Fast (O(n³) algorithm)
 ```

@@ -12,7 +12,7 @@ void main() {
           .evaluate(r'\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}^T')
           .asMatrix();
       expect(result, isA<Matrix>());
-      final matrix = result as Matrix;
+      final matrix = result;
       expect(matrix.rows, 2);
       expect(matrix.cols, 2);
       expect(matrix[0][0], 1.0);
@@ -37,7 +37,7 @@ void main() {
           .evaluate(r'\begin{pmatrix} 4 & 7 \\ 2 & 6 \end{pmatrix}^{-1}')
           .asMatrix();
       expect(result, isA<Matrix>());
-      final matrix = result as Matrix;
+      final matrix = result;
       expect(matrix[0][0], closeTo(0.6, 1e-9));
       expect(matrix[0][1], closeTo(-0.7, 1e-9));
       expect(matrix[1][0], closeTo(-0.2, 1e-9));

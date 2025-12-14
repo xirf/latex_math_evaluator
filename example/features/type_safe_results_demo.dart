@@ -45,6 +45,9 @@ void main() {
       case MatrixResult(:final matrix):
         print('  -> Got a matrix: ${matrix.rows}×${matrix.cols}');
         print('  -> Matrix data: $matrix');
+      case VectorResult(:final vector):
+        print('  -> Got a vector: ${vector.dimension}');
+        print('  -> Vector data: $vector');
     }
     print('');
   }

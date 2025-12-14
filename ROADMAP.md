@@ -9,7 +9,7 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 - 🔴 High Priority - Core functionality or critical improvements
 - 🟡 Medium Priority - Important enhancements
 - 🟢 Low Priority - Nice-to-have features
-- ✅ Completed | 🚧 In Progress | 📋 Planned
+- ✅ Completed | 🚧 In Progress | 📋 Planned | ⏸️ Paused | ⛔ Blocked
 
 ---
 
@@ -38,7 +38,7 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 
 ### 🔴 1.1 Symbolic Algebra Engine
 
-**Status:** 📋 Planned | **Owner:** Unassigned
+**Status:** 🚧 15/12/2025 | **Owner:** @xirf
 
 **Tasks:**
 
@@ -607,4 +607,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
 
 ---
 
-**Last Updated:** December 14, 2025
+**Last Updated:** December 15, 2025

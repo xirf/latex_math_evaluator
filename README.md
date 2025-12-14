@@ -1,6 +1,6 @@
 # LaTeX Math Evaluator
 
-> A Flutter/Dart library for parsing and evaluating mathematical expressions written in LaTeX format.
+> A Flutter/Dart library for parsing and evaluating mathematical expressions written in LaTeX format with support for symbolic differentiation, matrix operations, and advanced mathematical notation.
 
 [![Tests](https://img.shields.io/badge/tests-393%20passed-brightgreen)](https://github.com/xirf/latex_math_evaluator)
 [![Dart](https://img.shields.io/badge/dart-%3E%3D3.0.0-blue)](https://github.com/xirf/latex_math_evaluator)
@@ -8,124 +8,55 @@
 [![Pub Version](https://img.shields.io/pub/v/latex_math_evaluator)](https://pub.dev/packages/latex_math_evaluator)
 
 > [!NOTE]
-> This library is in early development and may have breaking changes in future releases.
+> This library is under active development; see the changelog for release notes.
 >
 > Kindly check our [Roadmap 🚚](ROADMAP.md) for planned features and progress.
 
-## Why This Library Exists
+## ✨ Highlights
 
-### The Problem with Existing Solutions
+- 🎯 **Native LaTeX Support** - Parse expressions directly from academic papers and textbooks
+- 🧮 **Symbolic Differentiation** - Compute exact derivatives using calculus rules (not approximations)
+- 🔢 **Advanced Notation** - Summation, products, limits, integration, matrices, and vectors
+- ⚡ **High Performance** - Parse once, evaluate thousands of times with built-in LRU caching
+- 🎨 **Type-Safe Results** - Handle numeric, matrix, complex, and vector results safely
+- 🔧 **Extensible** - Add your own custom functions and commands easily
 
-If you're familiar with Dart's ecosystem, you might know about the [`math_expressions`](https://pub.dev/packages/math_expressions) package. So why create another math evaluation library?
+## 📑 Table of Contents
 
-**LaTeX Math Evaluator** was built to solve problems that `math_expressions` and similar libraries don't address:
+- [LaTeX Math Evaluator](#latex-math-evaluator)
+  - [✨ Highlights](#-highlights)
+  - [📑 Table of Contents](#-table-of-contents)
+  - [Installation](#installation)
+  - [Quick Start](#quick-start)
+  - [Core Features](#core-features)
+    - [1. Variable Binding and Reusability](#1-variable-binding-and-reusability)
+    - [2. Expression Validation](#2-expression-validation)
+    - [3. Type-Safe Results](#3-type-safe-results)
+    - [4. Matrix Operations](#4-matrix-operations)
+  - [Supported Operations](#supported-operations)
+    - [Functions by Category](#functions-by-category)
+    - [Mathematical Constants](#mathematical-constants)
+    - [Advanced Notation](#advanced-notation)
+    - [Symbolic Differentiation](#symbolic-differentiation)
+  - [Configuration Options](#configuration-options)
+    - [Implicit Multiplication](#implicit-multiplication)
+  - [Extending the Library](#extending-the-library)
+  - [Performance Tips](#performance-tips)
+  - [Why This Library Exists](#why-this-library-exists)
+    - [Comparison with Existing Solutions](#comparison-with-existing-solutions)
+      - [1. **Native LaTeX Support**](#1-native-latex-support)
+      - [2. **Symbolic Differentiation**](#2-symbolic-differentiation)
+      - [3. **Advanced Mathematical Notation**](#3-advanced-mathematical-notation)
+      - [4. **Matrix and Vector Operations**](#4-matrix-and-vector-operations)
+      - [5. **Complex Number Support**](#5-complex-number-support)
+      - [6. **Validation with Detailed Error Messages**](#6-validation-with-detailed-error-messages)
+    - [When to Use Each Library](#when-to-use-each-library)
+    - [Bottom Line](#bottom-line)
+  - [Documentation](#documentation)
+  - [Contributing](#contributing)
+  - [License](#license)
+  - [Support](#support)
 
-#### 1. **Native LaTeX Support**
-
-- **math_expressions:** Uses custom syntax (`sin(x)`, `x^2`, `sqrt(x)`)
-- **latex_math_evaluator:** Native LaTeX notation (`\sin{x}`, `x^{2}`, `\sqrt{x}`)
-
-**Why this matters:** Academic papers, textbooks, and educational platforms use LaTeX. Copy-paste expressions directly without translation. This also mean your current educational content and LaTeX-heavy ecosystems integrate seamlessly if you want to extend them with computation.
-
-#### 2. **Symbolic Differentiation**
-
-- **math_expressions:** Numerical differentiation only (approximations)
-- **latex_math_evaluator:** Full symbolic differentiation with calculus rules
-
-```dart
-// Get exact derivatives, not approximations
-final expr = evaluator.parse(r'x^{2} + 3x + 1');
-final derivative = evaluator.differentiate(expr, 'x');  // Returns: 2x + 3
-print(evaluator.evaluateParsed(derivative, {'x': 2}).asNumeric());  // 7.0
-```
-
-Supports power rule, product rule, quotient rule, chain rule, and derivatives of all trig/log/exp functions.
-
-#### 3. **Advanced Mathematical Notation**
-
-- **Summation:** `\sum_{i=1}^{n} i^{2}`
-- **Products:** `\prod_{i=1}^{n} i`
-- **Limits:** `\lim_{x \to 0} \frac{\sin{x}}{x}`
-- **Integration:** `\int_{0}^{\pi} \sin{x}\, dx`
-- **Matrices:** `\begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix}`
-- **Higher-order derivatives:** `\frac{d^{2}}{dx^{2}}(x^{3})`
-
-**math_expressions** has limited support for these advanced constructs.
-
-#### 4. **Matrix and Vector Operations**
-
-Full matrix algebra built-in:
-
-```dart
-// Determinant, inverse, transpose, multiplication - all native
-evaluator.evaluateNumeric(r'\det{\begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix}}');  // -2.0
-```
-
-#### 5. **Complex Number Support**
-
-```dart
-// Complex arithmetic with i notation
-evaluator.evaluate('(1 + 2*i) * (3 + 4*i)');  // Complex(-5, 10)
-evaluator.evaluate(r'\Re(2 + 3i)');  // 2.0
-evaluator.evaluate(r'\Im(2 + 3i)');  // 3.0
-```
-
-#### 6. **Parse Once, Evaluate Many**
-
-Optimized for performance with LRU caching:
-
-```dart
-final equation = evaluator.parse(r'x^{2} + 2x + 1');  // Parse once
-// Evaluate thousands of times - blazing fast
-for (var x = 0; x < 10000; x++) {
-  evaluator.evaluateParsed(equation, {'x': x.toDouble()});
-}
-```
-
-#### 7. **Validation with Detailed Error Messages**
-
-```dart
-final result = evaluator.validate(r'\frac{1{2}');
-// Shows exactly where the error is with suggestions
-// ParserException at position 10: Expected '}' after numerator
-// \frac{1{2}
-//           ^
-```
-
-### When to Use Each Library
-
-| Use Case                                            | Recommended Library                 |
-| --------------------------------------------------- | ----------------------------------- |
-| **LaTeX expressions from papers/textbooks**         | ✅ latex_math_evaluator             |
-| **Symbolic calculus (derivatives, simplification)** | ✅ latex_math_evaluator             |
-| **Matrix/vector operations**                        | ✅ latex_math_evaluator             |
-| **Complex numbers**                                 | ✅ latex_math_evaluator             |
-| **Simple calculator with custom syntax**            | math_expressions                    |
-| **Expression simplification only**                  | math_expressions (has some support) |
-| **Lightweight numeric evaluation**                  | math_expressions (smaller package)  |
-
-### Bottom Line
-
-**LaTeX Math Evaluator** is purpose-built for applications that need:
-
-- Academic/scientific accuracy with LaTeX notation
-- Symbolic mathematics (calculus, algebra)
-- Advanced mathematical constructs
-- Educational platforms, homework checkers, graphing calculators
-- Integration with LaTeX-heavy ecosystems
-
-If you just need basic arithmetic with a simple syntax, `math_expressions` is perfectly fine. If you're building serious mathematical software or educational tools, **LaTeX Math Evaluator** is the better choice.
-
----
-
-## Quick Feature Overview
-
-- **Parse LaTeX expressions** into an Abstract Syntax Tree (AST)
-- **Evaluate with variables** and reuse parsed expressions for better performance
-- **Validate before execution** with detailed, actionable error messages
-- **30+ mathematical functions** including trigonometry, logarithms, and matrix operations
-- **Advanced notation** for summation, products, limits, and numerical integration
-- **Extensible architecture** to add your own custom functions and commands
 
 ## Installation
 
@@ -133,7 +64,7 @@ Add this to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  latex_math_evaluator: ^0.0.2
+  latex_math_evaluator: ^0.1.2
 ```
 
 Or use the latest development version:
@@ -431,6 +362,100 @@ evaluator.clearParsedExpressionCache();
 New functions: `\fibonacci{n}` is available with memoized implementations.
 Quick benchmark: Run `dart run benchmark/expression_cache_benchmark.dart` to measure parsed-expression caching benefits and fibonacci memoization.
 
+## Why This Library Exists
+
+### Comparison with Existing Solutions
+
+If you're familiar with Dart's ecosystem, you might know about the [`math_expressions`](https://pub.dev/packages/math_expressions) package. Here's what **LaTeX Math Evaluator** offers that sets it apart:
+
+#### 1. **Native LaTeX Support**
+
+- **math_expressions:** Uses custom syntax (`sin(x)`, `x^2`, `sqrt(x)`)
+- **latex_math_evaluator:** Native LaTeX notation (`\sin{x}`, `x^{2}`, `\sqrt{x}`)
+
+<!-- **Why this matters:** Academic papers, textbooks, and educational platforms commonly use LaTeX. Copy-paste expressions directly without translation. Your educational content and LaTeX-heavy ecosystems integrate with minimal friction. -->
+
+We hope to make it easier for users to work with mathematical expressions in their familiar LaTeX format, reducing the need for translation between different syntaxes.
+
+#### 2. **Symbolic Differentiation**
+
+- **math_expressions:** Numerical differentiation only (approximations)
+- **latex_math_evaluator:** Full symbolic differentiation with calculus rules
+
+```dart
+// Get exact derivatives, not approximations
+final expr = evaluator.parse(r'x^{2} + 3x + 1');
+final derivative = evaluator.differentiate(expr, 'x');  // Returns: 2x + 3
+print(evaluator.evaluateParsed(derivative, {'x': 2}).asNumeric());  // 7.0
+```
+
+Supports power rule, product rule, quotient rule, chain rule, and derivatives of all trig/log/exp functions.
+
+#### 3. **Advanced Mathematical Notation**
+
+Built-in support for:
+
+| Feature                      | Equation                                     | LaTeX                                          |
+| ---------------------------- | :------------------------------------------- | ---------------------------------------------- |
+| **Summation**                | `\sum_{i=1}^{n} i^{2}`                       | $ \sum\_{i=1}^{n} i^{2} $                      |
+| **Products**                 | `\prod_{i=1}^{n} i`                          | $ \prod\_{i=1}^{n} i $                         |
+| **Limits**                   | `\lim_{x \to 0} \frac{\sin{x}}{x}`           | $ \lim\_{x \to 0} \frac{\sin{x}}{x} $          |
+| **Integration**              | `\int_{0}^{\pi} \sin{x}\, dx`                | $ \int\_{0}^{\pi} \sin{x}\, dx $               |
+| **Matrices**                 | `\begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix}` | $ \begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix} $ |
+| **Higher-order derivatives** | `\frac{d^{2}}{dx^{2}}(x^{3})`                | $ \frac{d^{2}}{dx^{2}}(x^{3}) $                |
+
+#### 4. **Matrix and Vector Operations**
+
+Full matrix algebra built-in:
+
+```dart
+// Determinant, inverse, transpose, multiplication - all native
+evaluator.evaluateNumeric(r'\det{\begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix}}');  // -2.0
+```
+
+#### 5. **Complex Number Support**
+
+```dart
+// Complex arithmetic with i notation
+evaluator.evaluate('(1 + 2*i) * (3 + 4*i)');  // Complex(-5, 10)
+evaluator.evaluate(r'\Re(2 + 3i)');  // 2.0
+evaluator.evaluate(r'\Im(2 + 3i)');  // 3.0
+```
+
+#### 6. **Validation with Detailed Error Messages**
+
+```dart
+final result = evaluator.validate(r'\frac{1{2}');
+// Shows exactly where the error is with suggestions
+// ParserException at position 10: Expected '}' after numerator
+// \frac{1{2}
+//           ^
+```
+
+### When to Use Each Library
+
+| Use Case                                            | Recommended Library                |
+| --------------------------------------------------- | ---------------------------------- |
+| **LaTeX expressions from papers/textbooks**         | ✅ latex_math_evaluator            |
+| **Symbolic calculus (derivatives, simplification)** | ✅ latex_math_evaluator            |
+| **Matrix/vector operations**                        | ✅ latex_math_evaluator            |
+| **Complex numbers**                                 | ✅ latex_math_evaluator            |
+| **Educational platforms & scientific software**     | ✅ latex_math_evaluator            |
+| **Simple calculator with custom syntax**            | math_expressions                   |
+| **Lightweight numeric evaluation only**             | math_expressions (smaller package) |
+
+### Bottom Line
+
+**LaTeX Math Evaluator** is purpose-built for applications that need:
+
+- 📚 Academic/scientific accuracy with LaTeX notation
+- 🧮 Symbolic mathematics (calculus, algebra)
+- 🎓 Educational platforms, homework checkers, graphing calculators
+- 🔬 Advanced mathematical constructs
+- 🔗 Integration with LaTeX-heavy ecosystems
+
+---
+
 ## Documentation
 
 The guides available in the [doc/](doc/) folder:
@@ -449,7 +474,7 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. You are free to use, modify, and distribute this software in accordance with the terms of the license. See the [LICENSE](LICENSE) file for more details.
 
 ## Support
 

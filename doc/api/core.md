@@ -1,0 +1,122 @@
+# Core API
+
+## LatexMathEvaluator
+
+The `LatexMathEvaluator` class is the primary interface for using the library. It handles tokenizing, parsing, and evaluating LaTeX math expressions.
+
+### Constructors
+
+*   `LatexMathEvaluator({ExtensionRegistry? extensions, bool allowImplicitMultiplication = true, int parsedExpressionCacheSize = 128})`
+    *   Creates a new evaluator instance.
+    *   `extensions`: Optional registry for custom commands and functions.
+    *   `allowImplicitMultiplication`: If true, `xy` is treated as `x * y`.
+    *   `parsedExpressionCacheSize`: Size of the LRU cache for parsed expressions. Set to 0 to disable.
+
+### Methods
+
+#### `evaluate`
+
+```dart
+EvaluationResult evaluate(String expression, [Map<String, double> variables = const {}])
+```
+
+Parses and evaluates a LaTeX string. Returns an `EvaluationResult`.
+
+#### `evaluateParsed`
+
+```dart
+EvaluationResult evaluateParsed(Expression ast, [Map<String, double> variables = const {}])
+```
+
+Evaluates a pre-parsed AST. Useful for performance when evaluating the same expression multiple times with different variables.
+
+#### `parse`
+
+```dart
+Expression parse(String expression)
+```
+
+Parses a string into an AST `Expression` without evaluating. Cached if caching is enabled.
+
+#### `evaluateNumeric`
+
+```dart
+double evaluateNumeric(String expression, [Map<String, double> variables = const {}])
+```
+
+Convenience method that returns a `double` directly. Throws `StateError` if the result is not a real number.
+
+#### `evaluateMatrix`
+
+```dart
+Matrix evaluateMatrix(String expression, [Map<String, double> variables = const {}])
+```
+
+Convenience method that returns a `Matrix` directly. Throws `StateError` if the result is not a matrix.
+
+#### `validate`
+
+```dart
+ValidationResult validate(String expression)
+```
+
+Checks if an expression is providing detailed error information if invalid.
+
+#### `isValid`
+
+```dart
+bool isValid(String expression)
+```
+
+Returns `true` if the expression is syntactically valid, `false` otherwise.
+
+#### `differentiate`
+
+```dart
+Expression differentiate(Expression expression, String variable, {int order = 1})
+```
+
+Computes the symbolic derivative of an expression.
+
+#### `clearParsedExpressionCache`
+
+```dart
+void clearParsedExpressionCache()
+```
+
+Clears the internal AST cache.
+
+---
+
+## EvaluationResult
+
+Sealed base class for all evaluation results. It enables type-safe handling of results using pattern matching.
+
+### Subclasses
+
+*   `NumericResult(double value)`: Wraps a `double`.
+*   `ComplexResult(Complex value)`: Wraps a `Complex` number.
+*   `MatrixResult(Matrix matrix)`: Wraps a `Matrix`.
+*   `VectorResult(Vector vector)`: Wraps a `Vector`.
+
+### Common Methods
+
+*   `asNumeric()`: Returns `double` or throws if not numeric/real.
+*   `asComplex()`: Returns `Complex` or throws if not scalar/complex.
+*   `asMatrix()`: Returns `Matrix` or throws.
+*   `asVector()`: Returns `Vector` or throws.
+*   `isNaN`: Checks if the result contains any NaN values.
+*   `isNumeric`, `isComplex`, `isMatrix`, `isVector`: Type check properties.
+
+### Usage Example
+
+```dart
+final result = evaluator.evaluate('2 + 3');
+switch (result) {
+  case NumericResult(:final value):
+    print('Number: $value');
+  case MatrixResult(:final matrix):
+    print('Matrix: $matrix');
+  // Handle other cases...
+}
+```

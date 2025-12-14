@@ -80,6 +80,8 @@ void main() {
       print('Got complex result: $value');
     case MatrixResult(:final matrix):
       print('Got matrix result: $matrix');
+    case VectorResult(:final vector):
+      print('Got vector result: $vector');
   }
 
   print('\n=== Error Handling ===\n');

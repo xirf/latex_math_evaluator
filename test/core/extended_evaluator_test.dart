@@ -213,7 +213,7 @@ void main() {
 
         final result = evaluator.evaluate(parse('$m1 + $m2')).asMatrix();
         expect(result, isA<Matrix>());
-        final m = result as Matrix;
+        final m = result;
         expect(m.data[0][0], 6.0);
         expect(m.data[1][1], 12.0);
       });
@@ -224,7 +224,7 @@ void main() {
         // Result: [[4, 4], [4, 4]]
         final result = evaluator.evaluate(parse('$m1 - $m2')).asMatrix();
         expect(result, isA<Matrix>());
-        final m = result as Matrix;
+        final m = result;
         expect(m.data[0][0], 4.0);
         expect(m.data[1][1], 4.0);
       });
