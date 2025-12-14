@@ -4,7 +4,6 @@ library;
 import 'ast.dart';
 import 'complex.dart';
 import 'constants/constant_registry.dart';
-import 'evaluation_result.dart';
 import 'evaluator/binary_evaluator.dart';
 import 'evaluator/calculus_evaluator.dart';
 import 'evaluator/comparison_evaluator.dart';

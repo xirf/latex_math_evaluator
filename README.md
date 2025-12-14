@@ -1,13 +1,124 @@
 # LaTeX Math Evaluator
 
-> A powerful Flutter/Dart library for parsing and evaluating mathematical expressions written in LaTeX format.
+> A Flutter/Dart library for parsing and evaluating mathematical expressions written in LaTeX format.
 
 [![Tests](https://img.shields.io/badge/tests-393%20passed-brightgreen)](https://github.com/xirf/latex_math_evaluator)
 [![Dart](https://img.shields.io/badge/dart-%3E%3D3.0.0-blue)](https://github.com/xirf/latex_math_evaluator)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Pub Version](https://img.shields.io/pub/v/latex_math_evaluator)](https://pub.dev/packages/latex_math_evaluator)
 
-## Why LaTeX Math Evaluator?
+> [!NOTE]
+> This library is in early development and may have breaking changes in future releases.
+>
+> Kindly check our [Roadmap 🚚](ROADMAP.md) for planned features and progress.
+
+## Why This Library Exists
+
+### The Problem with Existing Solutions
+
+If you're familiar with Dart's ecosystem, you might know about the [`math_expressions`](https://pub.dev/packages/math_expressions) package. So why create another math evaluation library?
+
+**LaTeX Math Evaluator** was built to solve problems that `math_expressions` and similar libraries don't address:
+
+#### 1. **Native LaTeX Support**
+
+- **math_expressions:** Uses custom syntax (`sin(x)`, `x^2`, `sqrt(x)`)
+- **latex_math_evaluator:** Native LaTeX notation (`\sin{x}`, `x^{2}`, `\sqrt{x}`)
+
+**Why this matters:** Academic papers, textbooks, and educational platforms use LaTeX. Copy-paste expressions directly without translation. This also mean your current educational content and LaTeX-heavy ecosystems integrate seamlessly if you want to extend them with computation.
+
+#### 2. **Symbolic Differentiation**
+
+- **math_expressions:** Numerical differentiation only (approximations)
+- **latex_math_evaluator:** Full symbolic differentiation with calculus rules
+
+```dart
+// Get exact derivatives, not approximations
+final expr = evaluator.parse(r'x^{2} + 3x + 1');
+final derivative = evaluator.differentiate(expr, 'x');  // Returns: 2x + 3
+print(evaluator.evaluateParsed(derivative, {'x': 2}).asNumeric());  // 7.0
+```
+
+Supports power rule, product rule, quotient rule, chain rule, and derivatives of all trig/log/exp functions.
+
+#### 3. **Advanced Mathematical Notation**
+
+- **Summation:** `\sum_{i=1}^{n} i^{2}`
+- **Products:** `\prod_{i=1}^{n} i`
+- **Limits:** `\lim_{x \to 0} \frac{\sin{x}}{x}`
+- **Integration:** `\int_{0}^{\pi} \sin{x}\, dx`
+- **Matrices:** `\begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix}`
+- **Higher-order derivatives:** `\frac{d^{2}}{dx^{2}}(x^{3})`
+
+**math_expressions** has limited support for these advanced constructs.
+
+#### 4. **Matrix and Vector Operations**
+
+Full matrix algebra built-in:
+
+```dart
+// Determinant, inverse, transpose, multiplication - all native
+evaluator.evaluateNumeric(r'\det{\begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix}}');  // -2.0
+```
+
+#### 5. **Complex Number Support**
+
+```dart
+// Complex arithmetic with i notation
+evaluator.evaluate('(1 + 2*i) * (3 + 4*i)');  // Complex(-5, 10)
+evaluator.evaluate(r'\Re(2 + 3i)');  // 2.0
+evaluator.evaluate(r'\Im(2 + 3i)');  // 3.0
+```
+
+#### 6. **Parse Once, Evaluate Many**
+
+Optimized for performance with LRU caching:
+
+```dart
+final equation = evaluator.parse(r'x^{2} + 2x + 1');  // Parse once
+// Evaluate thousands of times - blazing fast
+for (var x = 0; x < 10000; x++) {
+  evaluator.evaluateParsed(equation, {'x': x.toDouble()});
+}
+```
+
+#### 7. **Validation with Detailed Error Messages**
+
+```dart
+final result = evaluator.validate(r'\frac{1{2}');
+// Shows exactly where the error is with suggestions
+// ParserException at position 10: Expected '}' after numerator
+// \frac{1{2}
+//           ^
+```
+
+### When to Use Each Library
+
+| Use Case                                            | Recommended Library                 |
+| --------------------------------------------------- | ----------------------------------- |
+| **LaTeX expressions from papers/textbooks**         | ✅ latex_math_evaluator             |
+| **Symbolic calculus (derivatives, simplification)** | ✅ latex_math_evaluator             |
+| **Matrix/vector operations**                        | ✅ latex_math_evaluator             |
+| **Complex numbers**                                 | ✅ latex_math_evaluator             |
+| **Simple calculator with custom syntax**            | math_expressions                    |
+| **Expression simplification only**                  | math_expressions (has some support) |
+| **Lightweight numeric evaluation**                  | math_expressions (smaller package)  |
+
+### Bottom Line
+
+**LaTeX Math Evaluator** is purpose-built for applications that need:
+
+- Academic/scientific accuracy with LaTeX notation
+- Symbolic mathematics (calculus, algebra)
+- Advanced mathematical constructs
+- Educational platforms, homework checkers, graphing calculators
+- Integration with LaTeX-heavy ecosystems
+
+If you just need basic arithmetic with a simple syntax, `math_expressions` is perfectly fine. If you're building serious mathematical software or educational tools, **LaTeX Math Evaluator** is the better choice.
+
+---
+
+## Quick Feature Overview
 
 - **Parse LaTeX expressions** into an Abstract Syntax Tree (AST)
 - **Evaluate with variables** and reuse parsed expressions for better performance
@@ -200,17 +311,17 @@ Constants are available with or without backslash notation:
 
 ### Advanced Notation
 
-| Feature                                | Equation                           | LaTeX                                |
-| -------------------------------------- | :----------------------------------: | ------------------------------------ |
-| Fractions                              | $\frac{a+b}{c}$                    | `\frac{a + b}{c}`                    |
-| Summation                              | $\sum_{i=1}^{10} i^{2}$            | `\sum_{i=1}^{10} i^{2}`              |
-| Products                               | $\prod_{i=1}^{5} i$                | `\prod_{i=1}^{5} i` (Factorial: 120) |
+| Feature                                |              Equation              | LaTeX                                |
+| -------------------------------------- | :--------------------------------: | ------------------------------------ |
+| Fractions                              |          $\frac{a+b}{c}$           | `\frac{a + b}{c}`                    |
+| Summation                              |      $\sum_{i=1}^{10} i^{2}$       | `\sum_{i=1}^{10} i^{2}`              |
+| Products                               |        $\prod_{i=1}^{5} i$         | `\prod_{i=1}^{5} i` (Factorial: 120) |
 | Limits (numeric approximation)         | $\lim_{x \to 0} \frac{\sin{x}}{x}$ | `\lim_{x \to 0} \frac{\sin{x}}{x}`   |
-| Numerical Integration (Simpson's Rule) | $\int_{0}^{\pi} \sin{x}\, dx$      | `\int_{0}^{\pi} \sin{x}\, dx`        |
-| Symbolic Differentiation               | $\frac{d}{dx}(x^{2})$              | `\frac{d}{dx}(x^{2})`                |
-| Higher Order Derivatives               | $\frac{d^{2}}{dx^{2}}(x^{3})$      | `\frac{d^{2}}{dx^{2}}(x^{3})`        |
-| Absolute Value                         | $\|x\|$, $\|-5\|$, $\|x^2 - 4\|$   | `\|x\|`, `\|-5\|`, `\|x^2 - 4\|`     |
-| Domain Constraints                     | $f(x) = 2x - 3, 3 < x < 5$         | `f(x) = 2x - 3, 3 < x < 5`           |
+| Numerical Integration (Simpson's Rule) |   $\int_{0}^{\pi} \sin{x}\, dx$    | `\int_{0}^{\pi} \sin{x}\, dx`        |
+| Symbolic Differentiation               |       $\frac{d}{dx}(x^{2})$        | `\frac{d}{dx}(x^{2})`                |
+| Higher Order Derivatives               |   $\frac{d^{2}}{dx^{2}}(x^{3})$    | `\frac{d^{2}}{dx^{2}}(x^{3})`        |
+| Absolute Value                         |  $\|x\|$, $\|-5\|$, $\|x^2 - 4\|$  | `\|x\|`, `\|-5\|`, `\|x^2 - 4\|`     |
+| Domain Constraints                     |     $f(x) = 2x - 3, 3 < x < 5$     | `f(x) = 2x - 3, 3 < x < 5`           |
 
 ### Symbolic Differentiation
 

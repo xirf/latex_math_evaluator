@@ -100,9 +100,6 @@ mixin PrimaryParserMixin on BaseParser {
   Expression parseFraction() {
     consume(TokenType.lparen, "Expected '{' after \\frac");
     
-    // Save position before parsing numerator to check for derivative notation
-    final numeratorStartPos = position;
-    
     // Check if this looks like derivative notation: \frac{d}{dx} or \frac{d^n}{dx^n}
     // We need to check the raw tokens before parsing
     if (_isDerivativeNotation()) {
