@@ -62,7 +62,8 @@ class DifferentiationEvaluator {
 
       // Sum/Difference rule: d/dx(f ± g) = f' ± g'
       BinaryOp(:final left, :final right, :final operator)
-          when operator == BinaryOperator.add || operator == BinaryOperator.subtract =>
+          when operator == BinaryOperator.add ||
+              operator == BinaryOperator.subtract =>
         BinaryOp(
           _differentiateOnce(left, variable),
           operator,
@@ -113,7 +114,8 @@ class DifferentiationEvaluator {
         _differentiatePower(left, right, variable),
 
       // Unary minus: d/dx(-f) = -f'
-      UnaryOp(:final operand, :final operator) when operator == UnaryOperator.negate =>
+      UnaryOp(:final operand, :final operator)
+          when operator == UnaryOperator.negate =>
         UnaryOp(UnaryOperator.negate, _differentiateOnce(operand, variable)),
 
       // Absolute value: d/dx(|f|) = f' * sign(f)
@@ -229,14 +231,16 @@ class DifferentiationEvaluator {
       'tan' => BinaryOp(
           const NumberLiteral(1),
           BinaryOperator.divide,
-          BinaryOp(FunctionCall('cos', arg), BinaryOperator.power, const NumberLiteral(2)),
+          BinaryOp(FunctionCall('cos', arg), BinaryOperator.power,
+              const NumberLiteral(2)),
         ),
       'cot' => UnaryOp(
           UnaryOperator.negate,
           BinaryOp(
             const NumberLiteral(1),
             BinaryOperator.divide,
-            BinaryOp(FunctionCall('sin', arg), BinaryOperator.power, const NumberLiteral(2)),
+            BinaryOp(FunctionCall('sin', arg), BinaryOperator.power,
+                const NumberLiteral(2)),
           ),
         ),
       'sec' => BinaryOp(
@@ -259,7 +263,8 @@ class DifferentiationEvaluator {
           BinaryOperator.divide,
           FunctionCall(
             'sqrt',
-            BinaryOp(const NumberLiteral(1), BinaryOperator.subtract, BinaryOp(arg, BinaryOperator.power, const NumberLiteral(2))),
+            BinaryOp(const NumberLiteral(1), BinaryOperator.subtract,
+                BinaryOp(arg, BinaryOperator.power, const NumberLiteral(2))),
           ),
         ),
       'arccos' || 'acos' => UnaryOp(
@@ -269,7 +274,8 @@ class DifferentiationEvaluator {
             BinaryOperator.divide,
             FunctionCall(
               'sqrt',
-              BinaryOp(const NumberLiteral(1), BinaryOperator.subtract, BinaryOp(arg, BinaryOperator.power, const NumberLiteral(2))),
+              BinaryOp(const NumberLiteral(1), BinaryOperator.subtract,
+                  BinaryOp(arg, BinaryOperator.power, const NumberLiteral(2))),
             ),
           ),
         ),
@@ -289,7 +295,8 @@ class DifferentiationEvaluator {
       'tanh' => BinaryOp(
           const NumberLiteral(1),
           BinaryOperator.divide,
-          BinaryOp(FunctionCall('cosh', arg), BinaryOperator.power, const NumberLiteral(2)),
+          BinaryOp(FunctionCall('cosh', arg), BinaryOperator.power,
+              const NumberLiteral(2)),
         ),
 
       // Exponential and logarithmic
@@ -298,12 +305,14 @@ class DifferentiationEvaluator {
       'log' => BinaryOp(
           const NumberLiteral(1),
           BinaryOperator.divide,
-          BinaryOp(arg, BinaryOperator.multiply, FunctionCall('ln', const NumberLiteral(10))),
+          BinaryOp(arg, BinaryOperator.multiply,
+              FunctionCall('ln', const NumberLiteral(10))),
         ),
       'log2' => BinaryOp(
           const NumberLiteral(1),
           BinaryOperator.divide,
-          BinaryOp(arg, BinaryOperator.multiply, FunctionCall('ln', const NumberLiteral(2))),
+          BinaryOp(arg, BinaryOperator.multiply,
+              FunctionCall('ln', const NumberLiteral(2))),
         ),
 
       // Square root: d/dx(sqrt(f)) = 1/(2*sqrt(f)) * f'
@@ -322,7 +331,6 @@ class DifferentiationEvaluator {
 
       // Floor, ceil, round: derivative is 0 (except at discontinuities)
       'floor' || 'ceil' || 'round' => const NumberLiteral(0),
-
       _ => throw EvaluatorException(
           'Cannot differentiate function: $name',
           suggestion: 'Function derivative not implemented',

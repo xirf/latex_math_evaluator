@@ -266,7 +266,7 @@ void main() {
     test('second order derivative via API', () {
       final expr = evaluator.parse('x^{3}');
       final secondDerivative = evaluator.differentiate(expr, 'x', order: 2);
-      
+
       // d²/dx²(x^3) = 6x at x = 2
       final result = evaluator.evaluateParsed(secondDerivative, {'x': 2});
       expect(result.asNumeric(), closeTo(12, 0.0001));
@@ -275,7 +275,7 @@ void main() {
     test('derivative of complex expression', () {
       final expr = evaluator.parse(r'\sin{x} + x^{2}');
       final derivative = evaluator.differentiate(expr, 'x');
-      
+
       // d/dx(sin(x) + x^2) = cos(x) + 2x at x = 0
       final result = evaluator.evaluateParsed(derivative, {'x': 0});
       expect(result.asNumeric(), closeTo(1, 0.0001)); // cos(0) + 0 = 1
@@ -339,6 +339,7 @@ double log(double x) => _math.log(x);
 num pow(num x, num exp) => _math.pow(x, exp);
 
 final _math = _Math();
+
 class _Math {
   double sin(double x) => dart_math.sin(x);
   double cos(double x) => dart_math.cos(x);

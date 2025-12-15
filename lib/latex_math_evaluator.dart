@@ -345,7 +345,8 @@ class LatexMathEvaluator {
   /// final expr2 = evaluator.parse('x^{3}');
   /// final secondDerivative = evaluator.differentiate(expr2, 'x', order: 2);
   /// ```
-  Expression differentiate(Expression expression, String variable, {int order = 1}) {
+  Expression differentiate(Expression expression, String variable,
+      {int order = 1}) {
     return _evaluator.differentiationEvaluator.differentiate(
       expression,
       variable,

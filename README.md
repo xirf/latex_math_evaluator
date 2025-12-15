@@ -2,7 +2,7 @@
 
 > A Flutter/Dart library for parsing and evaluating mathematical expressions written in LaTeX format with support for symbolic differentiation, matrix operations, and advanced mathematical notation.
 
-[![Tests](https://img.shields.io/badge/tests-393%20passed-brightgreen)](https://github.com/xirf/latex_math_evaluator)
+[![Tests](https://img.shields.io/badge/tests-409%20passed-brightgreen)](https://github.com/xirf/latex_math_evaluator)
 [![Dart](https://img.shields.io/badge/dart-%3E%3D3.0.0-blue)](https://github.com/xirf/latex_math_evaluator)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Pub Version](https://img.shields.io/pub/v/latex_math_evaluator)](https://pub.dev/packages/latex_math_evaluator)
@@ -372,8 +372,8 @@ If you're familiar with Dart's ecosystem, you might know about the [`math_expres
 
 - **math_expressions:** Uses custom syntax (`sin(x)`, `x^2`, `sqrt(x)`)
 - **latex_math_evaluator:** Native LaTeX notation (`\sin{x}`, `x^{2}`, `\sqrt{x}`)
-
-<!-- **Why this matters:** Academic papers, textbooks, and educational platforms commonly use LaTeX. Copy-paste expressions directly without translation. Your educational content and LaTeX-heavy ecosystems integrate with minimal friction. -->
+  - **Copy-paste from academic sources**: Supports delimiter sizing commands (`\left`, `\right`, `\big`, etc.) that are commonly used in academic papers
+  - **No manual cleanup needed**: Expressions can be used directly as they appear in textbooks and papers
 
 We hope to make it easier for users to work with mathematical expressions in their familiar LaTeX format, reducing the need for translation between different syntaxes.
 

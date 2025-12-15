@@ -171,7 +171,7 @@ class Tokenizer {
         type: TokenType.number, value: buffer.toString(), position: startPos);
   }
 
-  Token _readLatexCommand() {
+  Token? _readLatexCommand() {
     final startPos = _position;
     _position++; // Skip the backslash
 
@@ -190,6 +190,16 @@ class Tokenizer {
       _position++;
       return Token(
           type: TokenType.backslash, value: '\\\\', position: startPos);
+    }
+
+    // Handle escaped braces \{ and \} - treat as regular braces
+    if (_current == '{') {
+      _position++;
+      return Token(type: TokenType.lparen, value: '{', position: startPos);
+    }
+    if (_current == '}') {
+      _position++;
+      return Token(type: TokenType.rparen, value: '}', position: startPos);
     }
 
     final buffer = StringBuffer();
@@ -300,6 +310,14 @@ class Tokenizer {
       case 'delta':
         return Token(
             type: TokenType.constant, value: command, position: startPos);
+      // Delimiter sizing commands (ignored - purely visual in LaTeX)
+      case 'left':
+      case 'right':
+      case 'big':
+      case 'Big':
+      case 'bigg':
+      case 'Bigg':
+        return null; // Skip these commands entirely
       default:
         // Try extension registry
         if (_extensions != null) {

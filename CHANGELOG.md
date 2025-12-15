@@ -1,5 +1,15 @@
 # CHANGELOG
 
+# 0.1.3-nightly.1
+
+- Added **Academic LaTeX Support** for copy-paste from papers and notes:
+  - Support for delimiter sizing commands: `\left`, `\right`, `\big`, `\Big`, `\bigg`, `\Bigg`
+  - These commands are silently ignored (they're purely visual in LaTeX)
+  - Support for escaped braces: `\{` and `\}` treated as regular grouping
+  - Enables direct copy-paste from academic sources without manual cleanup
+  - Documentation in `doc/academic_latex.md`
+
+
 ## 0.1.2 - 2025-12-15
 
 ### Added

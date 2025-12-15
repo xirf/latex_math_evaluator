@@ -73,18 +73,21 @@ void benchmarkDerivativeEvaluation({
   sw3.stop();
 
   if (inlineErrors > 0 || symbolicErrors > 0 || parseEvalErrors > 0) {
-    print('Note: There were evaluation errors - inline:$inlineErrors symbolic:$symbolicErrors parse-eval:$parseEvalErrors');
+    print(
+        'Note: There were evaluation errors - inline:$inlineErrors symbolic:$symbolicErrors parse-eval:$parseEvalErrors');
   }
-
 
   final avgInlineMs = sw1.elapsedMicroseconds / iterations / 1000.0;
   final avgSymbolicMs = sw2.elapsedMicroseconds / iterations / 1000.0;
   final avgParseAndEvalMs = sw3.elapsedMicroseconds / iterations / 1000.0;
 
   print('--- $label ---');
-  print('Inline \\frac evaluation (evaluate): ${sw1.elapsedMilliseconds} ms; avg ${avgInlineMs.toStringAsFixed(4)} ms/op');
-  print('Symbolic derivative evaluation (evaluateParsed): ${sw2.elapsedMilliseconds} ms; avg ${avgSymbolicMs.toStringAsFixed(4)} ms/op');
-  print('Parse+eval per op (worst-case): ${sw3.elapsedMilliseconds} ms; avg ${avgParseAndEvalMs.toStringAsFixed(4)} ms/op');
+  print(
+      'Inline \\frac evaluation (evaluate): ${sw1.elapsedMilliseconds} ms; avg ${avgInlineMs.toStringAsFixed(4)} ms/op');
+  print(
+      'Symbolic derivative evaluation (evaluateParsed): ${sw2.elapsedMilliseconds} ms; avg ${avgSymbolicMs.toStringAsFixed(4)} ms/op');
+  print(
+      'Parse+eval per op (worst-case): ${sw3.elapsedMilliseconds} ms; avg ${avgParseAndEvalMs.toStringAsFixed(4)} ms/op');
   print('');
 }
 
@@ -102,7 +105,8 @@ void benchmarkDifferentiateCost({
   sw.stop();
 
   final avgMs = sw.elapsedMicroseconds / iterations / 1000.0;
-  print('Differentiate() cost for ${expressionString}: ${sw.elapsedMilliseconds} ms total; avg ${avgMs.toStringAsFixed(4)} ms/op');
+  print(
+      'Differentiate() cost for ${expressionString}: ${sw.elapsedMilliseconds} ms total; avg ${avgMs.toStringAsFixed(4)} ms/op');
 }
 
 String _repeat(String s, int n) => List.filled(n, s).join(' + ');
