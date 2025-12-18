@@ -1,15 +1,29 @@
 # Miscellaneous Functions
 
-## `\sqrt{x}` - Square Root
+## `\sqrt{x}` / `\sqrt[n]{x}` - Square Root and Nth Root
 
-Returns the square root of x.
+Returns the square root of x, or the nth root when optional parameter is specified.
 
-**Domain**: x ≥ 0
+**Syntax**: 
+- `\sqrt{x}` - Square root (default)
+- `\sqrt[n]{x}` - Nth root (cube root, 4th root, etc.)
+
+**Domain**: 
+- For even n: x ≥ 0
+- For odd n: all real numbers
 
 ```latex
 \sqrt{4}         -> 2
 \sqrt{2}         -> 1.41421...
 \sqrt{0}         -> 0
+
+# Nth roots
+\sqrt[3]{8}      -> 2        (cube root)
+\sqrt[3]{27}     -> 3
+\sqrt[3]{-8}     -> -2       (odd roots work with negatives)
+\sqrt[4]{16}     -> 2        (4th root)
+\sqrt[5]{32}     -> 2        (5th root)
+\sqrt[2]{16}     -> 4        (explicitly 2nd root)
 ```
 
 ## `\exp{x}` - Exponential

@@ -112,6 +112,10 @@ class Tokenizer {
       case ')':
       case '}':
         return Token(type: TokenType.rparen, value: char, position: startPos);
+      case '[':
+        return Token(type: TokenType.lbracket, value: '[', position: startPos);
+      case ']':
+        return Token(type: TokenType.rbracket, value: ']', position: startPos);
       case ',':
         return Token(type: TokenType.comma, value: ',', position: startPos);
       case '|':

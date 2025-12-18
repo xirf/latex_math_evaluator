@@ -1,6 +1,3 @@
-import 'dart:io';
-import 'dart:math' as math;
-
 import 'package:latex_math_evaluator/latex_math_evaluator.dart';
 
 void benchmarkDerivativeEvaluation({

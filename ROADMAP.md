@@ -157,11 +157,11 @@ f(x) = \begin{cases}
 
 ### 🔴 2.1 Extended LaTeX Notation Support
 
-**Status:** 📋 Planned | **Owner:** Unassigned
+**Status:** 🚧 On Progress | **Owner:** @xirf
 
 **Tasks:**
 
-- [ ] `\left( \right)` - Automatic sizing delimiters
+- [x] `\left( \right)` - Automatic sizing delimiters
 - [ ] `\binom{n}{k}` - Binomial coefficient notation (currently only `\binom` function)
 - [ ] Multi-line equations with `\begin{align}...\end{align}`
 - [ ] `\iint`, `\iiint` - Multiple integrals

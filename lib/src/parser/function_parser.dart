@@ -8,6 +8,13 @@ mixin FunctionParserMixin on BaseParser {
   Expression parseFunctionCall() {
     final name = tokens[position - 1].value;
     Expression? base;
+    Expression? optionalParam;
+
+    // Check for optional parameter in square brackets (e.g., \sqrt[3]{x})
+    if (match([TokenType.lbracket])) {
+      optionalParam = parseExpression();
+      consume(TokenType.rbracket, "Expected ']' after optional parameter");
+    }
 
     // Special handling for \vec{} and \hat{}
     if (name == 'vec' || name == 'hat') {
@@ -41,9 +48,9 @@ mixin FunctionParserMixin on BaseParser {
     }
 
     if (args.length == 1) {
-      return FunctionCall(name, args[0], base: base);
+      return FunctionCall(name, args[0], base: base, optionalParam: optionalParam);
     }
-    return FunctionCall.multivar(name, args, base: base);
+    return FunctionCall.multivar(name, args, base: base, optionalParam: optionalParam);
   }
 
   @override

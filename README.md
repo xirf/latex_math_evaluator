@@ -2,7 +2,7 @@
 
 > A Flutter/Dart library for parsing and evaluating mathematical expressions written in LaTeX format with support for symbolic differentiation, matrix operations, and advanced mathematical notation.
 
-[![Tests](https://img.shields.io/badge/tests-409%20passed-brightgreen)](https://github.com/xirf/latex_math_evaluator)
+[![Tests](https://img.shields.io/badge/tests-433%20passed-brightgreen)](https://github.com/xirf/latex_math_evaluator)
 [![Dart](https://img.shields.io/badge/dart-%3E%3D3.0.0-blue)](https://github.com/xirf/latex_math_evaluator)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Pub Version](https://img.shields.io/pub/v/latex_math_evaluator)](https://pub.dev/packages/latex_math_evaluator)
@@ -94,6 +94,9 @@ print(evaluator.evaluateNumeric(r'2 + 3 \times 4'));  // 14.0
 
 // With variables
 print(evaluator.evaluateNumeric(r'x^{2} + 1', {'x': 3}));  // 10.0
+
+// Nth roots
+print(evaluator.evaluateNumeric(r'\sqrt[3]{8}'));  // 2.0 (cube root)
 
 // Trigonometric functions
 print(evaluator.evaluateNumeric(r'\sin{\pi}'));  // 0.0

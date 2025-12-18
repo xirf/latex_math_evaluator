@@ -30,6 +30,12 @@ enum TokenType {
   /// Right parenthesis `)` or right brace `}`.
   rparen,
 
+  /// Left square bracket `[`.
+  lbracket,
+
+  /// Right square bracket `]`.
+  rbracket,
+
   /// Underscore `_` for subscripts.
   underscore,
 

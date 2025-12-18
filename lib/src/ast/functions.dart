@@ -36,14 +36,21 @@ class FunctionCall extends Expression {
   /// Optional base for functions like \log_{base}{arg}.
   final Expression? base;
 
-  FunctionCall(this.name, Expression argument, {this.base}) : args = [argument];
+  /// Optional parameter for functions like \sqrt[n]{x}.
+  final Expression? optionalParam;
 
-  FunctionCall.multivar(this.name, this.args, {this.base});
+  FunctionCall(this.name, Expression argument, {this.base, this.optionalParam}) : args = [argument];
+
+  FunctionCall.multivar(this.name, this.args, {this.base, this.optionalParam});
 
   @override
-  String toString() => base != null
-      ? 'FunctionCall($name, base: $base, args: $args)'
-      : 'FunctionCall($name, args: $args)';
+  String toString() {
+    final parts = ['FunctionCall($name'];
+    if (base != null) parts.add('base: $base');
+    if (optionalParam != null) parts.add('optionalParam: $optionalParam');
+    parts.add('args: $args)');
+    return parts.join(', ');
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -53,8 +60,9 @@ class FunctionCall extends Expression {
           name == other.name &&
           // Deep equality for list
           args.length == other.args.length &&
-          base == other.base; // Simplified check
+          base == other.base &&
+          optionalParam == other.optionalParam; // Simplified check
 
   @override
-  int get hashCode => Object.hash(name, Object.hashAll(args), base);
+  int get hashCode => Object.hash(name, Object.hashAll(args), base, optionalParam);
 }

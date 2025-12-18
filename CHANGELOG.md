@@ -2,6 +2,15 @@
 
 # 0.1.3-nightly.1
 
+- Added **Nth Root Support** with square bracket notation:
+  - Support for nth roots: `\sqrt[n]{x}` (cube roots, 4th roots, etc.)
+  - Examples: `\sqrt[3]{8}` = 2, `\sqrt[4]{16}` = 2, `\sqrt[5]{32}` = 2
+  - Odd roots support negative numbers: `\sqrt[3]{-8}` = -2
+  - Even roots properly throw errors for negative arguments
+  - Dynamic roots with variables: `\sqrt[n]{x}`
+  - Backwards compatible: `\sqrt{16}` continues to work as square root
+  - 24 comprehensive tests covering various nth root scenarios
+  - Updated documentation in `doc/functions/misc.md`
 - Added **Academic LaTeX Support** for copy-paste from papers and notes:
   - Support for delimiter sizing commands: `\left`, `\right`, `\big`, `\Big`, `\bigg`, `\Bigg`
   - These commands are silently ignored (they're purely visual in LaTeX)
