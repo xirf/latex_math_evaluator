@@ -151,12 +151,13 @@ double handleBinom(FunctionCall func, Map<String, double> vars,
 
   if (k < 0 || k > n) return 0;
   if (k == 0 || k == n) return 1;
-  if (k > n / 2)
+  if (k > n / 2) {
     return handleBinom(
         FunctionCall.multivar('binom',
             [NumberLiteral(n.toDouble()), NumberLiteral((n - k).toDouble())]),
         vars,
         evaluate);
+  }
 
   double res = 1;
   for (int i = 1; i <= k; i++) {

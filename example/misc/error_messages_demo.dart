@@ -1,6 +1,6 @@
-/// Demonstrates the error messages with position markers and suggestions.
-///
-/// This example shows how the error messages help debug LaTeX expressions.
+/* Demonstrates the error messages with position markers and suggestions.
+
+This example shows how the error messages help debug LaTeX expressions. */
 
 import 'package:latex_math_evaluator/latex_math_evaluator.dart';
 
@@ -17,7 +17,7 @@ void main() {
   } on LatexMathException catch (e) {
     print(e);
   }
-  print('\n' + '-' * 60 + '\n');
+  print("\n${'-' * 60}\n");
 
   // Example 2: Unknown LaTeX command
   print('Example 2: Unknown LaTeX command');
@@ -27,7 +27,7 @@ void main() {
   } on LatexMathException catch (e) {
     print(e);
   }
-  print('\n' + '-' * 60 + '\n');
+  print("\n${'-' * 60}\n");
 
   // Example 3: Undefined variable
   print('Example 3: Undefined variable');
@@ -37,7 +37,7 @@ void main() {
   } on LatexMathException catch (e) {
     print(e);
   }
-  print('\n' + '-' * 60 + '\n');
+  print("\n${'-' * 60}\n");
 
   // Example 4: Division by zero
   print('Example 4: Division by zero');
@@ -47,7 +47,7 @@ void main() {
   } on LatexMathException catch (e) {
     print(e);
   }
-  print('\n' + '-' * 60 + '\n');
+  print("\n${'-' * 60}\n");
 
   // Example 5: Unexpected character
   print('Example 5: Unexpected character');
@@ -57,7 +57,7 @@ void main() {
   } on LatexMathException catch (e) {
     print(e);
   }
-  print('\n' + '-' * 60 + '\n');
+  print("\n${'-' * 60}\n");
 
   // Example 6: Missing closing parenthesis
   print('Example 6: Missing closing parenthesis');
@@ -67,7 +67,7 @@ void main() {
   } on LatexMathException catch (e) {
     print(e);
   }
-  print('\n' + '-' * 60 + '\n');
+  print("\n${'-' * 60}\n");
 
   // Example 7: Matrix environment mismatch
   print('Example 7: Matrix environment mismatch');
@@ -77,7 +77,7 @@ void main() {
   } on LatexMathException catch (e) {
     print(e);
   }
-  print('\n' + '-' * 60 + '\n');
+  print("\n${'-' * 60}\n");
 
   // Example 8: Validation API with error details
   print('Example 8: Using Validation API');
@@ -90,7 +90,7 @@ void main() {
     print('Suggestion: ${result.suggestion}');
     print('Exception Type: ${result.exceptionType}');
   }
-  print('\n' + '-' * 60 + '\n');
+  print("\n${'-' * 60}\n");
 
   // Example 9: Long expression with error in the middle
   print('Example 9: Error in long expression');
@@ -100,7 +100,7 @@ void main() {
   } on LatexMathException catch (e) {
     print(e);
   }
-  print('\n' + '-' * 60 + '\n');
+  print("\n${'-' * 60}\n");
 
   print('=== Demo Complete ===');
 }

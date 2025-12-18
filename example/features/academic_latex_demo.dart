@@ -64,14 +64,14 @@ void main() {
 
   print('\nExample 7: Manual sizing commands (also work)');
   final bigResult = evaluator.evaluate(r'\big(2+3\big) * 4').asNumeric();
-  final BigResult = evaluator.evaluate(r'\Big(2+3\Big) * 4').asNumeric();
+  final bigResultBig = evaluator.evaluate(r'\Big(2+3\Big) * 4').asNumeric();
   final biggResult = evaluator.evaluate(r'\bigg(2+3\bigg) * 4').asNumeric();
-  final BiggResult = evaluator.evaluate(r'\Bigg(2+3\Bigg) * 4').asNumeric();
+  final biggResultBig = evaluator.evaluate(r'\Bigg(2+3\Bigg) * 4').asNumeric();
 
   print('  \\big(2+3\\big) * 4     = $bigResult');
-  print('  \\Big(2+3\\Big) * 4     = $BigResult');
+  print('  \\Big(2+3\\Big) * 4     = $bigResultBig');
   print('  \\bigg(2+3\\bigg) * 4   = $biggResult');
-  print('  \\Bigg(2+3\\Bigg) * 4   = $BiggResult');
+  print('  \\Bigg(2+3\\Bigg) * 4   = $biggResultBig');
 
   print('\n✅ All delimiter sizing commands are silently ignored!');
   print('   You can paste directly from LaTeX documents without modification.');

@@ -26,8 +26,9 @@ dynamic handleIm(FunctionCall func, Map<String, double> variables,
 
 dynamic handleConjugate(FunctionCall func, Map<String, double> variables,
     dynamic Function(Expression) evaluate) {
-  if (func.args.length != 1)
+  if (func.args.length != 1) {
     throw EvaluatorException('conjugate() requires exactly 1 argument');
+  }
   final val = evaluate(func.args[0]);
   if (val is Complex) return val.conjugate;
   if (val is num) return Complex(val.toDouble());

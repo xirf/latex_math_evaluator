@@ -92,3 +92,4 @@ class ChainedComparison extends Expression {
     return true;
   }
 }
+
