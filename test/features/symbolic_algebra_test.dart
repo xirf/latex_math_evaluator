@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:latex_math_evaluator/latex_math_evaluator.dart';
+import 'package:latex_math_evaluator/src/symbolic/assumptions.dart';
 
 void main() {
   late SymbolicEngine engine;
@@ -382,6 +383,128 @@ void main() {
 
       expect(simplified, equals(const NumberLiteral(1)));
     });
+
+    test('sin(2x) = 2*sin(x)*cos(x) - double-angle formula', () {
+      // Create 2*x
+      final twoX = BinaryOp(
+          const NumberLiteral(2), BinaryOperator.multiply, Variable('x'));
+
+      // sin(2x)
+      final expr = FunctionCall('sin', twoX);
+      final simplified = engine.expandTrig(expr);
+
+      // Expected: 2*sin(x)*cos(x)
+      final sinX = FunctionCall('sin', Variable('x'));
+      final cosX = FunctionCall('cos', Variable('x'));
+      final sinCos = BinaryOp(sinX, BinaryOperator.multiply, cosX);
+      final expected =
+          BinaryOp(const NumberLiteral(2), BinaryOperator.multiply, sinCos);
+
+      expect(simplified, equals(expected));
+    });
+
+    test('cos(2x) = cos²(x) - sin²(x) - double-angle formula', () {
+      // Create 2*x
+      final twoX = BinaryOp(
+          const NumberLiteral(2), BinaryOperator.multiply, Variable('x'));
+
+      // cos(2x)
+      final expr = FunctionCall('cos', twoX);
+      final simplified = engine.expandTrig(expr);
+
+      // Expected: cos²(x) - sin²(x)
+      final cosX = FunctionCall('cos', Variable('x'));
+      final cos2X =
+          BinaryOp(cosX, BinaryOperator.power, const NumberLiteral(2));
+      final sinX = FunctionCall('sin', Variable('x'));
+      final sin2X =
+          BinaryOp(sinX, BinaryOperator.power, const NumberLiteral(2));
+      final expected = BinaryOp(cos2X, BinaryOperator.subtract, sin2X);
+
+      expect(simplified, equals(expected));
+    });
+
+    test('tan(2x) = 2*tan(x) / (1 - tan²(x)) - double-angle formula', () {
+      // Create 2*x
+      final twoX = BinaryOp(
+          const NumberLiteral(2), BinaryOperator.multiply, Variable('x'));
+
+      // tan(2x)
+      final expr = FunctionCall('tan', twoX);
+      final simplified = engine.expandTrig(expr);
+
+      // Expected: 2*tan(x) / (1 - tan²(x))
+      final tanX = FunctionCall('tan', Variable('x'));
+      final twoTanX =
+          BinaryOp(const NumberLiteral(2), BinaryOperator.multiply, tanX);
+      final tan2X =
+          BinaryOp(tanX, BinaryOperator.power, const NumberLiteral(2));
+      final denominator =
+          BinaryOp(const NumberLiteral(1), BinaryOperator.subtract, tan2X);
+      final expected = BinaryOp(twoTanX, BinaryOperator.divide, denominator);
+
+      expect(simplified, equals(expected));
+    });
+
+    test('sin(x/2) = √((1-cos(x))/2) - half-angle formula', () {
+      // Create x/2
+      final xOver2 = BinaryOp(
+          Variable('x'), BinaryOperator.divide, const NumberLiteral(2));
+      // sin(x/2)
+      final expr = FunctionCall('sin', xOver2);
+      final simplified = engine.expandTrig(expr);
+
+      // Expected: ((1-cos(x))/2)^0.5
+      final cosX = FunctionCall('cos', Variable('x'));
+      final oneMinusCos =
+          BinaryOp(const NumberLiteral(1), BinaryOperator.subtract, cosX);
+      final half =
+          BinaryOp(oneMinusCos, BinaryOperator.divide, const NumberLiteral(2));
+      final expected =
+          BinaryOp(half, BinaryOperator.power, const NumberLiteral(0.5));
+
+      expect(simplified, equals(expected));
+    });
+
+    test('cos(x/2) = √((1+cos(x))/2) - half-angle formula', () {
+      // Create x/2
+      final xOver2 = BinaryOp(
+          Variable('x'), BinaryOperator.divide, const NumberLiteral(2));
+
+      // cos(x/2)
+      final expr = FunctionCall('cos', xOver2);
+      final simplified = engine.expandTrig(expr);
+
+      // Expected: ((1+cos(x))/2)^0.5
+      final cosX = FunctionCall('cos', Variable('x'));
+      final onePlusCos =
+          BinaryOp(const NumberLiteral(1), BinaryOperator.add, cosX);
+      final half =
+          BinaryOp(onePlusCos, BinaryOperator.divide, const NumberLiteral(2));
+      final expected =
+          BinaryOp(half, BinaryOperator.power, const NumberLiteral(0.5));
+
+      expect(simplified, equals(expected));
+    });
+
+    test('tan(x/2) = sin(x)/(1+cos(x)) - half-angle formula', () {
+      // Create x/2
+      final xOver2 = BinaryOp(
+          Variable('x'), BinaryOperator.divide, const NumberLiteral(2));
+
+      // tan(x/2)
+      final expr = FunctionCall('tan', xOver2);
+      final simplified = engine.expandTrig(expr);
+
+      // Expected: sin(x)/(1+cos(x))
+      final sinX = FunctionCall('sin', Variable('x'));
+      final cosX = FunctionCall('cos', Variable('x'));
+      final onePlusCos =
+          BinaryOp(const NumberLiteral(1), BinaryOperator.add, cosX);
+      final expected = BinaryOp(sinX, BinaryOperator.divide, onePlusCos);
+
+      expect(simplified, equals(expected));
+    });
   });
 
   group('Logarithm Laws', () {
@@ -441,6 +564,7 @@ void main() {
     });
 
     test('log(a^b) = b*log(a)', () {
+      engine.assume('a', Assumption.positive);
       // a^b
       final aPowerB =
           BinaryOp(Variable('a'), BinaryOperator.power, Variable('b'));
@@ -456,6 +580,7 @@ void main() {
     });
 
     test('ln(x^2) = 2*ln(x)', () {
+      engine.assume('x', Assumption.positive);
       final x2 =
           BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
       final expr = FunctionCall('ln', x2);
@@ -600,6 +725,121 @@ void main() {
           const NumberLiteral(2), BinaryOperator.power, const NumberLiteral(4));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(16)));
+    });
+  });
+
+  group('Equation Solving', () {
+    test('Solve linear equation: 2x + 4 = 0', () {
+      // 2x + 4
+      final twoX = BinaryOp(
+          const NumberLiteral(2), BinaryOperator.multiply, Variable('x'));
+      final equation =
+          BinaryOp(twoX, BinaryOperator.add, const NumberLiteral(4));
+
+      final solution = engine.solveLinear(equation, 'x');
+      expect(solution, isNotNull);
+
+      // Solution should be x = -2
+      final expected = const NumberLiteral(-2);
+      expect(solution, equals(expected));
+    });
+
+    test('Solve linear equation: x + 5 = 0', () {
+      final equation =
+          BinaryOp(Variable('x'), BinaryOperator.add, const NumberLiteral(5));
+
+      final solution = engine.solveLinear(equation, 'x');
+      expect(solution, isNotNull);
+
+      // Solution should be x = -5
+      final expected = const NumberLiteral(-5);
+      expect(solution, equals(expected));
+    });
+
+    test('Solve linear equation: 3x = 0', () {
+      final equation = BinaryOp(
+          const NumberLiteral(3), BinaryOperator.multiply, Variable('x'));
+
+      final solution = engine.solveLinear(equation, 'x');
+      expect(solution, isNotNull);
+
+      // Solution should be x = 0
+      final expected = const NumberLiteral(0);
+      expect(solution, equals(expected));
+    });
+
+    test('Solve quadratic equation: x^2 - 4 = 0', () {
+      // x^2 - 4
+      final xSquared =
+          BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
+      final equation =
+          BinaryOp(xSquared, BinaryOperator.subtract, const NumberLiteral(4));
+
+      final solutions = engine.solveQuadratic(equation, 'x');
+      expect(solutions, hasLength(2));
+
+      // Solutions should be x = 2 and x = -2
+      final evaluator = Evaluator();
+      final sol1 = evaluator.evaluate(solutions[0], {}).asNumeric();
+      final sol2 = evaluator.evaluate(solutions[1], {}).asNumeric();
+
+      expect(
+          [sol1, sol2], containsAll([closeTo(2, 1e-10), closeTo(-2, 1e-10)]));
+    });
+
+    test('Solve quadratic equation: x^2 + 2x + 1 = 0', () {
+      // x^2 + 2x + 1 (perfect square: (x+1)^2)
+      final xSquared =
+          BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
+      final twoX = BinaryOp(
+          const NumberLiteral(2), BinaryOperator.multiply, Variable('x'));
+      final xSquaredPlus2x = BinaryOp(xSquared, BinaryOperator.add, twoX);
+      final equation =
+          BinaryOp(xSquaredPlus2x, BinaryOperator.add, const NumberLiteral(1));
+
+      final solutions = engine.solveQuadratic(equation, 'x');
+      expect(solutions, hasLength(1));
+
+      // Solution should be x = -1 (double root)
+      final evaluator = Evaluator();
+      final sol = evaluator.evaluate(solutions[0], {}).asNumeric();
+      expect(sol, closeTo(-1, 1e-10));
+    });
+
+    test('Solve quadratic equation: x^2 + 1 = 0 (no real solutions)', () {
+      // x^2 + 1
+      final xSquared =
+          BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
+      final equation =
+          BinaryOp(xSquared, BinaryOperator.add, const NumberLiteral(1));
+
+      final solutions = engine.solveQuadratic(equation, 'x');
+      expect(solutions, isEmpty);
+    });
+
+    test('Solve quadratic with symbolic coefficients: x^2 + bx + c = 0', () {
+      // x^2 + b*x + c (simpler symbolic case)
+      final x2 =
+          BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
+      final bX =
+          BinaryOp(Variable('b'), BinaryOperator.multiply, Variable('x'));
+      final equation = BinaryOp(
+        BinaryOp(x2, BinaryOperator.add, bX),
+        BinaryOperator.add,
+        Variable('c'),
+      );
+
+      final solutions = engine.solveQuadratic(equation, 'x');
+
+      // Should return symbolic solutions with sqrt
+      expect(solutions, hasLength(2));
+
+      // Verify solutions contain sqrt in their LaTeX
+      final latex1 = solutions[0].toLatex();
+      final latex2 = solutions[1].toLatex();
+
+      expect(latex1.contains('sqrt') || latex1.contains('\\sqrt'), isTrue);
+      expect(latex2.contains('sqrt') || latex2.contains('\\sqrt'), isTrue);
     });
   });
 }
