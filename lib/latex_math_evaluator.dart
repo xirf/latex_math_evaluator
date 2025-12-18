@@ -69,6 +69,7 @@ export 'src/vector.dart';
 export 'src/parser.dart';
 export 'src/token.dart';
 export 'src/tokenizer.dart';
+export 'src/symbolic.dart';
 
 import 'src/ast.dart';
 import 'src/evaluator.dart';
