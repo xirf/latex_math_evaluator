@@ -20,16 +20,21 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 - ✅ LaTeX tokenization and parsing (fractions, exponents, subscripts, functions)
 - ✅ 30+ mathematical functions (trig, hyperbolic, logarithmic, rounding, etc.)
 - ✅ Symbolic differentiation with full calculus rule support
+- ✅ Symbolic algebra engine (simplification, expansion, factorization)
+- ✅ Trigonometric identities (Pythagorean, double-angle formulas)
+- ✅ Equation solving (linear and quadratic)
 - ✅ Numerical integration (Simpson's Rule)
 - ✅ Matrix operations (addition, multiplication, determinant, transpose, inverse)
 - ✅ Vector operations (dot product, cross product, magnitude)
 - ✅ Summation and product notation
 - ✅ Limit evaluation (numerical approximation)
 - ✅ Complex number support (basic arithmetic, Re, Im, conjugate)
+- ✅ Domain assumptions & tracking (e.g., x > 0 for log simplification)
 - ✅ Expression validation with detailed error messages
 - ✅ Parse-once-evaluate-many pattern with LRU caching
 - ✅ Extensible architecture for custom functions
 - ✅ Implicit multiplication support
+- ✅ LaTeX regeneration from AST (toLatex() method)
 - ✅ 390+ passing tests
 
 ---
@@ -38,27 +43,28 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 
 ### 🔴 1.1 Symbolic Algebra Engine
 
-**Status:** 🚧 15/12/2025 | **Owner:** @xirf
+**Status:** ✅ 18/12/2025 | **Owner:** @xirf
 
 **Tasks:**
 
-- [ ] Implement symbolic simplification
-  - [ ] Polynomial expansion and factorization
-  - [ ] Trigonometric identities (sin²x + cos²x = 1, etc.)
-  - [ ] Logarithm laws (log(ab) = log(a) + log(b))
-  - [ ] Rational expression simplification
-- [ ] Expression equivalence testing
-- [ ] Symbolic equation solving (linear, quadratic)
-- [ ] Add tests for 50+ symbolic identities
-- [ ] Document simplification rules and limitations
+- [x] Implement symbolic simplification
+  - [x] Polynomial expansion and factorization
+  - [x] Trigonometric identities (Pythagorean, even/odd functions)
+  - [x] Double-angle formulas (sin(2x), cos(2x), tan(2x))
+  - [x] Logarithm laws (log(ab) = log(a) + log(b))
+  - [x] Rational expression simplification
+- [x] Expression equivalence testing
+- [x] Symbolic equation solving (linear, quadratic)
+- [x] Add tests for 50+ symbolic identities (700+ tests passing)
+- [x] Document simplification rules and limitations
 
 **Rationale:** Current differentiation has basic simplification, but advanced symbolic manipulation would enable algebraic workflows and make derivative results more readable.
 
 **Success Criteria:**
 
-- [ ] Can simplify `(x+1)^2` to `x^2 + 2x + 1`
-- [ ] Can factor `x^2 - 4` to `(x+2)(x-2)`
-- [ ] 95%+ test coverage on symbolic operations
+- [x] Can simplify `(x+1)^2` to `x^2 + 2x + 1`
+- [x] Can factor `x^2 - 4` to `(x+2)(x-2)`
+- [x] 95%+ test coverage on symbolic operations
 - [ ] Performance benchmarks vs SymPy
 
 ---
@@ -557,15 +563,21 @@ f(x) = \begin{cases}
 
 ### v0.2.0 - Enhanced Symbolic Math (Target: Q1 2026)
 
-- [ ] Basic symbolic simplification
+- [x] Basic symbolic simplification
+- [x] Polynomial expansion and factorization
+- [x] Trigonometric identities (Pythagorean, double-angle)
+- [x] Logarithm laws and rational simplification
+- [x] LaTeX regeneration (toLatex() method)
 - [ ] Extended LaTeX notation (`\left/\right`, `\binom`)
 - [ ] Enhanced complex number support
 - [ ] Improved error messages
-- [ ] 500+ tests
+- [x] 500+ tests (currently 700+ passing)
 
 ### v0.3.0 - Integration & Tooling (Target: Q2 2026)
 
 - [ ] Symbolic integration (basic)
+- [ ] Sum-to-product and product-to-sum formulas
+- [ ] Half-angle formulas
 - [ ] CLI tool release
 - [ ] MathML export
 - [ ] Web playground launch
@@ -607,4 +619,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
 
 ---
 
-**Last Updated:** December 15, 2025
+**Last Updated:** December 19, 2025

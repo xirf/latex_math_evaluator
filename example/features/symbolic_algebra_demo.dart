@@ -1,4 +1,5 @@
 import 'package:latex_math_evaluator/latex_math_evaluator.dart';
+import 'package:latex_math_evaluator/src/symbolic/assumptions.dart';
 
 void main() {
   final engine = SymbolicEngine();
@@ -10,21 +11,21 @@ void main() {
   print('1. Basic Simplification:');
   var expr = evaluator.parse('0 + x');
   var simplified = engine.simplify(expr);
-  print('   0 + x  →  Simplified: $simplified');
+  print('   0 + x  →  LaTeX: ${simplified.toLatex()}');
 
   expr = evaluator.parse('1 \\times x');
   simplified = engine.simplify(expr);
-  print('   1 × x  →  Simplified: $simplified');
+  print('   1 × x  →  LaTeX: ${simplified.toLatex()}');
 
   expr = evaluator.parse('x + x');
   simplified = engine.simplify(expr);
-  print('   x + x  →  Simplified: $simplified\n');
+  print('   x + x  →  LaTeX: ${simplified.toLatex()}\n');
 
   // Example 2: Polynomial Expansion
   print('2. Polynomial Expansion:');
   expr = evaluator.parse('(x+1)^{2}');
   var expanded = engine.expand(expr);
-  print('   (x+1)²  →  Expanded: $expanded');
+  print('   (x+1)²  →  LaTeX: ${expanded.toLatex()}');
 
   // Verify it's correct
   final testValues = [0.0, 1.0, 2.0, 5.0, -1.0];
@@ -46,7 +47,7 @@ void main() {
       const NumberLiteral(2), BinaryOperator.power, const NumberLiteral(2));
   final diffOfSquares = BinaryOp(xSquared, BinaryOperator.subtract, twoSquared);
   var factored = engine.factor(diffOfSquares);
-  print('   x² - 2²  →  Factored: $factored');
+  print('   x² - 2²  →  LaTeX: ${factored.toLatex()}');
 
   print('   Verification (using x² - 4):');
   expr = evaluator.parse(
@@ -68,17 +69,57 @@ void main() {
   final cos2X = BinaryOp(cosX, BinaryOperator.power, const NumberLiteral(2));
   final pythagorean = BinaryOp(sin2X, BinaryOperator.add, cos2X);
   simplified = engine.simplify(pythagorean);
-  print('   sin²(x) + cos²(x)  →  Simplified: $simplified');
+  print('   sin²(x) + cos²(x)  →  LaTeX: ${simplified.toLatex()}');
 
   // sin(0) = 0
   final sin0 = FunctionCall('sin', const NumberLiteral(0));
   simplified = engine.simplify(sin0);
-  print('   sin(0)  →  Simplified: $simplified');
+  print('   sin(0)  →  LaTeX: ${simplified.toLatex()}');
 
   // cos(0) = 1
   final cos0 = FunctionCall('cos', const NumberLiteral(0));
   simplified = engine.simplify(cos0);
-  print('   cos(0)  →  Simplified: $simplified\n');
+  print('   cos(0)  →  LaTeX: ${simplified.toLatex()}');
+
+  // Double-angle formulas
+  print('\n   Double-Angle Formulas (Expansion):');
+
+  // sin(2x) = 2*sin(x)*cos(x)
+  final twoXForTrig =
+      BinaryOp(const NumberLiteral(2), BinaryOperator.multiply, Variable('x'));
+  final sin2x = FunctionCall('sin', twoXForTrig);
+  var expandedTrig = engine.expandTrig(sin2x);
+  print('   sin(2x)  →  LaTeX: ${expandedTrig.toLatex()}');
+
+  // cos(2x) = cos²(x) - sin²(x)
+  final cos2x = FunctionCall('cos', twoXForTrig);
+  expandedTrig = engine.expandTrig(cos2x);
+  print('   cos(2x)  →  LaTeX: ${expandedTrig.toLatex()}');
+
+  // tan(2x) = 2*tan(x) / (1 - tan²(x))
+  final tan2x = FunctionCall('tan', twoXForTrig);
+  expandedTrig = engine.expandTrig(tan2x);
+  print('   tan(2x)  →  LaTeX: ${expandedTrig.toLatex()}');
+
+  // Half-angle formulas
+  print('\n   Half-Angle Formulas (Expansion):');
+
+  // sin(x/2) = √((1-cos(x))/2)
+  final xOver2 =
+      BinaryOp(Variable('x'), BinaryOperator.divide, const NumberLiteral(2));
+  final sinHalf = FunctionCall('sin', xOver2);
+  expandedTrig = engine.expandTrig(sinHalf);
+  print('   sin(x/2)  →  LaTeX: ${expandedTrig.toLatex()}');
+
+  // cos(x/2) = √((1+cos(x))/2)
+  final cosHalf = FunctionCall('cos', xOver2);
+  expandedTrig = engine.expandTrig(cosHalf);
+  print('   cos(x/2)  →  LaTeX: ${expandedTrig.toLatex()}');
+
+  // tan(x/2) = sin(x)/(1+cos(x))
+  final tanHalf = FunctionCall('tan', xOver2);
+  expandedTrig = engine.expandTrig(tanHalf);
+  print('   tan(x/2)  →  LaTeX: ${expandedTrig.toLatex()}\n');
 
   // Example 5: Logarithm Laws
   print('5. Logarithm Laws:');
@@ -88,12 +129,12 @@ void main() {
       BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
   final logX2 = FunctionCall('log', x2);
   simplified = engine.simplify(logX2);
-  print('   log(x²)  →  Simplified: $simplified');
+  print('   log(x²)  →  LaTeX: ${simplified.toLatex()}');
 
   // log(1) = 0
   final log1 = FunctionCall('log', const NumberLiteral(1));
   simplified = engine.simplify(log1);
-  print('   log(1)  →  Simplified: $simplified\n');
+  print('   log(1)  →  LaTeX: ${simplified.toLatex()}\n');
 
   // Example 6: Rational Expression Simplification
   print('6. Rational Expression Simplification:');
@@ -101,17 +142,55 @@ void main() {
   // x/x = 1
   final xOverX = BinaryOp(Variable('x'), BinaryOperator.divide, Variable('x'));
   simplified = engine.simplify(xOverX);
-  print('   x/x  →  Simplified: $simplified');
+  print('   x/x  →  LaTeX: ${simplified.toLatex()}');
 
   // (2*x)/x = 2
   final twoX =
       BinaryOp(const NumberLiteral(2), BinaryOperator.multiply, Variable('x'));
   final twoXoverX = BinaryOp(twoX, BinaryOperator.divide, Variable('x'));
   simplified = engine.simplify(twoXoverX);
-  print('   (2x)/x  →  Simplified: $simplified\n');
+  print('   (2x)/x  →  LaTeX: ${simplified.toLatex()}\n');
 
-  // Example 7: Expression Equivalence
-  print('7. Expression Equivalence Testing:');
+  // Example 7: Domain-Aware Simplification (Assumptions)
+  print('7. Domain-Aware Simplification (Assumptions):');
+
+  // Case A: sqrt(x²)
+  // By default, sqrt(x²) = |x| because x could be negative
+  final xSquaredForSqrt =
+      BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
+  final sqrtExpr = FunctionCall('sqrt', xSquaredForSqrt);
+
+  print('   Expression: sqrt(x²)');
+  var resultNoAssume = engine.simplify(sqrtExpr);
+  print(
+      '   Without assumptions:  →  ${resultNoAssume.toLatex()}  (Safely absolute value)');
+
+  // Now assume x >= 0
+  engine.assume('x', Assumption.nonNegative);
+  var resultAssume = engine.simplify(sqrtExpr);
+  print(
+      '   With assumption x ≥ 0: →  ${resultAssume.toLatex()}  (Simplified to x)');
+
+  // Case B: log(x²)
+  // Without assumptions, log(x²) = 2*log(|x|)
+  final logX2ForLn = FunctionCall(
+      'ln', xSquaredForSqrt); // Renamed to avoid conflict with previous logX2
+
+  // Clear previous assumptions for clean demo
+  final engine2 = SymbolicEngine();
+  print('\n   Expression: ln(x²)');
+  resultNoAssume = engine2.simplify(logX2ForLn);
+  print(
+      '   Without assumptions:  →  ${resultNoAssume.toLatex()}  (Safely use absolute value)');
+
+  // Assume x > 0
+  engine2.assume('x', Assumption.positive);
+  resultAssume = engine2.simplify(logX2ForLn);
+  print(
+      '   With assumption x > 0: →  ${resultAssume.toLatex()}  (Simplified to 2*ln(x))');
+
+  // Example 8: Expression Equivalence Testing
+  print('\n8. Expression Equivalence Testing:');
   final expr1 =
       BinaryOp(Variable('x'), BinaryOperator.add, const NumberLiteral(1));
   final expr2 =
@@ -119,9 +198,9 @@ void main() {
 
   // Test for structural equivalence through evaluation
   var equivalent = true;
-  for (var x in testValues) {
-    final val1 = Evaluator().evaluate(expr1, {'x': x}).asNumeric();
-    final val2 = Evaluator().evaluate(expr2, {'x': x}).asNumeric();
+  for (var xVal in testValues) {
+    final val1 = Evaluator().evaluate(expr1, {'x': xVal}).asNumeric();
+    final val2 = Evaluator().evaluate(expr2, {'x': xVal}).asNumeric();
     if ((val1 - val2).abs() > 1e-10) {
       equivalent = false;
       break;
@@ -137,9 +216,9 @@ void main() {
   final expandedForm = engine.expand(xPlus1Squared);
 
   equivalent = true;
-  for (var x in testValues) {
-    final val1 = Evaluator().evaluate(xPlus1Squared, {'x': x}).asNumeric();
-    final val2 = Evaluator().evaluate(expandedForm, {'x': x}).asNumeric();
+  for (var xVal in testValues) {
+    final val1 = Evaluator().evaluate(xPlus1Squared, {'x': xVal}).asNumeric();
+    final val2 = Evaluator().evaluate(expandedForm, {'x': xVal}).asNumeric();
     if ((val1 - val2).abs() > 1e-10) {
       equivalent = false;
       break;

@@ -85,10 +85,16 @@ final simplified = engine.simplify(pythagorean);
 ```
 
 **Supported identities:**
-- `sin²(x) + cos²(x) = 1`
+- `sin²(x) + cos²(x) = 1` (Pythagorean identity)
 - `sin(0) = 0`, `cos(0) = 1`, `tan(0) = 0`
 - `sin(-x) = -sin(x)` (odd function)
 - `cos(-x) = cos(x)` (even function)
+- `sin(2x) = 2*sin(x)*cos(x)` (double-angle formula)
+- `cos(2x) = cos²(x) - sin²(x)` (double-angle formula)
+- `tan(2x) = 2*tan(x) / (1 - tan²(x))` (double-angle formula)
+- `sin(x/2) = √((1-cos(x))/2)` (half-angle formula)
+- `cos(x/2) = √((1+cos(x))/2)` (half-angle formula)
+- `tan(x/2) = sin(x)/(1+cos(x))` (half-angle formula)
 
 ### Logarithm Laws
 
@@ -178,14 +184,27 @@ The equivalence test works by simplifying both expressions and comparing their s
 Solve linear and quadratic equations:
 
 ```dart
-// Solve linear equation (planned feature)
+// Solve linear equation: 2x + 4 = 0
+final twoX = BinaryOp(const NumberLiteral(2), BinaryOperator.multiply, Variable('x'));
+final equation = BinaryOp(twoX, BinaryOperator.add, const NumberLiteral(4));
 final solution = engine.solveLinear(equation, 'x');
+// Result: NumberLiteral(-2)
 
-// Solve quadratic equation (planned feature)
+// Solve quadratic equation: x² - 4 = 0
+final xSquared = BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
+final equation = BinaryOp(xSquared, BinaryOperator.subtract, const NumberLiteral(4));
 final solutions = engine.solveQuadratic(equation, 'x');
+// Result: [NumberLiteral(2), NumberLiteral(-2)]
+
+// Symbolic quadratic: x² + bx + c = 0
+// Returns symbolic solutions using the quadratic formula
 ```
 
-*Note: Equation solving is partially implemented and returns placeholder values in the current version.*
+**Capabilities:**
+- Linear equations of the form `ax + b = 0`
+- Quadratic equations of the form `ax² + bx + c = 0`
+- Symbolic solutions when coefficients are variables
+- Handles special cases (double roots, no real solutions)
 
 ## Architecture
 
@@ -234,23 +253,24 @@ Current limitations to be aware of:
 
 1. **Polynomial expansion**: Supports integer exponents up to 10
 2. **Factorization**: Limited to difference of squares and simple quadratics with integer roots
-3. **Equation solving**: Not fully implemented yet
+3. **Equation solving**: Supports linear and quadratic; higher-order polynomials not yet supported
 4. **Commutativity**: Some commutative equivalences (like `x+1` vs `1+x`) may not be recognized structurally
-5. **Trigonometric**: Does not perform complex angle transformations or double-angle formulas
+5. **Trigonometric**: Supports Pythagorean, double-angle, and half-angle formulas; sum-to-product formulas not yet implemented
 6. **Logarithms**: Works on logarithm of a single argument; doesn't handle multi-argument logarithms
 
 ## Testing
 
-The symbolic algebra engine has test coverage comprising 59+ test cases covering:
+The symbolic algebra engine has test coverage comprising 72+ test cases covering:
 
 - 18 basic simplification rules
 - 5 constant folding operations
 - 4 polynomial expansions
 - 3 polynomial factorizations
-- 8 trigonometric identities
+- 14 trigonometric identities (including double-angle and half-angle formulas)
 - 9 logarithm laws
 - 6 rational simplifications
 - 2 expression equivalence tests
+- 7 equation solving tests (linear and quadratic)
 - 7 additional edge cases
 
 Run tests with:
@@ -261,14 +281,17 @@ flutter test test/features/symbolic_algebra_test.dart
 
 ## Examples
 
-See [`example/features/symbolic_algebra_demo.dart`](../../example/features/symbolic_algebra_demo.dart) for a working demonstration.
+See these examples for working demonstrations:
+- [`example/features/symbolic_algebra_demo.dart`](../../example/features/symbolic_algebra_demo.dart) - General symbolic algebra
+- [`example/features/equation_solving_demo.dart`](../../example/features/equation_solving_demo.dart) - Equation solving
 
 ## Future Enhancements
 
 Planned improvements:
 
-- [ ] Full symbolic equation solving
-- [ ] More trigonometric identities (double-angle, sum-to-product, etc.)
+- [ ] Full symbolic equation solving (systems, higher-order polynomials)
+- [x] More trigonometric identities (double-angle and half-angle formulas implemented)
+- [ ] Sum-to-product and product-to-sum formulas
 - [ ] Partial fraction decomposition
 - [ ] Symbolic differentiation integration
 - [ ] Symbolic integration (basic)
