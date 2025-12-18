@@ -60,6 +60,8 @@
 /// final evaluator = LatexMathEvaluator(extensions: registry);
 */
 
+// Public API - organized by module
+// For modular imports, use: import 'package:latex_math_evaluator/src/core/core.dart';
 export 'src/ast.dart';
 export 'src/evaluator.dart';
 export 'src/exceptions.dart';
