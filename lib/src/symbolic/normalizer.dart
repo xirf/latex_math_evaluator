@@ -78,13 +78,15 @@ class ExpressionNormalizer {
       // 1. NumberLiteral first
       if (a is NumberLiteral && b is! NumberLiteral) return -1;
       if (a is! NumberLiteral && b is NumberLiteral) return 1;
-      if (a is NumberLiteral && b is NumberLiteral)
+      if (a is NumberLiteral && b is NumberLiteral) {
         return a.value.compareTo(b.value);
+      }
 
       // 2. Variables alphabetically
       if (a is Variable && b is Variable) return a.name.compareTo(b.name);
-      if (a is Variable && b is! Variable)
+      if (a is Variable && b is! Variable) {
         return -1; // Variables before complex exprs
+      }
       if (a is! Variable && b is Variable) return 1;
 
       // 3. Complex expressions by string repr

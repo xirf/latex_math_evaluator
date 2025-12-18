@@ -102,7 +102,7 @@ void main() {
       expect(numeric.asNumeric(), equals(0.5));
     });
 
-    test('definite integral: \\int_{0}^{\\pi} \sin{x} dx', () {
+    test('definite integral: \\int_{0}^{\\pi} \\sin{x} dx', () {
       // \int_{0}^{\pi} sin(x) dx
       final result = integrateLatex(r'\int_{0}^{\pi} \sin{x} dx');
       // -cos(pi) - -cos(0)

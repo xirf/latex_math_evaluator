@@ -75,13 +75,13 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 
 **Tasks:**
 
-- [ ] Implement symbolic indefinite integration
-  - [ ] Power rule for polynomials
-  - [ ] Trigonometric integrals
-  - [ ] Exponential and logarithmic integrals
-  - [ ] Integration by substitution (basic cases)
-- [ ] Symbolic definite integration with bounds evaluation
-- [ ] LaTeX notation: `\int f(x) dx` returns symbolic result
+- [x] Implement symbolic indefinite integration
+  - [x] Power rule for polynomials
+  - [x] Trigonometric integrals
+  - [x] Exponential and logarithmic integrals
+  - [x] Integration by substitution (basic cases)
+- [x] Symbolic definite integration with bounds evaluation
+- [x] LaTeX notation: `\int f(x) dx` returns symbolic result
 - [ ] Add 100+ integration test cases
 - [ ] Document supported integration patterns
 

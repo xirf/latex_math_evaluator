@@ -193,12 +193,14 @@ class IntegrationEvaluator {
         // c * x
         if (expr.right is Variable &&
             (expr.right as Variable).name == variable) {
-          if (!_containsVariable(expr.left, variable))
+          if (!_containsVariable(expr.left, variable)) {
             return (expr.left, NumberLiteral(0));
+          }
         }
         if (expr.left is Variable && (expr.left as Variable).name == variable) {
-          if (!_containsVariable(expr.right, variable))
+          if (!_containsVariable(expr.right, variable)) {
             return (expr.right, NumberLiteral(0));
+          }
         }
       }
       if (expr.operator == BinaryOperator.add) {
