@@ -65,7 +65,7 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 - [x] Can simplify `(x+1)^2` to `x^2 + 2x + 1`
 - [x] Can factor `x^2 - 4` to `(x+2)(x-2)`
 - [x] 95%+ test coverage on symbolic operations
-- [ ] Performance benchmarks vs SymPy
+- [ ] Performance benchmarks vs SymPy ⏸️ - Paused: not relevant for now
 
 ---
 

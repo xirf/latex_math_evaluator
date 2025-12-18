@@ -125,13 +125,13 @@ class ProductExpr extends Expression {
       variable.hashCode ^ start.hashCode ^ end.hashCode ^ body.hashCode;
 }
 
-/// An integral expression: \int_{lower}^{upper} body dx.
+/// An integral expression: \int_{lower}^{upper} body dx or \int body dx.
 class IntegralExpr extends Expression {
-  /// The lower bound of the integral.
-  final Expression lower;
+  /// The lower bound of the integral (optional for indefinite integrals).
+  final Expression? lower;
 
-  /// The upper bound of the integral.
-  final Expression upper;
+  /// The upper bound of the integral (optional for indefinite integrals).
+  final Expression? upper;
 
   /// The expression body to integrate.
   final Expression body;
@@ -142,11 +142,20 @@ class IntegralExpr extends Expression {
   const IntegralExpr(this.lower, this.upper, this.body, this.variable);
 
   @override
-  String toString() => 'IntegralExpr($lower to $upper, $body d$variable)';
+  String toString() {
+    if (lower == null && upper == null) {
+      return 'IntegralExpr($body d$variable)';
+    }
+    return 'IntegralExpr($lower to $upper, $body d$variable)';
+  }
 
   @override
-  String toLatex() =>
-      '\\int_{${lower.toLatex()}}^{${upper.toLatex()}}{${body.toLatex()}} d$variable';
+  String toLatex() {
+    final bounds = (lower != null && upper != null)
+        ? '_{${lower!.toLatex()}}^{${upper!.toLatex()}}'
+        : '';
+    return '\\int$bounds{${body.toLatex()}} d$variable';
+  }
 
   @override
   R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {

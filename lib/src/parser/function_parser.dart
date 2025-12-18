@@ -129,15 +129,21 @@ mixin FunctionParserMixin on BaseParser {
 
   @override
   Expression parseIntegralExpr() {
-    consume(TokenType.underscore, "Expected '_' after \\int");
-    consume(TokenType.lparen, "Expected '{' after '_'");
-    final lower = parseExpression();
-    consume(TokenType.rparen, "Expected '}' after lower bound");
+    Expression? lower;
+    Expression? upper;
 
-    consume(TokenType.power, "Expected '^' after integral subscript");
-    consume(TokenType.lparen, "Expected '{' after '^'");
-    final upper = parseExpression();
-    consume(TokenType.rparen, "Expected '}' after upper bound");
+    // Handle bounds (optional, loop to allow _ then ^ or ^ then _)
+    while (check(TokenType.underscore) || check(TokenType.power)) {
+      if (match([TokenType.underscore])) {
+        consume(TokenType.lparen, "Expected '{' after '_'");
+        lower = parseExpression();
+        consume(TokenType.rparen, "Expected '}' after lower bound");
+      } else if (match([TokenType.power])) {
+        consume(TokenType.lparen, "Expected '{' after '^'");
+        upper = parseExpression();
+        consume(TokenType.rparen, "Expected '}' after upper bound");
+      }
+    }
 
     final fullBody = parseExpression();
 

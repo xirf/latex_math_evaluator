@@ -127,9 +127,18 @@ class CalculusEvaluator {
   }
 
   /// Evaluates an integral expression using Simpson's rule.
+  /// Evaluates an integral expression using Simpson's rule.
   double evaluateIntegral(IntegralExpr expr, Map<String, double> variables) {
-    final lower = _evaluateAsDouble(expr.lower, variables);
-    final upper = _evaluateAsDouble(expr.upper, variables);
+    if (expr.lower == null || expr.upper == null) {
+      throw EvaluatorException(
+        'Cannot numerically evaluate indefinite integral',
+        suggestion:
+            'Provide lower and upper bounds for numerical integration (e.g., \\int_{0}^{1})',
+      );
+    }
+
+    final lower = _evaluateAsDouble(expr.lower!, variables);
+    final upper = _evaluateAsDouble(expr.upper!, variables);
 
     final n = 1000; // Number of intervals (must be even for Simpson's)
     final h = (upper - lower) / n;

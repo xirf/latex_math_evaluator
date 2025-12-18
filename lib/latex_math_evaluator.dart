@@ -355,4 +355,28 @@ class LatexMathEvaluator {
       order: order,
     );
   }
+
+  /// Computes the symbolic antiderivative of an expression (indefinite integral).
+  ///
+  /// This method performs symbolic integration rules and returns an expression
+  /// representing the integral. Note that the "+ C" constant is not explicitly added.
+  ///
+  /// [expression] is the parsed expression AST.
+  /// [variable] is the variable to integrate with respect to (e.g., 'x').
+  ///
+  /// Returns the symbolic integral as an [Expression] AST node.
+  /// If an analytical solution cannot be determined, it returns an [IntegralExpr].
+  ///
+  /// Example:
+  /// ```dart
+  /// final evaluator = LatexMathEvaluator();
+  /// final expr = evaluator.parse('x^2');
+  /// final integral = evaluator.integrate(expr, 'x'); // x^3 / 3
+  /// ```
+  Expression integrate(Expression expression, String variable) {
+    if (expression is IntegralExpr) {
+      return _evaluator.integrationEvaluator.integrateIntegralExpr(expression);
+    }
+    return _evaluator.integrationEvaluator.integrate(expression, variable);
+  }
 }

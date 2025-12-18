@@ -9,6 +9,7 @@ import '../features/calculus/calculus_evaluator.dart';
 import '../features/logic/comparison_evaluator.dart';
 import '../features/linear_algebra/matrix_evaluator.dart';
 import '../features/calculus/differentiation_evaluator.dart';
+import '../features/calculus/integration_evaluator.dart';
 
 /// A visitor that evaluates expressions to produce results.
 ///
@@ -32,20 +33,26 @@ class EvaluationVisitor
   late final ComparisonEvaluator _comparisonEvaluator;
   late final MatrixEvaluator _matrixEvaluator;
   late final DifferentiationEvaluator _differentiationEvaluator;
+  late final IntegrationEvaluator _integrationEvaluator;
 
   /// Creates an evaluation visitor with optional extension registry.
-  EvaluationVisitor({ExtensionRegistry? extensions}) : _extensions = extensions {
+  EvaluationVisitor({ExtensionRegistry? extensions})
+      : _extensions = extensions {
     _binaryEvaluator = BinaryEvaluator();
     _unaryEvaluator = UnaryEvaluator();
     _calculusEvaluator = CalculusEvaluator(_evaluateAsDouble);
     _comparisonEvaluator = ComparisonEvaluator(_evaluateAsDouble, _evaluateRaw);
     _matrixEvaluator = MatrixEvaluator(_evaluateRaw);
     _differentiationEvaluator = DifferentiationEvaluator(_evaluateAsDouble);
+    _integrationEvaluator = IntegrationEvaluator();
   }
 
   /// Gets the differentiation evaluator (for internal use by public API).
   DifferentiationEvaluator get differentiationEvaluator =>
       _differentiationEvaluator;
+
+  /// Gets the integration evaluator (for internal use by public API).
+  IntegrationEvaluator get integrationEvaluator => _integrationEvaluator;
 
   /// Helper to evaluate an expression and get a raw result.
   dynamic _evaluateRaw(Expression expr, Map<String, double> variables) {
@@ -72,7 +79,7 @@ class EvaluationVisitor
   @override
   dynamic visitVariable(Variable node, Map<String, double>? context) {
     final variables = context ?? const {};
-    
+
     // First check user-provided variables
     if (variables.containsKey(node.name)) {
       return variables[node.name]!;
@@ -136,7 +143,7 @@ class EvaluationVisitor
   @override
   dynamic visitFunctionCall(FunctionCall node, Map<String, double>? context) {
     final variables = context ?? const {};
-    
+
     // Special handling for abs() with vector argument
     if (node.name == 'abs') {
       final argValue = _evaluateRaw(node.argument, variables);
@@ -144,7 +151,7 @@ class EvaluationVisitor
         return argValue.magnitude;
       }
     }
-    
+
     return FunctionRegistry.instance.evaluate(
       node,
       variables,
