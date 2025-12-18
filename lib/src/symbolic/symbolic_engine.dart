@@ -1,114 +1,104 @@
-/// Core symbolic algebra engine for simplification and manipulation.
-library;
-
 import '../ast.dart';
-import 'simplifier.dart';
+import 'normalizer.dart';
+import 'rule_engine.dart';
+import 'rewrite_rule.dart';
+import 'rules/all_rules.dart';
 import 'polynomial_operations.dart';
-import 'trig_identities.dart';
-import 'logarithm_laws.dart';
 import 'rational_simplifier.dart';
+
+import 'assumptions.dart';
 
 /// Main entry point for symbolic algebra operations.
 ///
-/// The [SymbolicEngine] provides high-level symbolic manipulation capabilities:
-/// - Expression simplification
-/// - Polynomial expansion and factorization
-/// - Trigonometric identity application
-/// - Logarithm law application
-/// - Rational expression simplification
-///
-/// Example:
-/// ```dart
-/// final engine = SymbolicEngine();
-/// final expr = Parser(Tokenizer('(x+1)^2').tokenize()).parse();
-/// final simplified = engine.simplify(expr);
-/// // Result: x^2 + 2*x + 1
-/// ```
+/// The [SymbolicEngine] provides high-level symbolic manipulation capabilities
+/// using a robust rule-based rewrite system and canonical normalization.
 class SymbolicEngine {
-  final Simplifier _simplifier;
+  final ExpressionNormalizer _normalizer;
+  final RuleEngine _simplifyEngine;
+  final RuleEngine _expandEngine;
+
+  /// Context for domain assumptions (e.g., x > 0).
+  final Assumptions assumptions = Assumptions();
+
+  // Legacy/Specialized components
   final PolynomialOperations _polynomialOps;
-  final TrigIdentities _trigIdentities;
-  final LogarithmLaws _logLaws;
   final RationalSimplifier _rationalSimplifier;
 
-  /// Creates a new symbolic engine with default settings.
+  /// Creates a new symbolic engine.
   SymbolicEngine()
-      : _simplifier = Simplifier(),
+      : _normalizer = ExpressionNormalizer(),
         _polynomialOps = PolynomialOperations(),
-        _trigIdentities = TrigIdentities(),
-        _logLaws = LogarithmLaws(),
-        _rationalSimplifier = RationalSimplifier();
+        _rationalSimplifier = RationalSimplifier(),
+        _simplifyEngine = RuleEngine(
+          rules: allSimplificationRules,
+          enabledCategories: {
+            RuleCategory.identity,
+            RuleCategory.simplification
+          },
+        ),
+        _expandEngine = RuleEngine(
+          rules: [...allSimplificationRules, ...allExpansionRules],
+          enabledCategories: {
+            RuleCategory.identity,
+            RuleCategory.simplification,
+            RuleCategory.expansion
+          },
+        );
 
-  /// Simplifies an expression using all available rules.
-  ///
-  /// Applies simplification rules in the following order:
-  /// 1. Basic algebraic simplification (0+x = x, 1*x = x, etc.)
-  /// 2. Trigonometric identities
-  /// 3. Logarithm laws
-  /// 4. Rational expression simplification
-  /// 5. Polynomial simplification
-  ///
-  /// Returns a simplified expression. May return the same expression
-  /// if no simplification is possible.
+  /// Adds a domain assumption for a variable.
+  void assume(String variable, Assumption assumption) {
+    assumptions.assume(variable, assumption);
+  }
+
+  /// Simplifies an expression using complexity-reducing rules.
   Expression simplify(Expression expr) {
-    var result = expr;
-    var previousResult = result;
-    var iterations = 0;
-    const maxIterations = 100; // Prevent infinite loops
+    // 1. Normalize first (canonical form)
+    var result = _normalizer.normalize(expr);
 
-    do {
-      previousResult = result;
-      result = _simplifier.simplify(result);
-      result = _trigIdentities.simplify(result);
-      result = _logLaws.simplify(result);
-      result = _rationalSimplifier.simplify(result);
-      iterations++;
-    } while (result != previousResult && iterations < maxIterations);
+    // 2. Apply simplification rules
+    result = _simplifyEngine.applyRules(result, assumptions: assumptions);
 
-    return result;
+    // 3. specialized simplifications (Rational)
+    // Note: RationalSimplifier might need its own rewrite logic eventually
+    result = _rationalSimplifier.simplify(result);
+
+    // 4. Final normalization
+    return _normalizer.normalize(result);
+  }
+
+  /// Expands trigonometric double/half-angle formulas and logs.
+  Expression expandTrig(Expression expr) {
+    var result = _normalizer.normalize(expr);
+    return _expandEngine.applyRules(result, assumptions: assumptions);
   }
 
   /// Expands a polynomial expression.
-  ///
-  /// Examples:
-  /// - `(x+1)^2` → `x^2 + 2*x + 1`
-  /// - `(a+b)(c+d)` → `a*c + a*d + b*c + b*d`
   Expression expand(Expression expr) {
     return _polynomialOps.expand(expr);
   }
 
   /// Factors a polynomial expression.
-  ///
-  /// Examples:
-  /// - `x^2 - 4` → `(x-2)(x+2)`
-  /// - `x^2 + 5*x + 6` → `(x+2)(x+3)`
-  ///
-  /// Returns the original expression if factoring is not possible.
   Expression factor(Expression expr) {
     return _polynomialOps.factor(expr);
   }
 
   /// Tests if two expressions are equivalent.
   ///
-  /// This is a structural comparison after simplification.
-  /// Returns `true` if the expressions represent the same mathematical value.
+  /// Uses algebraic equivalence (normalization + simplification).
   bool areEquivalent(Expression expr1, Expression expr2) {
     final simplified1 = simplify(expr1);
     final simplified2 = simplify(expr2);
-    return simplified1 == simplified2;
+    // Use normalizer for final structural check (handles commutativity etc)
+    return _normalizer.normalize(simplified1) ==
+        _normalizer.normalize(simplified2);
   }
 
   /// Solves a linear equation of the form ax + b = 0.
-  ///
-  /// Returns the solution as an expression, or null if the equation
-  /// cannot be solved or has no solution.
   Expression? solveLinear(Expression equation, String variable) {
     return _polynomialOps.solveLinear(equation, variable);
   }
 
   /// Solves a quadratic equation of the form ax^2 + bx + c = 0.
-  ///
-  /// Returns a list of solutions (0, 1, or 2 solutions).
   List<Expression> solveQuadratic(Expression equation, String variable) {
     return _polynomialOps.solveQuadratic(equation, variable);
   }
