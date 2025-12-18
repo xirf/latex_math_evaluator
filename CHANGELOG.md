@@ -1,5 +1,26 @@
 # CHANGELOG
 
+## 0.1.4-nightly - 2025-12-18
+
+### Added
+
+- **Symbolic Algebra Engine** with algebraic manipulation:
+  - Simplification of algebraic expressions
+  - Expansion of expressions (distributive property)
+  - Factorization of expressions
+  - Symbolic algebra support for mathematical operations
+
+### Changed
+
+- **Visitor Pattern for AST Traversal**: Implemented visitor pattern for AST node processing
+- **Feature Module Organization**: Reorganized codebase into feature-based modules
+- **Expression Builder Pattern**: Updated tests to use expression builder pattern
+- **Command Registry**: Extracted command registry
+- **Code Quality**: Applied dart format to ensure consistent code style
+- **Documentation**: Neutralized subjective language across documentation
+- **Error Handling**: Updated error handling in complex functions
+- **Code Cleanup**: Removed unused imports throughout the codebase
+
 ## 0.1.3 - 2025-12-18
 
 - Added **Nth Root Support** with square bracket notation:

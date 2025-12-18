@@ -117,8 +117,9 @@ class Simplifier {
     // 0 * x = 0
     if (left is NumberLiteral && left.value == 0) return const NumberLiteral(0);
     // x * 0 = 0
-    if (right is NumberLiteral && right.value == 0)
+    if (right is NumberLiteral && right.value == 0) {
       return const NumberLiteral(0);
+    }
     // 1 * x = x
     if (left is NumberLiteral && left.value == 1) return right;
     // x * 1 = x
@@ -158,8 +159,9 @@ class Simplifier {
   Expression _simplifyPower(
       Expression left, Expression right, String? sourceToken) {
     // x^0 = 1
-    if (right is NumberLiteral && right.value == 0)
+    if (right is NumberLiteral && right.value == 0) {
       return const NumberLiteral(1);
+    }
     // x^1 = x
     if (right is NumberLiteral && right.value == 1) return left;
     // 0^x = 0 (for x > 0)

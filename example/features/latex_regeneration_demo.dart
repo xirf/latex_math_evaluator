@@ -35,7 +35,7 @@ void main() {
 
   // Example 2: Programmatic AST building
   print('\n2. Programmatic AST Building');
-  print('${"=" * 50}');
+  print("=" * 50);
 
   // Build the quadratic formula: (-b ± sqrt(b^2 - 4ac)) / 2a
   const b = Variable('b');
@@ -76,7 +76,7 @@ void main() {
 
   // Example 3: AST manipulation
   print('\n3. AST Manipulation');
-  print('${"=" * 50}');
+  print("=" * 50);
 
   // Parse a simple expression
   final simple = evaluator.parse(r'x^2');
@@ -102,7 +102,7 @@ void main() {
 
   // Example 4: Complex real-world example
   print('\n4. Complex Expression Processing');
-  print('${"=" * 50}');
+  print("=" * 50);
 
   // Parse a complex calculus expression
   final complex =
@@ -115,7 +115,7 @@ void main() {
 
   // Example 5: Matrix and vector regeneration
   print('\n5. Matrix and Vector Support');
-  print('${"=" * 50}');
+  print("=" * 50);
 
   final matrix = evaluator.parse(r'\begin{bmatrix}1 & 2\\3 & 4\end{bmatrix}');
   print('Matrix: ${matrix.toLatex()}');
@@ -126,7 +126,7 @@ void main() {
 
   // Example 6: Use cases
   print('\n6. Practical Use Cases');
-  print('${"=" * 50}');
+  print("=" * 50);
 
   print('Use Case A: Export to visualization tools');
   final expr = evaluator.parse(r'\frac{-b + \sqrt{b^2 - 4ac}}{2a}');
@@ -146,7 +146,7 @@ void main() {
 
   // Example 7: Round-trip verification
   print('\n7. Round-Trip Verification');
-  print('${"=" * 50}');
+  print("=" * 50);
 
   final testCases = [
     r'x^2 + 2x + 1',

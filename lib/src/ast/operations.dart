@@ -45,7 +45,7 @@ class BinaryOp extends Expression {
       case BinaryOperator.divide:
         return '\\frac{${left.toLatex()}}{${right.toLatex()}}';
       case BinaryOperator.power:
-        return '${leftLatex}^{${right.toLatex()}}';
+        return '$leftLatex^{${right.toLatex()}}';
     }
   }
 

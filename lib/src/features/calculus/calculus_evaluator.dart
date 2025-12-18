@@ -1,8 +1,8 @@
 /// Calculus operations evaluation logic (limits, sums, products, integrals).
 library;
 
-import '../ast.dart';
-import '../exceptions.dart';
+import '../../ast.dart';
+import '../../exceptions.dart';
 
 /// Handles evaluation of calculus operations.
 class CalculusEvaluator {

@@ -2,13 +2,23 @@
 ///
 /// This module contains specialized mathematical capabilities:
 /// - Symbolic algebra and simplification
-/// - Automatic differentiation
-/// - Expression validation
+/// - Calculus operations (limits, derivatives, integrals)
+/// - Linear algebra (matrices, vectors)
+/// - Logic operations (comparisons, conditionals)
 /// - Extension system for custom operations
 library;
 
 // Symbolic algebra
 export '../symbolic.dart';
 
-// Validation
+// Calculus
+export 'calculus/calculus.dart';
+
+// Linear algebra
+export 'linear_algebra/linear_algebra.dart';
+
+// Logic
+export 'logic/logic.dart';
+
+// Extensions
 export '../extensions.dart';

@@ -1,3 +1,5 @@
+// ignore_for_file: unrelated_type_equality_checks
+
 import 'package:test/test.dart';
 import 'package:latex_math_evaluator/src/token.dart';
 

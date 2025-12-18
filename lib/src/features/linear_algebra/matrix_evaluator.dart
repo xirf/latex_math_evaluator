@@ -1,9 +1,9 @@
 /// Matrix evaluation logic.
 library;
 
-import '../ast.dart';
-import '../exceptions.dart';
-import '../matrix.dart';
+import '../../ast.dart';
+import '../../exceptions.dart';
+import '../../matrix.dart';
 
 /// Handles evaluation of matrix expressions.
 class MatrixEvaluator {

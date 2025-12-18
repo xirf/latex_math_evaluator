@@ -1,7 +1,7 @@
 /// Comparison and conditional evaluation logic.
 library;
 
-import '../ast.dart';
+import '../../ast.dart';
 
 /// Handles evaluation of comparison and conditional expressions.
 class ComparisonEvaluator {

@@ -4,6 +4,7 @@
 
 **Purpose**: Parse and evaluate mathematical expressions written in LaTeX format.
 **Pipeline**: LaTeX -> Tokens -> AST -> Result (with variables injected during evaluation)
+**Capabilities**: Numeric evaluation, symbolic differentiation, symbolic algebra (simplification, expansion, factorization)
 
 ```
 1. User Input: "\sin{x}" with {x: 0}
@@ -53,21 +54,67 @@ case 'newfunc':
 2. **Register** in `constant_registry.dart`
 3. **Add tests and docs**
 
-### New AST Node (4 Steps)
+### New AST Node (5 Steps)
 
-1. **Define in `ast.dart`** with toString, ==, hashCode
-2. **Update parser** to create the node
-3. **Update evaluator** to handle the node
-4. **Add tests**
+1. **Define node class** in appropriate `lib/src/ast/` file with:
+   - `toLatex()` method for LaTeX regeneration
+   - `accept()` method for visitor pattern
+   - `toString()`, `==`, `hashCode` for debugging and comparison
+
+```dart
+// lib/src/ast/operations.dart
+class NewNode extends Expression {
+  final Expression child;
+  
+  const NewNode(this.child);
+  
+  @override
+  String toLatex() => '\\command{${child.toLatex()}}';
+  
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitNewNode(this, context);
+  }
+  
+  @override
+  bool operator ==(Object other) => /* ... */;
+  
+  @override
+  int get hashCode => /* ... */;
+}
+```
+
+2. **Add visit method** to `ExpressionVisitor` interface in `lib/src/ast/visitor.dart`:
+
+```dart
+R visitNewNode(NewNode node, C? context);
+```
+
+3. **Implement visitor method** in `EvaluationVisitor` (`lib/src/visitors/evaluation_visitor.dart`):
+
+```dart
+@override
+dynamic visitNewNode(NewNode node, Map<String, double>? context) {
+  final variables = context ?? const {};
+  // Implementation logic here
+  return result;
+}
+```
+
+4. **Update parser** in `lib/src/parser.dart` to create the node when parsing
+
+5. **Add tests** with visitor pattern usage
 
 ---
 
 ## Key Design Patterns
 
 **Registry Pattern**: Centralized function/constant registration with singleton `.instance`
-**Implicit Visitor**: `Evaluator.evaluate()` recursively handles each AST node type
+**Visitor Pattern**: AST traversal using visitor pattern for node processing
+**Expression Builder**: Test pattern for constructing complex expressions
 **Extension System**: `ExtensionRegistry` allows custom LaTeX commands with custom evaluators
 **Separation of Concerns**: Functions/constants organized by category, each file has single responsibility
+**Feature Modules**: Codebase organized into feature-based modules
 
 ---
 
@@ -99,16 +146,19 @@ group('New Feature', () {
 
 ### 2. CHANGELOG.md
 
+**Use neutral, factual language** - avoid subjective words like "better", "improved", "cleaner", "comprehensive", "advanced"
+
 ```markdown
 ## [Version] - YYYY-MM-DD
 
 ### Added
 
-- Added support for **Feature**: `\command{args}` - description
+- **Feature** support: `\command{args}` - description
 
 ### Changed
 
 - Modified `function()` to support new parameter
+- Reorganized code structure
 
 ### Fixed
 

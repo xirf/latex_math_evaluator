@@ -1,127 +1,222 @@
-import '../ast/visitor.dart';
-import '../ast/basic.dart';
-import '../ast/operations.dart';
-import '../ast/functions.dart';
-import '../ast/calculus.dart';
-import '../ast/logic.dart';
-import '../ast/matrix.dart';
-import '../evaluation_result.dart';
-import 'dart:math' as math;
+import 'package:latex_math_evaluator/latex_math_evaluator.dart';
 
-/// A visitor that evaluates expressions to produce numeric results.
+import '../complex.dart';
+import '../constants/constant_registry.dart';
+import '../functions/function_registry.dart';
+import '../evaluator/binary_evaluator.dart';
+import '../evaluator/unary_evaluator.dart';
+import '../features/calculus/calculus_evaluator.dart';
+import '../features/logic/comparison_evaluator.dart';
+import '../features/linear_algebra/matrix_evaluator.dart';
+import '../features/calculus/differentiation_evaluator.dart';
+
+/// A visitor that evaluates expressions to produce results.
 ///
-/// This is a proof-of-concept visitor that demonstrates the visitor pattern.
-/// It provides a foundation for refactoring the existing evaluator logic
-/// into a more maintainable visitor-based architecture.
-///
-/// Note: This is an initial implementation and doesn't yet handle all edge
-/// cases or advanced features from the original evaluator.
-class EvaluationVisitor implements ExpressionVisitor<EvaluationResult, Map<String, num>?> {
-  @override
-  EvaluationResult visitNumberLiteral(NumberLiteral node, Map<String, num>? context) {
-    return NumericResult(node.value);
+/// This visitor implements the full evaluation logic using the visitor pattern,
+/// replacing the type-checking approach in the original Evaluator class.
+/// It supports:
+/// - Basic arithmetic operations (+, -, *, /, ^)
+/// - Function calls (sin, cos, log, etc.)
+/// - Variable bindings
+/// - Matrix operations
+/// - Complex number operations
+/// - Calculus operations (limits, sums, products, integrals, derivatives)
+/// - Logical operations and conditionals
+/// - Custom extensions
+class EvaluationVisitor
+    implements ExpressionVisitor<dynamic, Map<String, double>> {
+  final ExtensionRegistry? _extensions;
+  late final BinaryEvaluator _binaryEvaluator;
+  late final UnaryEvaluator _unaryEvaluator;
+  late final CalculusEvaluator _calculusEvaluator;
+  late final ComparisonEvaluator _comparisonEvaluator;
+  late final MatrixEvaluator _matrixEvaluator;
+  late final DifferentiationEvaluator _differentiationEvaluator;
+
+  /// Creates an evaluation visitor with optional extension registry.
+  EvaluationVisitor({ExtensionRegistry? extensions}) : _extensions = extensions {
+    _binaryEvaluator = BinaryEvaluator();
+    _unaryEvaluator = UnaryEvaluator();
+    _calculusEvaluator = CalculusEvaluator(_evaluateAsDouble);
+    _comparisonEvaluator = ComparisonEvaluator(_evaluateAsDouble, _evaluateRaw);
+    _matrixEvaluator = MatrixEvaluator(_evaluateRaw);
+    _differentiationEvaluator = DifferentiationEvaluator(_evaluateAsDouble);
+  }
+
+  /// Gets the differentiation evaluator (for internal use by public API).
+  DifferentiationEvaluator get differentiationEvaluator =>
+      _differentiationEvaluator;
+
+  /// Helper to evaluate an expression and get a raw result.
+  dynamic _evaluateRaw(Expression expr, Map<String, double> variables) {
+    return expr.accept(this, variables);
+  }
+
+  /// Helper to evaluate an expression as a double.
+  double _evaluateAsDouble(Expression expr, Map<String, double> variables) {
+    final val = _evaluateRaw(expr, variables);
+    if (val is double) return val;
+    if (val is Complex && val.isReal) return val.real;
+    throw EvaluatorException(
+      'Expression must evaluate to a real number',
+      suggestion:
+          'This operation requires a numeric value, not a matrix or complex number',
+    );
   }
 
   @override
-  EvaluationResult visitVariable(Variable node, Map<String, num>? context) {
-    if (context != null && context.containsKey(node.name)) {
-      return NumericResult(context[node.name]!.toDouble());
-    }
-    // Handle constants
-    if (node.name == 'pi' || node.name == r'\pi') {
-      return NumericResult(math.pi);
-    }
-    if (node.name == 'e') {
-      return NumericResult(math.e);
-    }
-    throw Exception('Undefined variable: ${node.name}');
+  dynamic visitNumberLiteral(NumberLiteral node, Map<String, double>? context) {
+    return node.value;
   }
 
   @override
-  EvaluationResult visitBinaryOp(BinaryOp node, Map<String, num>? context) {
-    final left = node.left.accept(this, context).asNumeric();
-    final right = node.right.accept(this, context).asNumeric();
-
-    switch (node.operator) {
-      case BinaryOperator.add:
-        return NumericResult(left + right);
-      case BinaryOperator.subtract:
-        return NumericResult(left - right);
-      case BinaryOperator.multiply:
-        return NumericResult(left * right);
-      case BinaryOperator.divide:
-        if (right == 0) {
-          throw Exception('Division by zero');
-        }
-        return NumericResult(left / right);
-      case BinaryOperator.power:
-        return NumericResult(math.pow(left, right).toDouble());
-    }
-  }
-
-  @override
-  EvaluationResult visitUnaryOp(UnaryOp node, Map<String, num>? context) {
-    final operand = node.operand.accept(this, context).asNumeric();
+  dynamic visitVariable(Variable node, Map<String, double>? context) {
+    final variables = context ?? const {};
     
-    switch (node.operator) {
-      case UnaryOperator.negate:
-        return NumericResult(-operand);
+    // First check user-provided variables
+    if (variables.containsKey(node.name)) {
+      return variables[node.name]!;
     }
+
+    // Fall back to built-in constants
+    final constant = ConstantRegistry.instance.get(node.name);
+    if (constant != null) {
+      return constant;
+    }
+
+    // Check for 'i' (imaginary unit)
+    if (node.name == 'i') {
+      return Complex(0, 1);
+    }
+
+    // Try extension registry
+    if (_extensions != null) {
+      final result = _extensions!.tryEvaluate(
+        node,
+        variables,
+        (e) => _evaluateRaw(e, variables),
+      );
+      if (result != null) {
+        return result;
+      }
+    }
+
+    throw EvaluatorException(
+      'Undefined variable: ${node.name}',
+      suggestion: 'Provide a value for "${node.name}" in the variables map',
+    );
   }
 
   @override
-  EvaluationResult visitFunctionCall(FunctionCall node, Map<String, num>? context) {
-    // For now, just throw - this will be implemented next
-    throw UnimplementedError('Function calls not yet implemented in visitor');
+  dynamic visitBinaryOp(BinaryOp node, Map<String, double>? context) {
+    final variables = context ?? const {};
+    final leftValue = _evaluateRaw(node.left, variables);
+
+    // Special handling for Matrix Transpose: M^T
+    // Don't evaluate 'T' as a variable
+    if (leftValue is Matrix &&
+        node.operator == BinaryOperator.power &&
+        node.right is Variable &&
+        (node.right as Variable).name == 'T') {
+      return _binaryEvaluator.evaluate(leftValue, node.operator, null, node);
+    }
+
+    final rightValue = _evaluateRaw(node.right, variables);
+    return _binaryEvaluator.evaluate(
+        leftValue, node.operator, rightValue, node);
   }
 
   @override
-  EvaluationResult visitLimitExpr(LimitExpr node, Map<String, num>? context) {
-    throw UnimplementedError('Limits not yet implemented in visitor');
+  dynamic visitUnaryOp(UnaryOp node, Map<String, double>? context) {
+    final variables = context ?? const {};
+    final operandValue = _evaluateRaw(node.operand, variables);
+    return _unaryEvaluator.evaluate(node.operator, operandValue);
   }
 
   @override
-  EvaluationResult visitSumExpr(SumExpr node, Map<String, num>? context) {
-    throw UnimplementedError('Summation not yet implemented in visitor');
+  dynamic visitFunctionCall(FunctionCall node, Map<String, double>? context) {
+    final variables = context ?? const {};
+    
+    // Special handling for abs() with vector argument
+    if (node.name == 'abs') {
+      final argValue = _evaluateRaw(node.argument, variables);
+      if (argValue is Vector) {
+        return argValue.magnitude;
+      }
+    }
+    
+    return FunctionRegistry.instance.evaluate(
+      node,
+      variables,
+      (e) => _evaluateRaw(e, variables),
+    );
   }
 
   @override
-  EvaluationResult visitProductExpr(ProductExpr node, Map<String, num>? context) {
-    throw UnimplementedError('Products not yet implemented in visitor');
+  dynamic visitLimitExpr(LimitExpr node, Map<String, double>? context) {
+    final variables = context ?? const {};
+    return _calculusEvaluator.evaluateLimit(node, variables);
   }
 
   @override
-  EvaluationResult visitIntegralExpr(IntegralExpr node, Map<String, num>? context) {
-    throw UnimplementedError('Integrals not yet implemented in visitor');
+  dynamic visitSumExpr(SumExpr node, Map<String, double>? context) {
+    final variables = context ?? const {};
+    return _calculusEvaluator.evaluateSum(node, variables);
   }
 
   @override
-  EvaluationResult visitDerivativeExpr(DerivativeExpr node, Map<String, num>? context) {
-    throw UnimplementedError('Derivatives not yet implemented in visitor');
+  dynamic visitProductExpr(ProductExpr node, Map<String, double>? context) {
+    final variables = context ?? const {};
+    return _calculusEvaluator.evaluateProduct(node, variables);
   }
 
   @override
-  EvaluationResult visitComparison(Comparison node, Map<String, num>? context) {
-    throw UnimplementedError('Comparisons not yet implemented in visitor');
+  dynamic visitIntegralExpr(IntegralExpr node, Map<String, double>? context) {
+    final variables = context ?? const {};
+    return _calculusEvaluator.evaluateIntegral(node, variables);
   }
 
   @override
-  EvaluationResult visitChainedComparison(ChainedComparison node, Map<String, num>? context) {
-    throw UnimplementedError('Chained comparisons not yet implemented in visitor');
+  dynamic visitDerivativeExpr(
+      DerivativeExpr node, Map<String, double>? context) {
+    final variables = context ?? const {};
+    return _differentiationEvaluator.evaluateDerivative(node, variables);
   }
 
   @override
-  EvaluationResult visitConditionalExpr(ConditionalExpr node, Map<String, num>? context) {
-    throw UnimplementedError('Conditional expressions not yet implemented in visitor');
+  dynamic visitComparison(Comparison node, Map<String, double>? context) {
+    final variables = context ?? const {};
+    return _comparisonEvaluator.evaluateComparison(node, variables);
   }
 
   @override
-  EvaluationResult visitMatrixExpr(MatrixExpr node, Map<String, num>? context) {
-    throw UnimplementedError('Matrix expressions not yet implemented in visitor');
+  dynamic visitChainedComparison(
+      ChainedComparison node, Map<String, double>? context) {
+    final variables = context ?? const {};
+    return _comparisonEvaluator.evaluateChainedComparison(node, variables);
   }
 
   @override
-  EvaluationResult visitVectorExpr(VectorExpr node, Map<String, num>? context) {
-    throw UnimplementedError('Vector expressions not yet implemented in visitor');
+  dynamic visitConditionalExpr(
+      ConditionalExpr node, Map<String, double>? context) {
+    final variables = context ?? const {};
+    return _comparisonEvaluator.evaluateConditional(node, variables);
+  }
+
+  @override
+  dynamic visitMatrixExpr(MatrixExpr node, Map<String, double>? context) {
+    final variables = context ?? const {};
+    return _matrixEvaluator.evaluate(node, variables);
+  }
+
+  @override
+  dynamic visitVectorExpr(VectorExpr node, Map<String, double>? context) {
+    final variables = context ?? const {};
+    // Evaluate all components
+    final evalComponents =
+        node.components.map((c) => _evaluateAsDouble(c, variables)).toList();
+    final vec = Vector(evalComponents);
+    // If it's marked as a unit vector (\hat{}), normalize it
+    return node.isUnitVector ? vec.normalize() : vec;
   }
 }

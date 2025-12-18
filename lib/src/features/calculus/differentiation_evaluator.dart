@@ -1,8 +1,8 @@
 /// Symbolic differentiation evaluator.
 library;
 
-import '../ast.dart';
-import '../exceptions.dart';
+import '../../ast.dart';
+import '../../exceptions.dart';
 
 /// Handles symbolic differentiation of expressions.
 ///

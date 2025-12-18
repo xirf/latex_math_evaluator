@@ -5,6 +5,7 @@ import 'exceptions.dart';
 import 'extensions.dart';
 import 'token.dart';
 import 'tokenizer/command_registry.dart';
+import 'tokenizer/command_normalizer.dart';
 
 /// Converts a LaTeX math string into a stream of tokens.
 class Tokenizer {
@@ -215,37 +216,10 @@ class Tokenizer {
 
     final command = buffer.toString();
 
-    // Special cases that need custom handling
-    switch (command) {
-      case 'times':
-      case 'cdot':
-        return Token(
-            type: TokenType.multiply, value: '\\$command', position: startPos);
-      case 'div':
-        return Token(
-            type: TokenType.divide, value: '\\div', position: startPos);
-      // Normalize inverse trig aliases
-      case 'arcsin':
-      case 'asin':
-        return Token(
-            type: TokenType.function, value: 'asin', position: startPos);
-      case 'arccos':
-      case 'acos':
-        return Token(
-            type: TokenType.function, value: 'acos', position: startPos);
-      case 'arctan':
-      case 'atan':
-        return Token(
-            type: TokenType.function, value: 'atan', position: startPos);
-      case 'arccot':
-        return Token(
-            type: TokenType.function, value: 'acot', position: startPos);
-      case 'arcsec':
-        return Token(
-            type: TokenType.function, value: 'asec', position: startPos);
-      case 'arccsc':
-        return Token(
-            type: TokenType.function, value: 'acsc', position: startPos);
+    // Try command normalization first
+    final normalizedToken = CommandNormalizer.normalize(command, startPos);
+    if (normalizedToken != null) {
+      return normalizedToken;
     }
 
     // Check command registry
