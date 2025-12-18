@@ -1,6 +1,6 @@
 # Academic LaTeX Support
 
-This library supports common LaTeX notation found in academic papers, textbooks, and lecture notes, making it easy to copy-paste mathematical expressions directly.
+This library supports common LaTeX notation found in academic papers, textbooks, and lecture notes, allowing copy-paste of mathematical expressions from these sources.
 
 ## Delimiter Sizing Commands
 
@@ -58,7 +58,7 @@ e.evaluate(r'\left\{2+3\right\} * 5');  // 25.0
 
 ## Notes
 
-- **Mismatch Tolerance**: Unlike LaTeX rendering, this library doesn't require `\left` and `\right` to be properly matched. They are simply ignored wherever they appear.
+- **Mismatch Tolerance**: Unlike LaTeX rendering, this library does not require `\left` and `\right` to be properly matched; they are ignored during parsing.
 - **No Visual Effect**: Since evaluation is mathematical (not visual), delimiter sizes have no impact on the result.
 - **Copy-Paste Friendly**: You can copy expressions directly from papers or notes without removing these commands.
 

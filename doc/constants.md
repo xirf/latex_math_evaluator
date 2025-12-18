@@ -36,7 +36,7 @@ e.evaluate(r'\ln{e}');  // 1.0 (ln(e) = 1)
 
 ## Overriding Constants
 
-User-provided variables always override built-in constants:
+User-provided variables override built-in constants by default:
 
 ```dart
 // Override 'e' with custom value

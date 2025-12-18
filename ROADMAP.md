@@ -1,6 +1,6 @@
 # LaTeX Math Evaluator - Development Roadmap
 
-> **Vision:** Build the most comprehensive, performant, and developer-friendly LaTeX math evaluation library for Dart/Flutter, bridging the gap between symbolic mathematics and practical computation.
+> **Vision:** Build a comprehensive, performant, and developer-friendly LaTeX math evaluation library for Dart/Flutter, bridging the gap between symbolic mathematics and practical computation.
 
 This roadmap outlines concrete, actionable tasks organized by priority and timeline. Items are marked with their current status and organized into clear categories.
 
@@ -298,14 +298,14 @@ f(x) = \begin{cases}
 
 ### 🟡 4.1 AST Export Formats
 
-**Status:** 📋 Planned | **Owner:** Unassigned
+**Status:** � In Progress | **Owner:** @xomodo
 
 **Tasks:**
 
 - [ ] MathML export (Presentation and Content MathML)
 - [ ] JSON AST export for external tooling
 - [ ] SymPy-compatible AST format
-- [ ] LaTeX regeneration from AST (round-trip support)
+- [x] LaTeX regeneration from AST (round-trip support)
 - [ ] Add import capabilities for each format
 - [ ] Comprehensive format conversion tests
 
@@ -314,7 +314,7 @@ f(x) = \begin{cases}
 **Success Criteria:**
 
 - [ ] Can export to all 4 formats
-- [ ] Round-trip parsing: LaTeX → AST → LaTeX → AST identical
+- [x] Round-trip parsing: LaTeX → AST → LaTeX → AST identical
 - [ ] Examples of integration with MathJax, KaTeX
 
 ---

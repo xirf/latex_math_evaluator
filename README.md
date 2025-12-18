@@ -19,7 +19,7 @@
 - 🔢 **Advanced Notation** - Summation, products, limits, integration, matrices, and vectors
 - ⚡ **High Performance** - Parse once, evaluate thousands of times with built-in LRU caching
 - 🎨 **Type-Safe Results** - Handle numeric, matrix, complex, and vector results safely
-- 🔧 **Extensible** - Add your own custom functions and commands easily
+- 🔧 **Extensible** - Add your own custom functions and commands
 
 ## 📑 Table of Contents
 
@@ -241,7 +241,9 @@ Constants are available with or without backslash notation:
 | Phi      | `\phi`   | φ      | 1.61803... | `\phi` or `phi`     |
 | Gamma    | `\gamma` | γ      | 0.57721... | `\gamma` or `gamma` |
 
-> **Note:** User-provided variables always override built-in constants.
+> [!NOTE] 
+> User-provided variables override built-in constants by default.
+> [Learn more here](./doc/constants.md#overriding-constants)
 
 ### Advanced Notation
 

@@ -1,6 +1,6 @@
 # Expression Validation
 
-The LaTeX Math Evaluator provides a powerful validation API to check expression syntax before evaluation. This is especially useful for user input validation, form validation, and debugging.
+The LaTeX Math Evaluator provides a validation API to check expression syntax before evaluation. This is useful for user input validation, form validation, and debugging.
 
 ## Overview
 
@@ -38,7 +38,7 @@ print(evaluator.isValid('(2 + 3'));          // false (unclosed parenthesis)
 
 ## Detailed Validation with `validate()`
 
-Use `validate()` to get comprehensive error information:
+Use `validate()` to get detailed error information:
 
 ```dart
 final result = evaluator.validate(r'\sin{');
@@ -187,7 +187,7 @@ void validateExpressions(List<String> expressions) {
 
 ### Variables Are Valid
 
-Validation checks syntax only. Undefined variables do NOT cause validation to fail:
+Validation checks syntax only. Undefined variables do not cause validation to fail:
 
 ```dart
 // These are all valid - variables don't need to be defined for validation

@@ -77,7 +77,7 @@ case 'newfunc':
 2. Built-in constants (`ConstantRegistry`)
 3. Error if not found
 
-User provided parameter always overrides built-in constants.
+User-provided parameters override built-in constants by default.
 
 ---
 
@@ -228,10 +228,10 @@ Closes #123"
 
 | Update        | Location            | When                 |
 | ------------- | ------------------- | -------------------- |
-| Tests         | `test/**/*.dart`    | Always (first)       |
-| Changelog     | `CHANGELOG.md`      | Always               |
+| Tests         | `test/**/*.dart`    | Typically (first)    |
+| Changelog     | `CHANGELOG.md`      | Typically            |
 | Function docs | `doc/**/*.md`       | New functions        |
-| Examples      | `example/**/*.dart` | Always               |
+| Examples      | `example/**/*.dart` | Typically            |
 | README        | `README.md`         | User-facing features |
 | API docs      | Inline dartdoc      | All public APIs      |
 

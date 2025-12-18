@@ -1,6 +1,6 @@
 # Symbolic Algebra Engine
 
-The symbolic algebra engine provides powerful capabilities for manipulating mathematical expressions symbolically, beyond simple numeric evaluation.
+The symbolic algebra engine provides capabilities for manipulating mathematical expressions symbolically, beyond simple numeric evaluation.
 
 ## Overview
 
@@ -45,7 +45,7 @@ final expr2 = evaluator.parse('(x+2)^{3}');
 final expanded2 = engine.expand(expr2);
 ```
 
-**Supported patterns:**
+- **Supported patterns:**
 - `(a+b)^n` for integer n ≤ 10
 - `(a-b)^n` for integer n ≤ 10
 - `(a+b)(c+d)` distributive property
@@ -232,7 +232,7 @@ This continues until no further simplifications are possible (fixed point), with
 
 Current limitations to be aware of:
 
-1. **Polynomial expansion**: Only supports integer exponents ≤ 10
+1. **Polynomial expansion**: Supports integer exponents up to 10
 2. **Factorization**: Limited to difference of squares and simple quadratics with integer roots
 3. **Equation solving**: Not fully implemented yet
 4. **Commutativity**: Some commutative equivalences (like `x+1` vs `1+x`) may not be recognized structurally
@@ -241,7 +241,7 @@ Current limitations to be aware of:
 
 ## Testing
 
-The symbolic algebra engine has comprehensive test coverage with 59+ test cases covering:
+The symbolic algebra engine has test coverage comprising 59+ test cases covering:
 
 - 18 basic simplification rules
 - 5 constant folding operations
@@ -261,7 +261,7 @@ flutter test test/features/symbolic_algebra_test.dart
 
 ## Examples
 
-See [`example/features/symbolic_algebra_demo.dart`](../../example/features/symbolic_algebra_demo.dart) for a complete working demonstration of all features.
+See [`example/features/symbolic_algebra_demo.dart`](../../example/features/symbolic_algebra_demo.dart) for a working demonstration.
 
 ## Future Enhancements
 
