@@ -62,11 +62,8 @@ void main(List<String> args) {
       '\nBenchmark: parsed parse() + evaluateParsed (with cache) vs reparse on each evaluate');
 
   final evaluatorParseOnce = LatexMathEvaluator(parsedExpressionCacheSize: 0);
-  final evaluatorParseCached =
-      LatexMathEvaluator(parsedExpressionCacheSize: 256);
 
   final parsed = evaluatorParseOnce.parse(expr);
-  final parsedCached = evaluatorParseCached.parse(expr);
 
   // time evaluating a parsed expression (no parse cost)
   final sw = Stopwatch()..start();

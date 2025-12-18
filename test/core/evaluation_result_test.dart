@@ -1,7 +1,5 @@
 import 'package:test/test.dart';
 import 'package:latex_math_evaluator/latex_math_evaluator.dart';
-import 'package:latex_math_evaluator/src/evaluation_result.dart';
-import 'package:latex_math_evaluator/src/matrix.dart';
 
 void main() {
   group('EvaluationResult', () {

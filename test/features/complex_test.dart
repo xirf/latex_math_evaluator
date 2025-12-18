@@ -1,7 +1,6 @@
+import 'package:test/test.dart';
 import 'package:latex_math_evaluator/latex_math_evaluator.dart';
 import 'package:latex_math_evaluator/src/complex.dart';
-import 'package:latex_math_evaluator/src/evaluation_result.dart';
-import 'package:test/test.dart';
 
 void main() {
   group('Complex Number Support', () {

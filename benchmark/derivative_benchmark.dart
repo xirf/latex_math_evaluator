@@ -108,8 +108,6 @@ void benchmarkDifferentiateCost({
 
 String _repeat(String s, int n) => List.filled(n, s).join(' + ');
 
-Expression _parse(LatexMathEvaluator evaluator, String s) => evaluator.parse(s);
-
 void main(List<String> args) {
   final evaluator = LatexMathEvaluator(parsedExpressionCacheSize: 256);
   print('Derivative Benchmarks');

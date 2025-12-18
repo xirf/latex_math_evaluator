@@ -4,8 +4,9 @@ import '../exceptions.dart';
 
 dynamic handleRe(FunctionCall func, Map<String, double> variables,
     dynamic Function(Expression) evaluate) {
-  if (func.args.length != 1)
+  if (func.args.length != 1) {
     throw EvaluatorException('Re() requires exactly 1 argument');
+  }
   final val = evaluate(func.args[0]);
   if (val is Complex) return val.real;
   if (val is num) return val.toDouble();
@@ -14,8 +15,9 @@ dynamic handleRe(FunctionCall func, Map<String, double> variables,
 
 dynamic handleIm(FunctionCall func, Map<String, double> variables,
     dynamic Function(Expression) evaluate) {
-  if (func.args.length != 1)
+  if (func.args.length != 1) {
     throw EvaluatorException('Im() requires exactly 1 argument');
+  }
   final val = evaluate(func.args[0]);
   if (val is Complex) return val.imaginary;
   if (val is num) return 0.0;
