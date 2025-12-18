@@ -4,6 +4,7 @@ library;
 import 'exceptions.dart';
 import 'extensions.dart';
 import 'token.dart';
+import 'tokenizer/command_registry.dart';
 
 /// Converts a LaTeX math string into a stream of tokens.
 class Tokenizer {
@@ -214,7 +215,7 @@ class Tokenizer {
 
     final command = buffer.toString();
 
-    // Built-in commands
+    // Special cases that need custom handling
     switch (command) {
       case 'times':
       case 'cdot':
@@ -223,119 +224,52 @@ class Tokenizer {
       case 'div':
         return Token(
             type: TokenType.divide, value: '\\div', position: startPos);
-      // Logarithmic functions
-      case 'log':
-      case 'ln':
-      // Trigonometric functions
-      case 'sin':
-      case 'cos':
-      case 'tan':
-      // Inverse trig (normalize aliases)
-      case 'asin':
-      case 'acos':
-      case 'atan':
-      // Hyperbolic functions
-      case 'sinh':
-      case 'cosh':
-      case 'tanh':
-      case 'asinh':
-      case 'acosh':
-      case 'atanh':
-      // Other functions
-      case 'det':
-      case 'trace':
-      case 'tr':
-      case 'gcd':
-      case 'lcm':
-      case 'sqrt':
-      case 'abs':
-      case 'ceil':
-      case 'floor':
-      case 'round':
-      case 'exp':
-      case 'vec':
-      case 'hat':
-      case 'sgn':
-      case 'factorial':
-      case 'fibonacci':
-      case 'min':
-      case 'max':
-        return Token(
-            type: TokenType.function, value: command, position: startPos);
-      // Complex functions
-      case 'Re':
-      case 'Im':
-      case 'conjugate':
-        return Token(
-            type: TokenType.function, value: command, position: startPos);
-      // Handle arcsin/arccos/arctan aliases
+      // Normalize inverse trig aliases
       case 'arcsin':
+      case 'asin':
         return Token(
             type: TokenType.function, value: 'asin', position: startPos);
       case 'arccos':
+      case 'acos':
         return Token(
             type: TokenType.function, value: 'acos', position: startPos);
       case 'arctan':
+      case 'atan':
         return Token(
             type: TokenType.function, value: 'atan', position: startPos);
-      // Limit notation
-      case 'lim':
-        return Token(type: TokenType.lim, value: 'lim', position: startPos);
-      // Sum and product
-      case 'sum':
-        return Token(type: TokenType.sum, value: 'sum', position: startPos);
-      case 'prod':
-        return Token(type: TokenType.prod, value: 'prod', position: startPos);
-      case 'int':
-        return Token(type: TokenType.int, value: 'int', position: startPos);
-      // Matrix environments
-      case 'begin':
-        return Token(type: TokenType.begin, value: 'begin', position: startPos);
-      case 'end':
-        return Token(type: TokenType.end, value: 'end', position: startPos);
-      case 'to':
-      case 'rightarrow':
-        return Token(type: TokenType.to, value: '\\to', position: startPos);
-      case 'infty':
+      case 'arccot':
         return Token(
-            type: TokenType.infty, value: '\\infty', position: startPos);
-      // Fraction
-      case 'frac':
-        return Token(type: TokenType.frac, value: 'frac', position: startPos);
-      // Binomial
-      case 'binom':
-        return Token(type: TokenType.binom, value: 'binom', position: startPos);
-      // Mathematical constants
-      case 'pi':
-      case 'tau':
-      case 'phi':
-      case 'gamma':
-      case 'Omega':
-      case 'delta':
+            type: TokenType.function, value: 'acot', position: startPos);
+      case 'arcsec':
         return Token(
-            type: TokenType.constant, value: command, position: startPos);
-      // Delimiter sizing commands (ignored - purely visual in LaTeX)
-      case 'left':
-      case 'right':
-      case 'big':
-      case 'Big':
-      case 'bigg':
-      case 'Bigg':
-        return null; // Skip these commands entirely
-      default:
-        // Try extension registry
-        if (_extensions != null) {
-          final token = _extensions!.tryTokenize(command, startPos);
-          if (token != null) {
-            return token;
-          }
-        }
-        throw TokenizerException(
-          'Unknown LaTeX command: \\$command',
-          position: startPos,
-          expression: _source,
-          suggestion: 'Check if this is a valid LaTeX command or function name',
-        );
+            type: TokenType.function, value: 'asec', position: startPos);
+      case 'arccsc':
+        return Token(
+            type: TokenType.function, value: 'acsc', position: startPos);
     }
+
+    // Check command registry
+    final tokenType = LatexCommandRegistry.instance.getTokenType(command);
+    if (tokenType != null) {
+      if (tokenType == TokenType.ignored) {
+        return null; // Skip delimiter sizing commands
+      }
+      return Token(type: tokenType, value: command, position: startPos);
+    }
+
+    // Try extension registry
+    if (_extensions != null) {
+      final token = _extensions!.tryTokenize(command, startPos);
+      if (token != null) {
+        return token;
+      }
+    }
+
+    throw TokenizerException(
+      'Unknown LaTeX command: \\$command',
+      position: startPos,
+      expression: _source,
+      suggestion: 'Check if this is a valid LaTeX command or function name',
+    );
   }
 }

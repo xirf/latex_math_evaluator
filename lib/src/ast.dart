@@ -8,4 +8,5 @@ export 'ast/functions.dart';
 export 'ast/calculus.dart';
 export 'ast/logic.dart';
 export 'ast/matrix.dart';
+export 'ast/builder.dart';
 export 'evaluation_result.dart';
