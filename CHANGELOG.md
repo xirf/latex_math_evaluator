@@ -1,6 +1,6 @@
 # CHANGELOG
 
-# 0.1.3-nightly.1
+## 0.1.3 - 2025-12-18
 
 - Added **Nth Root Support** with square bracket notation:
   - Support for nth roots: `\sqrt[n]{x}` (cube roots, 4th roots, etc.)
