@@ -14,8 +14,7 @@ class Parser extends BaseParser
         PrimaryParserMixin,
         FunctionParserMixin,
         MatrixParserMixin {
-  Parser(List<Token> tokens, [String? sourceExpression])
-      : super(tokens, sourceExpression);
+  Parser(super.tokens, [super.sourceExpression]);
 
   /// Parses the token stream and returns the root expression.
   Expression parse() {

@@ -115,7 +115,7 @@ Calculate the cross product of two **3D vectors** using `\times`:
 **Properties:**
 
 - Returns a **vector** perpendicular to both inputs
-- Only defined for **3D vectors**
+  - Defined for **3D vectors**
 - Anti-commutative: `a × b = -(b × a)`
 - Parallel vectors have zero cross product
 
@@ -247,7 +247,7 @@ result.asVector();   // ✅ OK
 ## Domain constraints and Limitations
 
 1. **No mixed operations**: Cannot directly add vectors to matrices or scalars
-2. **Cross product**: Only defined for 3D vectors
+2. **Cross product**: Defined for 3D vectors
 3. **Dot product**: Requires same-dimension vectors
 4. **Zero vector**: Cannot normalize a zero-length vector with `\hat{}`
 

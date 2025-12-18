@@ -138,7 +138,7 @@ void main() {
 
   // Get the symbolic derivative using the public API
   final derivative1 = evaluator.differentiate(expr1, 'x');
-  print('Derivative of x² + 3x + 1: ${derivative1}');
+  print('Derivative of x² + 3x + 1: $derivative1');
 
   // Evaluate at a specific point
   final result1 = evaluator.evaluateParsed(derivative1, {'x': 2});
@@ -150,8 +150,8 @@ void main() {
   final firstDerivative = evaluator.differentiate(expr2, 'x');
   final secondDerivative = evaluator.differentiate(firstDerivative, 'x');
   print('f(x) = x³');
-  print('f\'(x) = ${firstDerivative}');
-  print('f\'\'(x) = ${secondDerivative}');
+  print('f\'(x) = $firstDerivative');
+  print('f\'\'(x) = $secondDerivative');
   print('f\'\'(2) = ${evaluator.evaluateParsed(secondDerivative, {
         'x': 2
       }).asNumeric()}');

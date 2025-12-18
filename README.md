@@ -19,7 +19,7 @@
 - 🔢 **Advanced Notation** - Summation, products, limits, integration, matrices, and vectors
 - ⚡ **High Performance** - Parse once, evaluate thousands of times with built-in LRU caching
 - 🎨 **Type-Safe Results** - Handle numeric, matrix, complex, and vector results safely
-- 🔧 **Extensible** - Add your own custom functions and commands easily
+- 🔧 **Extensible** - Add your own custom functions and commands
 
 ## 📑 Table of Contents
 
@@ -56,7 +56,6 @@
   - [Contributing](#contributing)
   - [License](#license)
   - [Support](#support)
-
 
 ## Installation
 
@@ -213,6 +212,30 @@ evaluator.evaluateMatrix(r'A^{T}', {
 });  // [[1, 3], [2, 4]]
 ```
 
+### 5. Symbolic Algebra & Simplification
+
+Simplify and expand expressions with domain-aware rules:
+
+```dart
+final engine = SymbolicEngine();
+
+// Basic simplification: 0 + x = x
+print(engine.simplify(evaluator.parse('0 + x')).toLatex());
+
+// Trigonometric identities: sin²x + cos²x = 1
+print(engine.simplify(evaluator.parse(r'\sin^{2}{x} + \cos^{2}{x}')).toLatex());
+
+// Domain-aware rules (Assumptions)
+// sqrt(x²) behavior depends on what we know about x
+final expr = evaluator.parse(r'\sqrt{x^{2}}');
+print(engine.simplify(expr).toLatex()); // Output: |x| (Safely handles negative x)
+
+engine.assume('x', Assumption.nonNegative);
+print(engine.simplify(expr).toLatex()); // Output: x (Simplified with assumption)
+```
+
+[Learn more about symbolic algebra ->](doc/symbolic_algebra.md)
+
 ## Supported Operations
 
 ### Functions by Category
@@ -241,7 +264,9 @@ Constants are available with or without backslash notation:
 | Phi      | `\phi`   | φ      | 1.61803... | `\phi` or `phi`     |
 | Gamma    | `\gamma` | γ      | 0.57721... | `\gamma` or `gamma` |
 
-> **Note:** User-provided variables always override built-in constants.
+> [!NOTE]
+> User-provided variables override built-in constants by default.
+> [Learn more here](./doc/constants.md#overriding-constants)
 
 ### Advanced Notation
 
@@ -464,6 +489,7 @@ final result = evaluator.validate(r'\frac{1{2}');
 The guides available in the [doc/](doc/) folder:
 
 - [Getting Started](doc/getting_started.md) - Installation and basic usage
+- [Symbolic Algebra](doc/symbolic_algebra.md) - Simplification, expansion, and assumptions
 - [Functions](doc/functions/README.md) - Complete function reference
 - [Notation](doc/notation/README.md) - Supported LaTeX notation
 - [Constants](doc/constants.md) - Built-in mathematical constants

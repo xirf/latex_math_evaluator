@@ -74,12 +74,14 @@ void main() {
       });
 
       test('evaluates \\sqrt[n]{x} with n=3, x=27', () {
-        final result = evaluator.evaluate(r'\sqrt[n]{x}', {'n': 3.0, 'x': 27.0});
+        final result =
+            evaluator.evaluate(r'\sqrt[n]{x}', {'n': 3.0, 'x': 27.0});
         expect(result.asNumeric(), closeTo(3.0, 1e-10));
       });
 
       test('evaluates \\sqrt[n]{x} with n=4, x=16', () {
-        final result = evaluator.evaluate(r'\sqrt[n]{x}', {'n': 4.0, 'x': 16.0});
+        final result =
+            evaluator.evaluate(r'\sqrt[n]{x}', {'n': 4.0, 'x': 16.0});
         expect(result.asNumeric(), closeTo(2.0, 1e-10));
       });
     });
@@ -96,7 +98,8 @@ void main() {
       });
 
       test('evaluates \\sqrt[3]{x+y} with variables', () {
-        final result = evaluator.evaluate(r'\sqrt[3]{x+y}', {'x': 4.0, 'y': 4.0});
+        final result =
+            evaluator.evaluate(r'\sqrt[3]{x+y}', {'x': 4.0, 'y': 4.0});
         expect(result.asNumeric(), closeTo(2.0, 1e-10));
       });
 

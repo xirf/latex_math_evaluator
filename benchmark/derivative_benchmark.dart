@@ -103,7 +103,7 @@ void benchmarkDifferentiateCost({
 
   final avgMs = sw.elapsedMicroseconds / iterations / 1000.0;
   print(
-      'Differentiate() cost for ${expressionString}: ${sw.elapsedMilliseconds} ms total; avg ${avgMs.toStringAsFixed(4)} ms/op');
+      'Differentiate() cost for $expressionString: ${sw.elapsedMilliseconds} ms total; avg ${avgMs.toStringAsFixed(4)} ms/op');
 }
 
 String _repeat(String s, int n) => List.filled(n, s).join(' + ');
@@ -121,7 +121,7 @@ void main(List<String> args) {
     'Trigonometric composite': r'\frac{d}{dx}(\sin{x^{2}})',
     'Rational function': r'\frac{d}{dx}(\frac{x^{5} + 2x^{3} - x + 7}{x - 1})',
     'x^x': r'\frac{d}{dx}(x^{x})',
-    'Long polynomial': r'\frac{d}{dx}(' + _repeat(r'x^{2}', 20) + ')',
+    'Long polynomial': '\\frac{d}{dx}(${_repeat(r'x^{2}', 20)})',
   };
 
   for (final entry in expressions.entries) {

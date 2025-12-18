@@ -1,4 +1,5 @@
 import 'expression.dart';
+import 'visitor.dart';
 
 /// Absolute value expression: |x|
 class AbsoluteValue extends Expression {
@@ -8,6 +9,19 @@ class AbsoluteValue extends Expression {
 
   @override
   String toString() => 'AbsoluteValue($argument)';
+
+  @override
+  String toLatex() => '\\left|${argument.toLatex()}\\right|';
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    // AbsoluteValue is a special case of FunctionCall
+    // We'll visit it as a function call with name 'abs'
+    return visitor.visitFunctionCall(
+      FunctionCall('abs', argument),
+      context,
+    );
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -39,7 +53,8 @@ class FunctionCall extends Expression {
   /// Optional parameter for functions like \sqrt[n]{x}.
   final Expression? optionalParam;
 
-  FunctionCall(this.name, Expression argument, {this.base, this.optionalParam}) : args = [argument];
+  FunctionCall(this.name, Expression argument, {this.base, this.optionalParam})
+      : args = [argument];
 
   FunctionCall.multivar(this.name, this.args, {this.base, this.optionalParam});
 
@@ -50,6 +65,36 @@ class FunctionCall extends Expression {
     if (optionalParam != null) parts.add('optionalParam: $optionalParam');
     parts.add('args: $args)');
     return parts.join(', ');
+  }
+
+  @override
+  String toLatex() {
+    // Handle special cases
+    if (name == 'sqrt') {
+      if (optionalParam != null) {
+        return '\\sqrt[${optionalParam!.toLatex()}]{${argument.toLatex()}}';
+      }
+      return '\\sqrt{${argument.toLatex()}}';
+    }
+
+    // Handle logarithm with base
+    if ((name == 'log' || name == 'lg') && base != null) {
+      return '\\log_{${base!.toLatex()}}{${argument.toLatex()}}';
+    }
+
+    // Multi-argument functions
+    if (args.length > 1) {
+      final argsLatex = args.map((a) => a.toLatex()).join(',');
+      return '\\$name{$argsLatex}';
+    }
+
+    // Standard single-argument function
+    return '\\$name{${argument.toLatex()}}';
+  }
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitFunctionCall(this, context);
   }
 
   @override
@@ -64,5 +109,6 @@ class FunctionCall extends Expression {
           optionalParam == other.optionalParam; // Simplified check
 
   @override
-  int get hashCode => Object.hash(name, Object.hashAll(args), base, optionalParam);
+  int get hashCode =>
+      Object.hash(name, Object.hashAll(args), base, optionalParam);
 }

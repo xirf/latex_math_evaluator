@@ -1,13 +1,25 @@
-import 'dart:math' as math;
-
 import '../ast.dart';
-import '../complex.dart';
 import '../exceptions.dart';
 import '../matrix.dart';
-import '../vector.dart';
+import 'strategies/binary_operation_strategy.dart';
+import 'strategies/number_number_strategy.dart';
+import 'strategies/complex_strategy.dart';
+import 'strategies/matrix_strategy.dart';
+import 'strategies/vector_strategy.dart';
 
-/// Handles evaluation of binary operations.
+/// Handles evaluation of binary operations using the strategy pattern.
+///
+/// This evaluator delegates to specific strategies based on operand types,
+/// making it easy to add new type combinations and operations.
 class BinaryEvaluator {
+  final List<BinaryOperationStrategy> _strategies = [
+    // Order matters: more specific strategies first
+    MatrixStrategy(),
+    VectorStrategy(),
+    ComplexStrategy(),
+    NumberNumberStrategy(),
+  ];
+
   /// Evaluates a binary operation between two expressions.
   ///
   /// Supports operations on numbers, complex numbers, matrices, and vectors.
@@ -34,27 +46,20 @@ class BinaryEvaluator {
     // Get source token for vector operations
     final sourceToken = expr is BinaryOp ? expr.sourceToken : null;
 
-    // Vector operations
-    if (leftValue is Vector && rightValue is Vector) {
-      return _evaluateVectorVector(
-          leftValue, operator, rightValue, sourceToken ?? '');
-    } else if (leftValue is Vector && rightValue is num) {
-      return _evaluateVectorScalar(leftValue, operator, rightValue);
-    } else if (leftValue is num && rightValue is Vector) {
-      return _evaluateScalarVector(leftValue, operator, rightValue);
-    }
-
-    // Matrix operations
-    if (leftValue is Matrix && rightValue is Matrix) {
-      return _evaluateMatrixMatrix(leftValue, operator, rightValue);
-    } else if (leftValue is Matrix && rightValue is num) {
-      return _evaluateMatrixScalar(leftValue, operator, rightValue);
-    } else if (leftValue is num && rightValue is Matrix) {
-      return _evaluateScalarMatrix(leftValue, operator, rightValue);
-    } else if (leftValue is Complex || rightValue is Complex) {
-      return _evaluateComplex(leftValue, operator, rightValue);
-    } else if (leftValue is double && rightValue is double) {
-      return _evaluateNumberNumber(leftValue, operator, rightValue);
+    // Find appropriate strategy
+    for (final strategy in _strategies) {
+      if (strategy.canHandle(leftValue, rightValue)) {
+        // Special handling for VectorStrategy to pass sourceToken
+        if (strategy is VectorStrategy) {
+          return strategy.evaluate(
+            leftValue,
+            operator,
+            rightValue,
+            sourceToken: sourceToken,
+          );
+        }
+        return strategy.evaluate(leftValue, operator, rightValue);
+      }
     }
 
     throw EvaluatorException(
@@ -62,198 +67,5 @@ class BinaryEvaluator {
       suggestion:
           'Ensure both operands are compatible types (numbers, complex numbers, matrices, or vectors)',
     );
-  }
-
-  Matrix _evaluateMatrixMatrix(
-    Matrix left,
-    BinaryOperator operator,
-    Matrix right,
-  ) {
-    switch (operator) {
-      case BinaryOperator.add:
-        return left + right;
-      case BinaryOperator.subtract:
-        return left - right;
-      case BinaryOperator.multiply:
-        return left * right;
-      default:
-        throw EvaluatorException(
-          'Operator $operator not supported for matrices',
-          suggestion:
-              'Matrices support +, -, * operations and ^{-1} for inverse or ^T for transpose',
-        );
-    }
-  }
-
-  dynamic _evaluateMatrixScalar(
-    Matrix left,
-    BinaryOperator operator,
-    num right,
-  ) {
-    switch (operator) {
-      case BinaryOperator.multiply:
-        return left * right;
-      case BinaryOperator.power:
-        if (right == -1) {
-          return left.inverse();
-        }
-        throw EvaluatorException(
-          'Matrix power only supports -1 (inverse) or T (transpose)',
-          suggestion: 'Use M^{-1} for inverse or M^T for transpose',
-        );
-      default:
-        throw EvaluatorException(
-          'Operator $operator not supported for matrix and scalar',
-          suggestion:
-              'You can multiply a matrix by a scalar, but other operations are not supported',
-        );
-    }
-  }
-
-  Matrix _evaluateScalarMatrix(
-    num left,
-    BinaryOperator operator,
-    Matrix right,
-  ) {
-    switch (operator) {
-      case BinaryOperator.multiply:
-        return right * left;
-      default:
-        throw EvaluatorException(
-          'Operator $operator not supported for scalar and matrix',
-          suggestion:
-              'You can multiply a scalar by a matrix, but other operations are not supported',
-        );
-    }
-  }
-
-  Complex _evaluateComplex(
-    dynamic left,
-    BinaryOperator operator,
-    dynamic right,
-  ) {
-    final l = left is Complex ? left : Complex.fromNum(left as num);
-    final r = right is Complex ? right : Complex.fromNum(right as num);
-
-    switch (operator) {
-      case BinaryOperator.add:
-        return l + r;
-      case BinaryOperator.subtract:
-        return l - r;
-      case BinaryOperator.multiply:
-        return l * r;
-      case BinaryOperator.divide:
-        return l / r;
-      case BinaryOperator.power:
-        // Complex power is tricky, for now let's support integer powers via multiplication
-        if (r.isReal && r.real == r.real.roundToDouble()) {
-          final exponent = r.real.toInt();
-          if (exponent == 0) return Complex(1);
-          if (exponent > 0) {
-            var result = l;
-            for (var i = 1; i < exponent; i++) {
-              result = result * l;
-            }
-            return result;
-          }
-        }
-        throw EvaluatorException(
-          'Complex power not fully supported yet',
-          suggestion:
-              'Currently only integer exponents are supported for complex numbers',
-        );
-    }
-  }
-
-  double _evaluateNumberNumber(
-    double left,
-    BinaryOperator operator,
-    double right,
-  ) {
-    switch (operator) {
-      case BinaryOperator.add:
-        return left + right;
-      case BinaryOperator.subtract:
-        return left - right;
-      case BinaryOperator.multiply:
-        return left * right;
-      case BinaryOperator.divide:
-        return _divide(left, right);
-      case BinaryOperator.power:
-        return math.pow(left, right).toDouble();
-    }
-  }
-
-  double _divide(double left, double right) {
-    if (right == 0) {
-      throw EvaluatorException(
-        'Division by zero',
-        suggestion: 'Ensure the denominator is not zero',
-      );
-    }
-    return left / right;
-  }
-
-  dynamic _evaluateVectorVector(
-    Vector left,
-    BinaryOperator operator,
-    Vector right,
-    String sourceToken,
-  ) {
-    switch (operator) {
-      case BinaryOperator.add:
-        return left + right;
-      case BinaryOperator.subtract:
-        return left - right;
-      case BinaryOperator.multiply:
-        // Check source token: \times = cross product, others = dot product
-        if (sourceToken == r'\times') {
-          return left.cross(right);
-        }
-        // Vector dot product (using \cdot, *, or implicit mult)
-        return left.dot(right);
-      default:
-        throw EvaluatorException(
-          'Operator $operator not supported for vectors',
-          suggestion:
-              'Vectors support +, -, * or \\cdot (dot product), and \\times (cross product)',
-        );
-    }
-  }
-
-  Vector _evaluateVectorScalar(
-    Vector left,
-    BinaryOperator operator,
-    num right,
-  ) {
-    switch (operator) {
-      case BinaryOperator.multiply:
-        return left * right;
-      case BinaryOperator.divide:
-        return left / right;
-      default:
-        throw EvaluatorException(
-          'Operator $operator not supported for vector and scalar',
-          suggestion:
-              'You can multiply or divide a vector by a scalar, but other operations are not supported',
-        );
-    }
-  }
-
-  Vector _evaluateScalarVector(
-    num left,
-    BinaryOperator operator,
-    Vector right,
-  ) {
-    switch (operator) {
-      case BinaryOperator.multiply:
-        return right * left;
-      default:
-        throw EvaluatorException(
-          'Operator $operator not supported for scalar and vector',
-          suggestion:
-              'You can multiply a scalar by a vector, but other operations are not supported',
-        );
-    }
   }
 }

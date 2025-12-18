@@ -49,7 +49,7 @@ Represents a mathematical vector of double values.
 
 *   `normalize()`: Returns a unit vector in same direction.
 *   `dot(Vector other)`: Dot product.
-*   `cross(Vector other)`: Cross product (only for 3D vectors).
+*   `cross(Vector other)`: Cross product (defined for 3D vectors).
 
 ### Operators
 

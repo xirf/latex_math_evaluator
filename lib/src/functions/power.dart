@@ -10,7 +10,7 @@ import '../exceptions.dart';
 double handleSqrt(FunctionCall func, Map<String, double> vars,
     double Function(Expression) evaluate) {
   final arg = evaluate(func.argument);
-  
+
   // Check for nth root via optional parameter
   if (func.optionalParam != null) {
     final n = evaluate(func.optionalParam!);
@@ -28,7 +28,7 @@ double handleSqrt(FunctionCall func, Map<String, double> vars,
     }
     return math.pow(arg, 1 / n).toDouble();
   }
-  
+
   // Default: square root
   if (arg < 0) {
     throw EvaluatorException('Square root of negative number');

@@ -1,4 +1,5 @@
 import 'expression.dart';
+import 'visitor.dart';
 
 /// A matrix expression.
 class MatrixExpr extends Expression {
@@ -8,6 +9,19 @@ class MatrixExpr extends Expression {
 
   @override
   String toString() => 'MatrixExpr($rows)';
+
+  @override
+  String toLatex() {
+    final rowsLatex = rows.map((row) {
+      return row.map((expr) => expr.toLatex()).join(' & ');
+    }).join(' \\\\ ');
+    return '\\begin{bmatrix}$rowsLatex\\end{bmatrix}';
+  }
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitMatrixExpr(this, context);
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -46,6 +60,20 @@ class VectorExpr extends Expression {
   @override
   String toString() =>
       isUnitVector ? 'UnitVector($components)' : 'VectorExpr($components)';
+
+  @override
+  String toLatex() {
+    final componentsLatex = components.map((c) => c.toLatex()).join(',');
+    if (isUnitVector) {
+      return '\\hat{$componentsLatex}';
+    }
+    return '\\vec{$componentsLatex}';
+  }
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitVectorExpr(this, context);
+  }
 
   @override
   bool operator ==(Object other) =>

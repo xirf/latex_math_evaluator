@@ -99,6 +99,15 @@ enum TokenType {
   /// End environment `\end`.
   end,
 
+  /// Text mode `\text`.
+  text,
+
+  /// Not equal `\neq`.
+  notEqual,
+
+  /// Ignored command (e.g., `\left`, `\right`, `\big`).
+  ignored,
+
   /// End of input.
   eof,
 }

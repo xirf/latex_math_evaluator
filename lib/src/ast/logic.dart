@@ -1,4 +1,5 @@
 import 'expression.dart';
+import 'visitor.dart';
 
 /// Comparison operation types.
 enum ComparisonOperator {
@@ -19,6 +20,23 @@ class Comparison extends Expression {
 
   @override
   String toString() => 'Comparison($left, $operator, $right)';
+
+  @override
+  String toLatex() {
+    final op = switch (operator) {
+      ComparisonOperator.less => '<',
+      ComparisonOperator.greater => '>',
+      ComparisonOperator.lessEqual => '\\leq',
+      ComparisonOperator.greaterEqual => '\\geq',
+      ComparisonOperator.equal => '=',
+    };
+    return '${left.toLatex()} $op ${right.toLatex()}';
+  }
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitComparison(this, context);
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -48,6 +66,15 @@ class ConditionalExpr extends Expression {
   String toString() => 'ConditionalExpr($expression, condition: $condition)';
 
   @override
+  String toLatex() =>
+      '${expression.toLatex()} \\text{ where } ${condition.toLatex()}';
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitConditionalExpr(this, context);
+  }
+
+  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is ConditionalExpr &&
@@ -72,6 +99,30 @@ class ChainedComparison extends Expression {
 
   @override
   String toString() => 'ChainedComparison($expressions, $operators)';
+
+  @override
+  String toLatex() {
+    final buffer = StringBuffer();
+    for (int i = 0; i < expressions.length; i++) {
+      buffer.write(expressions[i].toLatex());
+      if (i < operators.length) {
+        final op = switch (operators[i]) {
+          ComparisonOperator.less => '<',
+          ComparisonOperator.greater => '>',
+          ComparisonOperator.lessEqual => '\\leq',
+          ComparisonOperator.greaterEqual => '\\geq',
+          ComparisonOperator.equal => '=',
+        };
+        buffer.write(' $op ');
+      }
+    }
+    return buffer.toString();
+  }
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitChainedComparison(this, context);
+  }
 
   @override
   bool operator ==(Object other) =>

@@ -1,4 +1,5 @@
 import 'expression.dart';
+import 'visitor.dart';
 
 /// A limit expression: \lim_{variable \to target} body.
 class LimitExpr extends Expression {
@@ -15,6 +16,15 @@ class LimitExpr extends Expression {
 
   @override
   String toString() => 'LimitExpr($variable -> $target, $body)';
+
+  @override
+  String toLatex() =>
+      '\\lim_{$variable \\to ${target.toLatex()}}{${body.toLatex()}}';
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitLimitExpr(this, context);
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -47,6 +57,15 @@ class SumExpr extends Expression {
 
   @override
   String toString() => 'SumExpr($variable=$start to $end, $body)';
+
+  @override
+  String toLatex() =>
+      '\\sum_{$variable=${start.toLatex()}}^{${end.toLatex()}}{${body.toLatex()}}';
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitSumExpr(this, context);
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -83,6 +102,15 @@ class ProductExpr extends Expression {
   String toString() => 'ProductExpr($variable=$start to $end, $body)';
 
   @override
+  String toLatex() =>
+      '\\prod_{$variable=${start.toLatex()}}^{${end.toLatex()}}{${body.toLatex()}}';
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitProductExpr(this, context);
+  }
+
+  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is ProductExpr &&
@@ -115,6 +143,15 @@ class IntegralExpr extends Expression {
 
   @override
   String toString() => 'IntegralExpr($lower to $upper, $body d$variable)';
+
+  @override
+  String toLatex() =>
+      '\\int_{${lower.toLatex()}}^{${upper.toLatex()}}{${body.toLatex()}} d$variable';
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitIntegralExpr(this, context);
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -150,6 +187,19 @@ class DerivativeExpr extends Expression {
       return 'DerivativeExpr(d/d$variable, $body)';
     }
     return 'DerivativeExpr(d^$order/d$variable^$order, $body)';
+  }
+
+  @override
+  String toLatex() {
+    if (order == 1) {
+      return '\\frac{d}{d$variable}{${body.toLatex()}}';
+    }
+    return '\\frac{d^{$order}}{d$variable^{$order}}{${body.toLatex()}}';
+  }
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitDerivativeExpr(this, context);
   }
 
   @override

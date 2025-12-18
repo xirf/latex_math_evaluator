@@ -1,4 +1,4 @@
-/// A library for parsing and evaluating LaTeX-formatted math expressions.
+/* A library for parsing and evaluating LaTeX-formatted math expressions.
 ///
 /// ## Usage
 ///
@@ -58,9 +58,10 @@
 ///   return null;
 /// });
 /// final evaluator = LatexMathEvaluator(extensions: registry);
-/// ```
-library latex_math_evaluator;
+*/
 
+// Public API - organized by module
+// For modular imports, use: import 'package:latex_math_evaluator/src/core/core.dart';
 export 'src/ast.dart';
 export 'src/evaluator.dart';
 export 'src/exceptions.dart';
@@ -70,6 +71,7 @@ export 'src/vector.dart';
 export 'src/parser.dart';
 export 'src/token.dart';
 export 'src/tokenizer.dart';
+export 'src/symbolic.dart';
 
 import 'src/ast.dart';
 import 'src/evaluator.dart';
