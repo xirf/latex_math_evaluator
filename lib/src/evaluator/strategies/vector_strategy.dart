@@ -26,7 +26,7 @@ class VectorStrategy implements BinaryOperationStrategy {
     } else if (left is Vector && right is num) {
       return _evaluateVectorScalar(left, operator, right);
     } else if (left is num && right is Vector) {
-      return _evaluateScalarVector(left, operator, right as Vector);
+      return _evaluateScalarVector(left, operator, right);
     }
 
     throw EvaluatorException(
@@ -68,8 +68,7 @@ class VectorStrategy implements BinaryOperationStrategy {
       default:
         throw EvaluatorException(
           'Operator $operator not supported for vectors',
-          suggestion:
-              'Vectors support +, -, ⋅ (dot), × (cross) operations',
+          suggestion: 'Vectors support +, -, ⋅ (dot), × (cross) operations',
         );
     }
   }

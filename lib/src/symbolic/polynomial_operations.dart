@@ -222,39 +222,340 @@ class PolynomialOperations {
   ///
   /// Returns the solution x = -b/a, or null if not solvable.
   Expression? solveLinear(Expression equation, String variable) {
-    // Simplified implementation
-    // In a real implementation, we'd rearrange the equation to isolate variable
-    return null;
+    // Extract coefficients from equation
+    final coeffs = _extractLinearCoefficients(equation, variable);
+    if (coeffs == null) return null;
+
+    final a = coeffs['a']!;
+    final b = coeffs['b']!;
+
+    // Check if coefficient of variable is zero
+    if (_isZero(a)) {
+      return null; // No solution or infinite solutions
+    }
+
+    // x = -b/a
+    final negB = _negate(b);
+    return _simplifyDivision(negB, a);
   }
 
   /// Solves a quadratic equation ax^2 + bx + c = 0 for x.
   ///
   /// Returns 0, 1, or 2 solutions using the quadratic formula.
+  /// Returns symbolic solutions when possible.
   List<Expression> solveQuadratic(Expression equation, String variable) {
-    final terms = _extractQuadraticTerms(equation);
-    if (terms == null) return [];
+    final coeffs = _extractQuadraticCoefficients(equation, variable);
+    if (coeffs == null) return [];
 
-    final a = terms['a']! as num;
-    final b = terms['b']! as num;
-    final c = terms['c']! as num;
+    final a = coeffs['a']!;
+    final b = coeffs['b']!;
+    final c = coeffs['c']!;
 
-    final discriminant = b * b - 4 * a * c;
-
-    if (discriminant < 0) {
-      return []; // No real solutions
-    } else if (discriminant == 0) {
-      // One solution: x = -b / (2a)
-      final solution = -b / (2 * a);
-      return [NumberLiteral(solution.toDouble())];
-    } else {
-      // Two solutions: x = (-b ± sqrt(discriminant)) / (2a)
-      final sqrtDisc = math.sqrt(discriminant);
-      final solution1 = (-b + sqrtDisc) / (2 * a);
-      final solution2 = (-b - sqrtDisc) / (2 * a);
-      return [
-        NumberLiteral(solution1.toDouble()),
-        NumberLiteral(solution2.toDouble()),
-      ];
+    // Check if this is actually linear (a = 0)
+    if (_isZero(a)) {
+      final linearSol = solveLinear(equation, variable);
+      return linearSol != null ? [linearSol] : [];
     }
+
+    // Compute discriminant: b^2 - 4ac
+    final bSquared = BinaryOp(b, BinaryOperator.power, const NumberLiteral(2));
+    final fourAC = BinaryOp(
+      BinaryOp(const NumberLiteral(4), BinaryOperator.multiply, a),
+      BinaryOperator.multiply,
+      c,
+    );
+    final discriminant = BinaryOp(bSquared, BinaryOperator.subtract, fourAC);
+
+    // Try to evaluate discriminant numerically if possible
+    final discValue = _tryEvaluate(discriminant);
+
+    if (discValue != null) {
+      if (discValue < 0) {
+        return []; // No real solutions
+      } else if (discValue == 0) {
+        // One solution: x = -b / (2a)
+        final negB = _negate(b);
+        final twoA =
+            BinaryOp(const NumberLiteral(2), BinaryOperator.multiply, a);
+        return [_simplifyDivision(negB, twoA)];
+      }
+    }
+
+    // Two solutions (or symbolic): x = (-b ± sqrt(discriminant)) / (2a)
+    final negB = _negate(b);
+    final sqrtDisc = FunctionCall('sqrt', discriminant);
+    final twoA = BinaryOp(const NumberLiteral(2), BinaryOperator.multiply, a);
+
+    final numerator1 = BinaryOp(negB, BinaryOperator.add, sqrtDisc);
+    final numerator2 = BinaryOp(negB, BinaryOperator.subtract, sqrtDisc);
+
+    return [
+      _simplifyDivision(numerator1, twoA),
+      _simplifyDivision(numerator2, twoA),
+    ];
+  }
+
+  /// Extract linear coefficients from equation of form ax + b = 0
+  Map<String, Expression>? _extractLinearCoefficients(
+      Expression expr, String variable) {
+    // For now, handle simple patterns
+    // This is a simplified implementation that handles basic cases
+
+    if (expr is BinaryOp) {
+      // Pattern: ax + b or ax - b or b + ax, etc.
+      if (expr.operator == BinaryOperator.add ||
+          expr.operator == BinaryOperator.subtract) {
+        final left = expr.left;
+        final right = expr.right;
+
+        Expression? a;
+        Expression? b;
+
+        // Check if left contains variable
+        final leftHasVar = _containsVariable(left, variable);
+        final rightHasVar = _containsVariable(right, variable);
+
+        if (leftHasVar && !rightHasVar) {
+          // Pattern: ax ± b
+          a = _extractCoefficient(left, variable);
+          b = expr.operator == BinaryOperator.subtract ? _negate(right) : right;
+        } else if (!leftHasVar && rightHasVar) {
+          // Pattern: b ± ax
+          b = left;
+          final coeff = _extractCoefficient(right, variable);
+          a = expr.operator == BinaryOperator.subtract ? _negate(coeff) : coeff;
+        }
+
+        if (a != null && b != null) {
+          return {'a': a, 'b': b};
+        }
+      }
+    }
+
+    // Pattern: just ax (b = 0)
+    if (_containsVariable(expr, variable)) {
+      return {
+        'a': _extractCoefficient(expr, variable),
+        'b': const NumberLiteral(0),
+      };
+    }
+
+    return null;
+  }
+
+  /// Extract quadratic coefficients from equation of form ax^2 + bx + c = 0
+  Map<String, Expression>? _extractQuadraticCoefficients(
+      Expression expr, String variable) {
+    Expression a = const NumberLiteral(0);
+    Expression b = const NumberLiteral(0);
+    Expression c = const NumberLiteral(0);
+
+    // Recursively collect terms
+    _collectQuadraticTerms(expr, variable, (term, sign) {
+      final degree = _getVariableDegree(term, variable);
+      final coeff = _extractCoefficientForDegree(term, variable, degree);
+      final signedCoeff = sign < 0 ? _negate(coeff) : coeff;
+
+      if (degree == 2) {
+        a = _addExpressions(a, signedCoeff);
+      } else if (degree == 1) {
+        b = _addExpressions(b, signedCoeff);
+      } else if (degree == 0) {
+        c = _addExpressions(c, signedCoeff);
+      }
+    });
+
+    return {'a': a, 'b': b, 'c': c};
+  }
+
+  /// Collect terms from addition/subtraction tree
+  void _collectQuadraticTerms(
+    Expression expr,
+    String variable,
+    void Function(Expression term, int sign) collector,
+  ) {
+    if (expr is BinaryOp &&
+        (expr.operator == BinaryOperator.add ||
+            expr.operator == BinaryOperator.subtract)) {
+      _collectQuadraticTerms(expr.left, variable, collector);
+      final sign = expr.operator == BinaryOperator.subtract ? -1 : 1;
+      collector(expr.right, sign);
+    } else {
+      collector(expr, 1);
+    }
+  }
+
+  /// Get the degree of a variable in a term
+  int _getVariableDegree(Expression expr, String variable) {
+    if (expr is Variable && expr.name == variable) {
+      return 1;
+    }
+
+    if (expr is BinaryOp) {
+      if (expr.operator == BinaryOperator.power) {
+        if (expr.left is Variable && (expr.left as Variable).name == variable) {
+          if (expr.right is NumberLiteral) {
+            return (expr.right as NumberLiteral).value.toInt();
+          }
+        }
+      } else if (expr.operator == BinaryOperator.multiply) {
+        // Get max degree from both sides
+        return _getVariableDegree(expr.left, variable) +
+            _getVariableDegree(expr.right, variable);
+      }
+    }
+
+    return 0;
+  }
+
+  /// Extract coefficient for a specific degree
+  Expression _extractCoefficientForDegree(
+      Expression expr, String variable, int degree) {
+    if (degree == 0) {
+      return expr;
+    }
+
+    if (degree == 1) {
+      if (expr is Variable && expr.name == variable) {
+        return const NumberLiteral(1);
+      }
+      if (expr is BinaryOp && expr.operator == BinaryOperator.multiply) {
+        if (_containsVariable(expr.left, variable)) {
+          return expr.right;
+        } else if (_containsVariable(expr.right, variable)) {
+          return expr.left;
+        }
+      }
+    }
+
+    if (degree == 2) {
+      if (expr is BinaryOp && expr.operator == BinaryOperator.power) {
+        if (expr.left is Variable && (expr.left as Variable).name == variable) {
+          return const NumberLiteral(1);
+        }
+      }
+      if (expr is BinaryOp && expr.operator == BinaryOperator.multiply) {
+        // Find the non-x^2 part
+        final leftDeg = _getVariableDegree(expr.left, variable);
+        final rightDeg = _getVariableDegree(expr.right, variable);
+
+        if (leftDeg == 2 && rightDeg == 0) {
+          return expr.right;
+        } else if (leftDeg == 0 && rightDeg == 2) {
+          return expr.left;
+        }
+      }
+    }
+
+    return const NumberLiteral(1);
+  }
+
+  /// Check if expression contains a variable
+  bool _containsVariable(Expression expr, String variable) {
+    if (expr is Variable) {
+      return expr.name == variable;
+    }
+    if (expr is BinaryOp) {
+      return _containsVariable(expr.left, variable) ||
+          _containsVariable(expr.right, variable);
+    }
+    if (expr is UnaryOp) {
+      return _containsVariable(expr.operand, variable);
+    }
+    if (expr is FunctionCall) {
+      return expr.args.any((arg) => _containsVariable(arg, variable));
+    }
+    return false;
+  }
+
+  /// Extract coefficient of variable (for linear term)
+  Expression _extractCoefficient(Expression expr, String variable) {
+    if (expr is Variable && expr.name == variable) {
+      return const NumberLiteral(1);
+    }
+
+    if (expr is BinaryOp && expr.operator == BinaryOperator.multiply) {
+      if (expr.left is Variable && (expr.left as Variable).name == variable) {
+        return expr.right;
+      } else if (expr.right is Variable &&
+          (expr.right as Variable).name == variable) {
+        return expr.left;
+      } else if (_containsVariable(expr.left, variable)) {
+        return expr.right;
+      } else if (_containsVariable(expr.right, variable)) {
+        return expr.left;
+      }
+    }
+
+    return const NumberLiteral(1);
+  }
+
+  /// Helper: negate an expression
+  Expression _negate(Expression expr) {
+    if (expr is NumberLiteral) {
+      return NumberLiteral(-expr.value);
+    }
+    return UnaryOp(UnaryOperator.negate, expr);
+  }
+
+  /// Helper: check if expression is zero
+  bool _isZero(Expression expr) {
+    return expr is NumberLiteral && expr.value == 0;
+  }
+
+  /// Helper: simplify division
+  Expression _simplifyDivision(Expression numerator, Expression denominator) {
+    // Check for 1 in denominator
+    if (denominator is NumberLiteral && denominator.value == 1) {
+      return numerator;
+    }
+
+    // Check for numeric simplification
+    if (numerator is NumberLiteral && denominator is NumberLiteral) {
+      return NumberLiteral(numerator.value / denominator.value);
+    }
+
+    return BinaryOp(numerator, BinaryOperator.divide, denominator);
+  }
+
+  /// Helper: add two expressions
+  Expression _addExpressions(Expression a, Expression b) {
+    if (a is NumberLiteral && a.value == 0) return b;
+    if (b is NumberLiteral && b.value == 0) return a;
+
+    if (a is NumberLiteral && b is NumberLiteral) {
+      return NumberLiteral(a.value + b.value);
+    }
+
+    return BinaryOp(a, BinaryOperator.add, b);
+  }
+
+  /// Helper: try to evaluate expression to a number
+  double? _tryEvaluate(Expression expr) {
+    if (expr is NumberLiteral) {
+      return expr.value;
+    }
+
+    if (expr is BinaryOp) {
+      final left = _tryEvaluate(expr.left);
+      final right = _tryEvaluate(expr.right);
+
+      if (left != null && right != null) {
+        switch (expr.operator) {
+          case BinaryOperator.add:
+            return left + right;
+          case BinaryOperator.subtract:
+            return left - right;
+          case BinaryOperator.multiply:
+            return left * right;
+          case BinaryOperator.divide:
+            return right != 0 ? left / right : null;
+          case BinaryOperator.power:
+            return math.pow(left, right).toDouble();
+        }
+      }
+    }
+
+    return null;
   }
 }

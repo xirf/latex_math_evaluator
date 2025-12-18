@@ -20,7 +20,7 @@ class MatrixStrategy implements BinaryOperationStrategy {
     } else if (left is Matrix && right is num) {
       return _evaluateMatrixScalar(left, operator, right);
     } else if (left is num && right is Matrix) {
-      return _evaluateScalarMatrix(left, operator, right as Matrix);
+      return _evaluateScalarMatrix(left, operator, right);
     }
 
     throw EvaluatorException(

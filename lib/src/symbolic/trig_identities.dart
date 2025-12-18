@@ -4,17 +4,42 @@ library;
 import '../ast.dart';
 import 'dart:math' as math;
 
-/// Applies trigonometric identities for simplification.
+/// Applies trigonometric identities for simplification or expansion.
 ///
-/// Supports identities like:
-/// - sin^2(x) + cos^2(x) = 1
-/// - tan(x) = sin(x)/cos(x)
-/// - sin(2x) = 2*sin(x)*cos(x)
-/// - cos(2x) = cos^2(x) - sin^2(x)
-/// - sin(-x) = -sin(x)
-/// - cos(-x) = cos(x)
+/// DESIGN PHILOSOPHY:
+/// - SIMPLIFY mode: reduces complexity (Pythagorean, special values)
+/// - EXPAND mode: applies formulas that increase AST size (double/half-angle)
+///
+/// Supported identities:
+/// Simplification (reduces complexity):
+/// - sin^2(x) + cos^2(x) = 1 (Pythagorean identity)
+/// - sin(0) = 0, cos(0) = 1, tan(0) = 0
+/// - sin(-x) = -sin(x) (odd function)
+/// - cos(-x) = cos(x) (even function)
+///
+/// Expansion (increases complexity):
+/// - sin(2x) = 2*sin(x)*cos(x) (double-angle)
+/// - cos(2x) = cos^2(x) - sin^2(x) (double-angle)
+/// - tan(2x) = 2*tan(x) / (1 - tan^2(x)) (double-angle)
+/// - sin(x/2) = ±√((1-cos(x))/2) (half-angle, ASSUMES positive branch)
+/// - cos(x/2) = ±√((1+cos(x))/2) (half-angle, ASSUMES positive branch)
+/// - tan(x/2) = sin(x)/(1+cos(x)) (half-angle)
+///
+/// WARNING: Half-angle formulas assume positive branch without domain tracking.
+/// This is a mathematical choice, not a bug.
 class TrigIdentities {
-  /// Simplifies trigonometric expressions using identities.
+  /// Whether to apply expansion rules (double/half-angle)
+  final bool enableExpansion;
+
+  /// Creates a trig identity handler.
+  ///
+  /// Set [enableExpansion] to false for pure simplification (default).
+  /// Set to true to apply double/half-angle formulas (increases complexity).
+  TrigIdentities({this.enableExpansion = false});
+
+  /// Simplifies or expands trigonometric expressions.
+  ///
+  /// Behavior depends on [enableExpansion] flag.
   Expression simplify(Expression expr) {
     return _simplifyRecursive(expr);
   }
@@ -46,6 +71,16 @@ class TrigIdentities {
     final sin2 = _isSinSquared(left);
     final cos2 = _isCosSquared(right);
 
+    // WARNING: This uses structural equality (sin2 == cos2)
+    // NOT mathematical equivalence. This means:
+    // - sin²(x) + cos²(x) = 1 ✓ (correct)
+    // - sin²(y) + cos²(x) = 1 ✗ (incorrect, but passes if AST happens to match)
+    // - sin²(x+0) + cos²(x) might fail due to structure mismatch
+    //
+    // A proper CAS would:
+    // 1. Canonicalize expressions before comparison
+    // 2. Use symbolic equivalence checking
+    // 3. Track variable scope and alpha-equivalence
     if (sin2 != null && cos2 != null && sin2 == cos2) {
       return const NumberLiteral(1);
     }
@@ -140,6 +175,33 @@ class TrigIdentities {
       return const NumberLiteral(0);
     }
 
+    // sin(2x) = 2*sin(x)*cos(x) - Double-angle formula (EXPANSION)
+    if (enableExpansion) {
+      final doubleArg = _extractDoubleAngle(arg);
+      if (doubleArg != null) {
+        // 2 * sin(x) * cos(x)
+        final sinX = FunctionCall('sin', doubleArg);
+        final cosX = FunctionCall('cos', doubleArg);
+        final sinCos = BinaryOp(sinX, BinaryOperator.multiply, cosX);
+        return BinaryOp(
+            const NumberLiteral(2), BinaryOperator.multiply, sinCos);
+      }
+    }
+
+    // sin(x/2) = √((1-cos(x))/2) - Half-angle formula (EXPANSION, positive branch only)
+    if (enableExpansion) {
+      final halfArg = _extractHalfAngle(arg);
+      if (halfArg != null) {
+        // √((1-cos(x))/2)
+        final cosX = FunctionCall('cos', halfArg);
+        final oneMinusCos =
+            BinaryOp(const NumberLiteral(1), BinaryOperator.subtract, cosX);
+        final divided = BinaryOp(
+            oneMinusCos, BinaryOperator.divide, const NumberLiteral(2));
+        return FunctionCall('sqrt', divided);
+      }
+    }
+
     return FunctionCall.multivar('sin', args);
   }
 
@@ -168,6 +230,35 @@ class TrigIdentities {
       return const NumberLiteral(-1);
     }
 
+    // cos(2x) = cos²(x) - sin²(x) - Double-angle formula (EXPANSION)
+    if (enableExpansion) {
+      final doubleArg = _extractDoubleAngle(arg);
+      if (doubleArg != null) {
+        // cos(x)^2 - sin(x)^2
+        final cosX = FunctionCall('cos', doubleArg);
+        final cos2X =
+            BinaryOp(cosX, BinaryOperator.power, const NumberLiteral(2));
+        final sinX = FunctionCall('sin', doubleArg);
+        final sin2X =
+            BinaryOp(sinX, BinaryOperator.power, const NumberLiteral(2));
+        return BinaryOp(cos2X, BinaryOperator.subtract, sin2X);
+      }
+    }
+
+    // cos(x/2) = √((1+cos(x))/2) - Half-angle formula (EXPANSION, positive branch only)
+    if (enableExpansion) {
+      final halfArg = _extractHalfAngle(arg);
+      if (halfArg != null) {
+        // √((1+cos(x))/2)
+        final cosX = FunctionCall('cos', halfArg);
+        final onePlusCos =
+            BinaryOp(const NumberLiteral(1), BinaryOperator.add, cosX);
+        final divided =
+            BinaryOp(onePlusCos, BinaryOperator.divide, const NumberLiteral(2));
+        return FunctionCall('sqrt', divided);
+      }
+    }
+
     return FunctionCall.multivar('cos', args);
   }
 
@@ -181,8 +272,70 @@ class TrigIdentities {
       return const NumberLiteral(0);
     }
 
+    // tan(2x) = 2*tan(x) / (1 - tan²(x)) - Double-angle formula (EXPANSION)
+    if (enableExpansion) {
+      final doubleArg = _extractDoubleAngle(arg);
+      if (doubleArg != null) {
+        // 2*tan(x)
+        final tanX = FunctionCall('tan', doubleArg);
+        final twoTanX =
+            BinaryOp(const NumberLiteral(2), BinaryOperator.multiply, tanX);
+
+        // 1 - tan²(x)
+        final tan2X =
+            BinaryOp(tanX, BinaryOperator.power, const NumberLiteral(2));
+        final denominator =
+            BinaryOp(const NumberLiteral(1), BinaryOperator.subtract, tan2X);
+
+        return BinaryOp(twoTanX, BinaryOperator.divide, denominator);
+      }
+    }
+
+    // tan(x/2) = sin(x)/(1+cos(x)) - Half-angle formula (EXPANSION)
+    if (enableExpansion) {
+      final halfArg = _extractHalfAngle(arg);
+      if (halfArg != null) {
+        // sin(x)/(1+cos(x))
+        final sinX = FunctionCall('sin', halfArg);
+        final cosX = FunctionCall('cos', halfArg);
+        final onePlusCos =
+            BinaryOp(const NumberLiteral(1), BinaryOperator.add, cosX);
+        return BinaryOp(sinX, BinaryOperator.divide, onePlusCos);
+      }
+    }
+
     // tan(x) could be converted to sin(x)/cos(x) but we keep it as is for now
     return FunctionCall('tan', arg);
+  }
+
+  /// Extracts the argument from a double-angle expression like 2*x.
+  /// Returns null if not a double-angle pattern.
+  Expression? _extractDoubleAngle(Expression expr) {
+    // Check for 2*x pattern
+    if (expr is BinaryOp && expr.operator == BinaryOperator.multiply) {
+      if (expr.left is NumberLiteral &&
+          (expr.left as NumberLiteral).value == 2) {
+        return expr.right;
+      }
+      if (expr.right is NumberLiteral &&
+          (expr.right as NumberLiteral).value == 2) {
+        return expr.left;
+      }
+    }
+    return null;
+  }
+
+  /// Extracts the argument from a half-angle expression like x/2.
+  /// Returns null if not a half-angle pattern.
+  Expression? _extractHalfAngle(Expression expr) {
+    // Check for x/2 pattern
+    if (expr is BinaryOp && expr.operator == BinaryOperator.divide) {
+      if (expr.right is NumberLiteral &&
+          (expr.right as NumberLiteral).value == 2) {
+        return expr.left;
+      }
+    }
+    return null;
   }
 
   bool _isValue(Expression expr, double value) {
