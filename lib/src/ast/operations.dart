@@ -1,4 +1,5 @@
 import 'expression.dart';
+import 'visitor.dart';
 
 /// Binary operation types.
 enum BinaryOperator {
@@ -46,6 +47,11 @@ class BinaryOp extends Expression {
       case BinaryOperator.power:
         return '${leftLatex}^{${right.toLatex()}}';
     }
+  }
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitBinaryOp(this, context);
   }
 
   /// Determines if an expression needs parentheses based on operator precedence.
@@ -124,6 +130,11 @@ class UnaryOp extends Expression {
         }
         return '-${operand.toLatex()}';
     }
+  }
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitUnaryOp(this, context);
   }
 
   @override

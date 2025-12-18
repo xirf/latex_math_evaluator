@@ -1,4 +1,5 @@
 import 'expression.dart';
+import 'visitor.dart';
 
 /// A limit expression: \lim_{variable \to target} body.
 class LimitExpr extends Expression {
@@ -19,6 +20,11 @@ class LimitExpr extends Expression {
   @override
   String toLatex() =>
       '\\lim_{$variable \\to ${target.toLatex()}}{${body.toLatex()}}';
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitLimitExpr(this, context);
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -55,6 +61,11 @@ class SumExpr extends Expression {
   @override
   String toLatex() =>
       '\\sum_{$variable=${start.toLatex()}}^{${end.toLatex()}}{${body.toLatex()}}';
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitSumExpr(this, context);
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -95,6 +106,11 @@ class ProductExpr extends Expression {
       '\\prod_{$variable=${start.toLatex()}}^{${end.toLatex()}}{${body.toLatex()}}';
 
   @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitProductExpr(this, context);
+  }
+
+  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is ProductExpr &&
@@ -131,6 +147,11 @@ class IntegralExpr extends Expression {
   @override
   String toLatex() =>
       '\\int_{${lower.toLatex()}}^{${upper.toLatex()}}{${body.toLatex()}} d$variable';
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitIntegralExpr(this, context);
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -174,6 +195,11 @@ class DerivativeExpr extends Expression {
       return '\\frac{d}{d$variable}{${body.toLatex()}}';
     }
     return '\\frac{d^{$order}}{d$variable^{$order}}{${body.toLatex()}}';
+  }
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitDerivativeExpr(this, context);
   }
 
   @override

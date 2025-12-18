@@ -7,7 +7,6 @@ library;
 
 // Constants
 export '../constants/constants.dart';
-export '../constants/physical_constants.dart';
 
 // Exceptions
 export '../exceptions.dart';

@@ -25,5 +25,4 @@ export '../evaluator.dart';
 export '../evaluation_result.dart';
 
 // Caching
-export '../cache/expression_cache.dart';
 export '../cache/lru_cache.dart';

@@ -1,4 +1,5 @@
 import 'expression.dart';
+import 'visitor.dart';
 
 /// Comparison operation types.
 enum ComparisonOperator {
@@ -33,6 +34,11 @@ class Comparison extends Expression {
   }
 
   @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitComparison(this, context);
+  }
+
+  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is Comparison &&
@@ -62,6 +68,11 @@ class ConditionalExpr extends Expression {
   @override
   String toLatex() =>
       '${expression.toLatex()} \\text{ where } ${condition.toLatex()}';
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitConditionalExpr(this, context);
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -106,6 +117,11 @@ class ChainedComparison extends Expression {
       }
     }
     return buffer.toString();
+  }
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitChainedComparison(this, context);
   }
 
   @override

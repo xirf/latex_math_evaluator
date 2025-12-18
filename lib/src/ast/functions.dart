@@ -1,4 +1,5 @@
 import 'expression.dart';
+import 'visitor.dart';
 
 /// Absolute value expression: |x|
 class AbsoluteValue extends Expression {
@@ -11,6 +12,16 @@ class AbsoluteValue extends Expression {
 
   @override
   String toLatex() => '\\left|${argument.toLatex()}\\right|';
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    // AbsoluteValue is a special case of FunctionCall
+    // We'll visit it as a function call with name 'abs'
+    return visitor.visitFunctionCall(
+      FunctionCall('abs', argument),
+      context,
+    );
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -79,6 +90,11 @@ class FunctionCall extends Expression {
 
     // Standard single-argument function
     return '\\$name{${argument.toLatex()}}';
+  }
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitFunctionCall(this, context);
   }
 
   @override

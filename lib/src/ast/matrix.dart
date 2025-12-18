@@ -1,4 +1,5 @@
 import 'expression.dart';
+import 'visitor.dart';
 
 /// A matrix expression.
 class MatrixExpr extends Expression {
@@ -15,6 +16,11 @@ class MatrixExpr extends Expression {
       return row.map((expr) => expr.toLatex()).join(' & ');
     }).join(' \\\\ ');
     return '\\begin{bmatrix}$rowsLatex\\end{bmatrix}';
+  }
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitMatrixExpr(this, context);
   }
 
   @override
@@ -62,6 +68,11 @@ class VectorExpr extends Expression {
       return '\\hat{$componentsLatex}';
     }
     return '\\vec{$componentsLatex}';
+  }
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitVectorExpr(this, context);
   }
 
   @override

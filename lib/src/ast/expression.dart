@@ -1,3 +1,5 @@
+import 'visitor.dart';
+
 /// Base class for all expression nodes.
 ///
 /// This is an abstract class rather than sealed to allow users to create
@@ -16,4 +18,18 @@ abstract class Expression {
   /// final latex = expr.toLatex(); // Returns: \frac{x^{2}+1}{2}
   /// ```
   String toLatex();
+
+  /// Accepts a visitor for traversal using the Visitor pattern.
+  ///
+  /// This enables operations on the AST without modifying node classes.
+  ///
+  /// - `R`: Return type of the visitor
+  /// - `C`: Context type passed to the visitor
+  ///
+  /// Example:
+  /// ```dart
+  /// final visitor = EvaluationVisitor();
+  /// final result = expression.accept(visitor, {'x': 5});
+  /// ```
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context);
 }

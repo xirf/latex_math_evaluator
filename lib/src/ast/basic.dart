@@ -1,4 +1,5 @@
 import 'expression.dart';
+import 'visitor.dart';
 
 /// A numeric literal value.
 class NumberLiteral extends Expression {
@@ -23,6 +24,11 @@ class NumberLiteral extends Expression {
   }
 
   @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitNumberLiteral(this, context);
+  }
+
+  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is NumberLiteral &&
@@ -44,6 +50,11 @@ class Variable extends Expression {
 
   @override
   String toLatex() => name;
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitVariable(this, context);
+  }
 
   @override
   bool operator ==(Object other) =>
