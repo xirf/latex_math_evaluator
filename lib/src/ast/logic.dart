@@ -21,6 +21,18 @@ class Comparison extends Expression {
   String toString() => 'Comparison($left, $operator, $right)';
 
   @override
+  String toLatex() {
+    final op = switch (operator) {
+      ComparisonOperator.less => '<',
+      ComparisonOperator.greater => '>',
+      ComparisonOperator.lessEqual => '\\leq',
+      ComparisonOperator.greaterEqual => '\\geq',
+      ComparisonOperator.equal => '=',
+    };
+    return '${left.toLatex()} $op ${right.toLatex()}';
+  }
+
+  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is Comparison &&
@@ -46,6 +58,10 @@ class ConditionalExpr extends Expression {
 
   @override
   String toString() => 'ConditionalExpr($expression, condition: $condition)';
+
+  @override
+  String toLatex() =>
+      '${expression.toLatex()} \\text{ where } ${condition.toLatex()}';
 
   @override
   bool operator ==(Object other) =>
@@ -74,6 +90,25 @@ class ChainedComparison extends Expression {
   String toString() => 'ChainedComparison($expressions, $operators)';
 
   @override
+  String toLatex() {
+    final buffer = StringBuffer();
+    for (int i = 0; i < expressions.length; i++) {
+      buffer.write(expressions[i].toLatex());
+      if (i < operators.length) {
+        final op = switch (operators[i]) {
+          ComparisonOperator.less => '<',
+          ComparisonOperator.greater => '>',
+          ComparisonOperator.lessEqual => '\\leq',
+          ComparisonOperator.greaterEqual => '\\geq',
+          ComparisonOperator.equal => '=',
+        };
+        buffer.write(' $op ');
+      }
+    }
+    return buffer.toString();
+  }
+
+  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is ChainedComparison &&
@@ -92,4 +127,3 @@ class ChainedComparison extends Expression {
     return true;
   }
 }
-

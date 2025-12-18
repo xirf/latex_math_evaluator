@@ -21,7 +21,8 @@ class RationalSimplifier {
     } else if (expr is BinaryOp) {
       final left = _simplifyRecursive(expr.left);
       final right = _simplifyRecursive(expr.right);
-      return BinaryOp(left, expr.operator, right, sourceToken: expr.sourceToken);
+      return BinaryOp(left, expr.operator, right,
+          sourceToken: expr.sourceToken);
     }
     return expr;
   }
@@ -36,7 +37,8 @@ class RationalSimplifier {
     }
 
     // (a*b) / b = a
-    if (numerator is BinaryOp && numerator.operator == BinaryOperator.multiply) {
+    if (numerator is BinaryOp &&
+        numerator.operator == BinaryOperator.multiply) {
       if (numerator.right == denominator) {
         return numerator.left;
       }

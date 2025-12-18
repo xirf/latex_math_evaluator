@@ -32,25 +32,30 @@ void main() {
   for (var x in testValues) {
     final original = Evaluator().evaluate(expr, {'x': x}).asNumeric();
     final result = Evaluator().evaluate(expanded, {'x': x}).asNumeric();
-    print('     x=$x: original=${original.toStringAsFixed(2)}, expanded=${result.toStringAsFixed(2)}');
+    print(
+        '     x=$x: original=${original.toStringAsFixed(2)}, expanded=${result.toStringAsFixed(2)}');
   }
   print('');
 
   // Example 3: Polynomial Factorization
   print('3. Polynomial Factorization:');
   // Build x^2 - 2^2 manually to demonstrate factorization
-  final xSquared = BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
-  final twoSquared = BinaryOp(const NumberLiteral(2), BinaryOperator.power, const NumberLiteral(2));
+  final xSquared =
+      BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
+  final twoSquared = BinaryOp(
+      const NumberLiteral(2), BinaryOperator.power, const NumberLiteral(2));
   final diffOfSquares = BinaryOp(xSquared, BinaryOperator.subtract, twoSquared);
   var factored = engine.factor(diffOfSquares);
   print('   x² - 2²  →  Factored: $factored');
 
   print('   Verification (using x² - 4):');
-  expr = evaluator.parse('x^{2} - 4'); // This won't factor since 4 is not represented as 2^2
+  expr = evaluator.parse(
+      'x^{2} - 4'); // This won't factor since 4 is not represented as 2^2
   for (var x in testValues) {
     final original = Evaluator().evaluate(expr, {'x': x}).asNumeric();
     final factoredVal = Evaluator().evaluate(factored, {'x': x}).asNumeric();
-    print('     x=$x: original=${original.toStringAsFixed(2)}, factored=${factoredVal.toStringAsFixed(2)}');
+    print(
+        '     x=$x: original=${original.toStringAsFixed(2)}, factored=${factoredVal.toStringAsFixed(2)}');
   }
   print('');
 
@@ -77,9 +82,10 @@ void main() {
 
   // Example 5: Logarithm Laws
   print('5. Logarithm Laws:');
-  
+
   // log(x²) = 2*log(x)
-  final x2 = BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
+  final x2 =
+      BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
   final logX2 = FunctionCall('log', x2);
   simplified = engine.simplify(logX2);
   print('   log(x²)  →  Simplified: $simplified');
@@ -91,23 +97,26 @@ void main() {
 
   // Example 6: Rational Expression Simplification
   print('6. Rational Expression Simplification:');
-  
+
   // x/x = 1
   final xOverX = BinaryOp(Variable('x'), BinaryOperator.divide, Variable('x'));
   simplified = engine.simplify(xOverX);
   print('   x/x  →  Simplified: $simplified');
 
   // (2*x)/x = 2
-  final twoX = BinaryOp(const NumberLiteral(2), BinaryOperator.multiply, Variable('x'));
+  final twoX =
+      BinaryOp(const NumberLiteral(2), BinaryOperator.multiply, Variable('x'));
   final twoXoverX = BinaryOp(twoX, BinaryOperator.divide, Variable('x'));
   simplified = engine.simplify(twoXoverX);
   print('   (2x)/x  →  Simplified: $simplified\n');
 
   // Example 7: Expression Equivalence
   print('7. Expression Equivalence Testing:');
-  final expr1 = BinaryOp(Variable('x'), BinaryOperator.add, const NumberLiteral(1));
-  final expr2 = BinaryOp(const NumberLiteral(1), BinaryOperator.add, Variable('x'));
-  
+  final expr1 =
+      BinaryOp(Variable('x'), BinaryOperator.add, const NumberLiteral(1));
+  final expr2 =
+      BinaryOp(const NumberLiteral(1), BinaryOperator.add, Variable('x'));
+
   // Test for structural equivalence through evaluation
   var equivalent = true;
   for (var x in testValues) {
@@ -121,10 +130,12 @@ void main() {
   print('   x+1 ≡ 1+x? $equivalent');
 
   // Polynomial expansion equivalence
-  final xPlus1 = BinaryOp(Variable('x'), BinaryOperator.add, const NumberLiteral(1));
-  final xPlus1Squared = BinaryOp(xPlus1, BinaryOperator.power, const NumberLiteral(2));
+  final xPlus1 =
+      BinaryOp(Variable('x'), BinaryOperator.add, const NumberLiteral(1));
+  final xPlus1Squared =
+      BinaryOp(xPlus1, BinaryOperator.power, const NumberLiteral(2));
   final expandedForm = engine.expand(xPlus1Squared);
-  
+
   equivalent = true;
   for (var x in testValues) {
     final val1 = Evaluator().evaluate(xPlus1Squared, {'x': x}).asNumeric();

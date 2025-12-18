@@ -64,7 +64,8 @@ class TrigIdentities {
   Expression? _isSinSquared(Expression expr) {
     // Check if expr is sin(x)^2 or sin^2(x)
     if (expr is BinaryOp && expr.operator == BinaryOperator.power) {
-      if (expr.right is NumberLiteral && (expr.right as NumberLiteral).value == 2) {
+      if (expr.right is NumberLiteral &&
+          (expr.right as NumberLiteral).value == 2) {
         if (expr.left is FunctionCall) {
           final func = expr.left as FunctionCall;
           if (func.name == 'sin' && func.args.length == 1) {
@@ -79,7 +80,8 @@ class TrigIdentities {
   Expression? _isCosSquared(Expression expr) {
     // Check if expr is cos(x)^2 or cos^2(x)
     if (expr is BinaryOp && expr.operator == BinaryOperator.power) {
-      if (expr.right is NumberLiteral && (expr.right as NumberLiteral).value == 2) {
+      if (expr.right is NumberLiteral &&
+          (expr.right as NumberLiteral).value == 2) {
         if (expr.left is FunctionCall) {
           final func = expr.left as FunctionCall;
           if (func.name == 'cos' && func.args.length == 1) {
@@ -105,7 +107,8 @@ class TrigIdentities {
       case 'tan':
         return _simplifyTan(simplifiedArgs);
       default:
-        return FunctionCall.multivar(call.name, simplifiedArgs, base: call.base, optionalParam: call.optionalParam);
+        return FunctionCall.multivar(call.name, simplifiedArgs,
+            base: call.base, optionalParam: call.optionalParam);
     }
   }
 

@@ -70,20 +70,21 @@ class PolynomialOperations {
       if (n - k > 0) {
         final aPower = n - k == 1
             ? a
-            : BinaryOp(a, BinaryOperator.power, NumberLiteral((n - k).toDouble()));
+            : BinaryOp(
+                a, BinaryOperator.power, NumberLiteral((n - k).toDouble()));
         term = BinaryOp(term, BinaryOperator.multiply, aPower);
       }
 
       // Add b^k
       if (k > 0) {
-        final bPower =
-            k == 1 ? b : BinaryOp(b, BinaryOperator.power, NumberLiteral(k.toDouble()));
+        final bPower = k == 1
+            ? b
+            : BinaryOp(b, BinaryOperator.power, NumberLiteral(k.toDouble()));
         term = BinaryOp(term, BinaryOperator.multiply, bPower);
       }
 
-      result = result == null
-          ? term
-          : BinaryOp(result, BinaryOperator.add, term);
+      result =
+          result == null ? term : BinaryOp(result, BinaryOperator.add, term);
     }
 
     return result ?? const NumberLiteral(0);

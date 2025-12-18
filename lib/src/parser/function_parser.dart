@@ -48,9 +48,11 @@ mixin FunctionParserMixin on BaseParser {
     }
 
     if (args.length == 1) {
-      return FunctionCall(name, args[0], base: base, optionalParam: optionalParam);
+      return FunctionCall(name, args[0],
+          base: base, optionalParam: optionalParam);
     }
-    return FunctionCall.multivar(name, args, base: base, optionalParam: optionalParam);
+    return FunctionCall.multivar(name, args,
+        base: base, optionalParam: optionalParam);
   }
 
   @override

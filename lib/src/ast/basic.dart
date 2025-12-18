@@ -10,6 +10,19 @@ class NumberLiteral extends Expression {
   String toString() => 'NumberLiteral($value)';
 
   @override
+  String toLatex() {
+    // Handle special cases for cleaner output
+    if (value.isInfinite) return value.isNegative ? '-\\infty' : '\\infty';
+    if (value.isNaN) return '\\text{NaN}';
+
+    // Format the number nicely
+    if (value == value.toInt()) {
+      return value.toInt().toString();
+    }
+    return value.toString();
+  }
+
+  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is NumberLiteral &&
@@ -28,6 +41,9 @@ class Variable extends Expression {
 
   @override
   String toString() => 'Variable($name)';
+
+  @override
+  String toLatex() => name;
 
   @override
   bool operator ==(Object other) =>

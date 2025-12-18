@@ -24,7 +24,8 @@ class LogarithmLaws {
     } else if (expr is BinaryOp) {
       final left = _simplifyRecursive(expr.left);
       final right = _simplifyRecursive(expr.right);
-      return BinaryOp(left, expr.operator, right, sourceToken: expr.sourceToken);
+      return BinaryOp(left, expr.operator, right,
+          sourceToken: expr.sourceToken);
     }
     return expr;
   }
@@ -45,7 +46,9 @@ class LogarithmLaws {
     }
 
     // ln(e) = 1
-    if (call.name == 'ln' && arg is NumberLiteral && (arg.value - math.e).abs() < 1e-10) {
+    if (call.name == 'ln' &&
+        arg is NumberLiteral &&
+        (arg.value - math.e).abs() < 1e-10) {
       return const NumberLiteral(1);
     }
 

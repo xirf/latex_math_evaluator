@@ -73,10 +73,12 @@ class Simplifier {
     // Recursively simplify arguments
     final simplifiedArgs =
         call.args.map((arg) => _simplifyRecursive(arg)).toList();
-    return FunctionCall.multivar(call.name, simplifiedArgs, base: call.base, optionalParam: call.optionalParam);
+    return FunctionCall.multivar(call.name, simplifiedArgs,
+        base: call.base, optionalParam: call.optionalParam);
   }
 
-  Expression _simplifyAddition(Expression left, Expression right, String? sourceToken) {
+  Expression _simplifyAddition(
+      Expression left, Expression right, String? sourceToken) {
     // 0 + x = x
     if (left is NumberLiteral && left.value == 0) return right;
     // x + 0 = x
@@ -95,7 +97,8 @@ class Simplifier {
     return BinaryOp(left, BinaryOperator.add, right, sourceToken: sourceToken);
   }
 
-  Expression _simplifySubtraction(Expression left, Expression right, String? sourceToken) {
+  Expression _simplifySubtraction(
+      Expression left, Expression right, String? sourceToken) {
     // x - 0 = x
     if (right is NumberLiteral && right.value == 0) return left;
     // 0 - x = -x
@@ -105,14 +108,17 @@ class Simplifier {
     // x - x = 0
     if (left == right) return const NumberLiteral(0);
 
-    return BinaryOp(left, BinaryOperator.subtract, right, sourceToken: sourceToken);
+    return BinaryOp(left, BinaryOperator.subtract, right,
+        sourceToken: sourceToken);
   }
 
-  Expression _simplifyMultiplication(Expression left, Expression right, String? sourceToken) {
+  Expression _simplifyMultiplication(
+      Expression left, Expression right, String? sourceToken) {
     // 0 * x = 0
     if (left is NumberLiteral && left.value == 0) return const NumberLiteral(0);
     // x * 0 = 0
-    if (right is NumberLiteral && right.value == 0) return const NumberLiteral(0);
+    if (right is NumberLiteral && right.value == 0)
+      return const NumberLiteral(0);
     // 1 * x = x
     if (left is NumberLiteral && left.value == 1) return right;
     // x * 1 = x
@@ -128,13 +134,16 @@ class Simplifier {
 
     // x * x = x^2
     if (left == right) {
-      return BinaryOp(left, BinaryOperator.power, const NumberLiteral(2), sourceToken: sourceToken);
+      return BinaryOp(left, BinaryOperator.power, const NumberLiteral(2),
+          sourceToken: sourceToken);
     }
 
-    return BinaryOp(left, BinaryOperator.multiply, right, sourceToken: sourceToken);
+    return BinaryOp(left, BinaryOperator.multiply, right,
+        sourceToken: sourceToken);
   }
 
-  Expression _simplifyDivision(Expression left, Expression right, String? sourceToken) {
+  Expression _simplifyDivision(
+      Expression left, Expression right, String? sourceToken) {
     // 0 / x = 0 (assuming x != 0)
     if (left is NumberLiteral && left.value == 0) return const NumberLiteral(0);
     // x / 1 = x
@@ -142,25 +151,33 @@ class Simplifier {
     // x / x = 1 (assuming x != 0)
     if (left == right) return const NumberLiteral(1);
 
-    return BinaryOp(left, BinaryOperator.divide, right, sourceToken: sourceToken);
+    return BinaryOp(left, BinaryOperator.divide, right,
+        sourceToken: sourceToken);
   }
 
-  Expression _simplifyPower(Expression left, Expression right, String? sourceToken) {
+  Expression _simplifyPower(
+      Expression left, Expression right, String? sourceToken) {
     // x^0 = 1
-    if (right is NumberLiteral && right.value == 0) return const NumberLiteral(1);
+    if (right is NumberLiteral && right.value == 0)
+      return const NumberLiteral(1);
     // x^1 = x
     if (right is NumberLiteral && right.value == 1) return left;
     // 0^x = 0 (for x > 0)
-    if (left is NumberLiteral && left.value == 0 && right is NumberLiteral && right.value > 0) {
+    if (left is NumberLiteral &&
+        left.value == 0 &&
+        right is NumberLiteral &&
+        right.value > 0) {
       return const NumberLiteral(0);
     }
     // 1^x = 1
     if (left is NumberLiteral && left.value == 1) return const NumberLiteral(1);
 
-    return BinaryOp(left, BinaryOperator.power, right, sourceToken: sourceToken);
+    return BinaryOp(left, BinaryOperator.power, right,
+        sourceToken: sourceToken);
   }
 
-  NumberLiteral _foldConstants(NumberLiteral left, BinaryOperator op, NumberLiteral right) {
+  NumberLiteral _foldConstants(
+      NumberLiteral left, BinaryOperator op, NumberLiteral right) {
     switch (op) {
       case BinaryOperator.add:
         return NumberLiteral(left.value + right.value);

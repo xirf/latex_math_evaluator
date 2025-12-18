@@ -10,6 +10,14 @@ class MatrixExpr extends Expression {
   String toString() => 'MatrixExpr($rows)';
 
   @override
+  String toLatex() {
+    final rowsLatex = rows.map((row) {
+      return row.map((expr) => expr.toLatex()).join(' & ');
+    }).join(' \\\\ ');
+    return '\\begin{bmatrix}$rowsLatex\\end{bmatrix}';
+  }
+
+  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is MatrixExpr &&
@@ -46,6 +54,15 @@ class VectorExpr extends Expression {
   @override
   String toString() =>
       isUnitVector ? 'UnitVector($components)' : 'VectorExpr($components)';
+
+  @override
+  String toLatex() {
+    final componentsLatex = components.map((c) => c.toLatex()).join(',');
+    if (isUnitVector) {
+      return '\\hat{$componentsLatex}';
+    }
+    return '\\vec{$componentsLatex}';
+  }
 
   @override
   bool operator ==(Object other) =>

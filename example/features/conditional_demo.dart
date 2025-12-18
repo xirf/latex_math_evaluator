@@ -30,6 +30,7 @@ void main() {
   print('\nExample 4: Standalone chained comparison: 0 <= x <= 10');
   for (var x in [-1.0, 0.0, 5.0, 10.0, 15.0]) {
     final result = evaluator.evaluate('0 <= x <= 10', {'x': x});
-    print('  x = $x => ${result.isNumeric ? (result.asNumeric() == 1.0 ? "true" : "false") : "false"}');
+    print(
+        '  x = $x => ${result.isNumeric ? (result.asNumeric() == 1.0 ? "true" : "false") : "false"}');
   }
 }
