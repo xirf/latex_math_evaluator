@@ -38,7 +38,8 @@ void main() {
       expect(c.isReal, isFalse);
     });
 
-    test('isImaginary returns true when real is zero and imaginary is non-zero', () {
+    test('isImaginary returns true when real is zero and imaginary is non-zero',
+        () {
       final c = Complex(0, 5);
       expect(c.isImaginary, isTrue);
     });

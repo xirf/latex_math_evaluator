@@ -5,7 +5,7 @@ void main() {
   group('TokenType', () {
     test('all token types are defined', () {
       expect(TokenType.values.length, greaterThan(0));
-      
+
       // Verify some key types exist
       expect(TokenType.values.contains(TokenType.number), isTrue);
       expect(TokenType.values.contains(TokenType.variable), isTrue);

@@ -96,7 +96,8 @@ void main() {
     test('creates a binary operation with source token', () {
       final left = NumberLiteral(2.0);
       final right = NumberLiteral(3.0);
-      final op = BinaryOp(left, BinaryOperator.multiply, right, sourceToken: r'\times');
+      final op = BinaryOp(left, BinaryOperator.multiply, right,
+          sourceToken: r'\times');
 
       expect(op.sourceToken, equals(r'\times'));
     });
@@ -299,12 +300,14 @@ void main() {
     });
 
     test('toString with base', () {
-      final func = FunctionCall('log', NumberLiteral(8.0), base: NumberLiteral(2.0));
+      final func =
+          FunctionCall('log', NumberLiteral(8.0), base: NumberLiteral(2.0));
       expect(func.toString(), contains('base'));
     });
 
     test('toString with optional parameter', () {
-      final func = FunctionCall('sqrt', NumberLiteral(16.0), optionalParam: NumberLiteral(4.0));
+      final func = FunctionCall('sqrt', NumberLiteral(16.0),
+          optionalParam: NumberLiteral(4.0));
       expect(func.toString(), contains('optionalParam'));
     });
 
@@ -318,9 +321,12 @@ void main() {
     });
 
     test('equality with base', () {
-      final func1 = FunctionCall('log', NumberLiteral(8.0), base: NumberLiteral(2.0));
-      final func2 = FunctionCall('log', NumberLiteral(8.0), base: NumberLiteral(2.0));
-      final func3 = FunctionCall('log', NumberLiteral(8.0), base: NumberLiteral(10.0));
+      final func1 =
+          FunctionCall('log', NumberLiteral(8.0), base: NumberLiteral(2.0));
+      final func2 =
+          FunctionCall('log', NumberLiteral(8.0), base: NumberLiteral(2.0));
+      final func3 =
+          FunctionCall('log', NumberLiteral(8.0), base: NumberLiteral(10.0));
 
       expect(func1, equals(func2));
       expect(func1, isNot(equals(func3)));
@@ -383,24 +389,30 @@ void main() {
     });
 
     test('toString returns correct format', () {
-      final sum = SumExpr('i', NumberLiteral(1.0), NumberLiteral(5.0), Variable('i'));
+      final sum =
+          SumExpr('i', NumberLiteral(1.0), NumberLiteral(5.0), Variable('i'));
       expect(sum.toString(), contains('SumExpr'));
       expect(sum.toString(), contains('i='));
       expect(sum.toString(), contains('to'));
     });
 
     test('equality works correctly', () {
-      final sum1 = SumExpr('i', NumberLiteral(1.0), NumberLiteral(10.0), Variable('i'));
-      final sum2 = SumExpr('i', NumberLiteral(1.0), NumberLiteral(10.0), Variable('i'));
-      final sum3 = SumExpr('j', NumberLiteral(1.0), NumberLiteral(10.0), Variable('j'));
+      final sum1 =
+          SumExpr('i', NumberLiteral(1.0), NumberLiteral(10.0), Variable('i'));
+      final sum2 =
+          SumExpr('i', NumberLiteral(1.0), NumberLiteral(10.0), Variable('i'));
+      final sum3 =
+          SumExpr('j', NumberLiteral(1.0), NumberLiteral(10.0), Variable('j'));
 
       expect(sum1, equals(sum2));
       expect(sum1, isNot(equals(sum3)));
     });
 
     test('hashCode is consistent', () {
-      final sum1 = SumExpr('i', NumberLiteral(1.0), NumberLiteral(5.0), Variable('i'));
-      final sum2 = SumExpr('i', NumberLiteral(1.0), NumberLiteral(5.0), Variable('i'));
+      final sum1 =
+          SumExpr('i', NumberLiteral(1.0), NumberLiteral(5.0), Variable('i'));
+      final sum2 =
+          SumExpr('i', NumberLiteral(1.0), NumberLiteral(5.0), Variable('i'));
 
       expect(sum1.hashCode, equals(sum2.hashCode));
     });
@@ -422,24 +434,30 @@ void main() {
     });
 
     test('toString returns correct format', () {
-      final product = ProductExpr('i', NumberLiteral(1.0), NumberLiteral(3.0), Variable('i'));
+      final product = ProductExpr(
+          'i', NumberLiteral(1.0), NumberLiteral(3.0), Variable('i'));
       expect(product.toString(), contains('ProductExpr'));
       expect(product.toString(), contains('i='));
       expect(product.toString(), contains('to'));
     });
 
     test('equality works correctly', () {
-      final prod1 = ProductExpr('i', NumberLiteral(1.0), NumberLiteral(5.0), Variable('i'));
-      final prod2 = ProductExpr('i', NumberLiteral(1.0), NumberLiteral(5.0), Variable('i'));
-      final prod3 = ProductExpr('i', NumberLiteral(2.0), NumberLiteral(5.0), Variable('i'));
+      final prod1 = ProductExpr(
+          'i', NumberLiteral(1.0), NumberLiteral(5.0), Variable('i'));
+      final prod2 = ProductExpr(
+          'i', NumberLiteral(1.0), NumberLiteral(5.0), Variable('i'));
+      final prod3 = ProductExpr(
+          'i', NumberLiteral(2.0), NumberLiteral(5.0), Variable('i'));
 
       expect(prod1, equals(prod2));
       expect(prod1, isNot(equals(prod3)));
     });
 
     test('hashCode is consistent', () {
-      final prod1 = ProductExpr('i', NumberLiteral(1.0), NumberLiteral(4.0), Variable('i'));
-      final prod2 = ProductExpr('i', NumberLiteral(1.0), NumberLiteral(4.0), Variable('i'));
+      final prod1 = ProductExpr(
+          'i', NumberLiteral(1.0), NumberLiteral(4.0), Variable('i'));
+      final prod2 = ProductExpr(
+          'i', NumberLiteral(1.0), NumberLiteral(4.0), Variable('i'));
 
       expect(prod1.hashCode, equals(prod2.hashCode));
     });
@@ -473,17 +491,22 @@ void main() {
     });
 
     test('equality works correctly', () {
-      final int1 = IntegralExpr(NumberLiteral(0.0), NumberLiteral(1.0), Variable('x'), 'x');
-      final int2 = IntegralExpr(NumberLiteral(0.0), NumberLiteral(1.0), Variable('x'), 'x');
-      final int3 = IntegralExpr(NumberLiteral(0.0), NumberLiteral(2.0), Variable('x'), 'x');
+      final int1 = IntegralExpr(
+          NumberLiteral(0.0), NumberLiteral(1.0), Variable('x'), 'x');
+      final int2 = IntegralExpr(
+          NumberLiteral(0.0), NumberLiteral(1.0), Variable('x'), 'x');
+      final int3 = IntegralExpr(
+          NumberLiteral(0.0), NumberLiteral(2.0), Variable('x'), 'x');
 
       expect(int1, equals(int2));
       expect(int1, isNot(equals(int3)));
     });
 
     test('hashCode is consistent', () {
-      final int1 = IntegralExpr(NumberLiteral(0.0), NumberLiteral(1.0), Variable('x'), 'x');
-      final int2 = IntegralExpr(NumberLiteral(0.0), NumberLiteral(1.0), Variable('x'), 'x');
+      final int1 = IntegralExpr(
+          NumberLiteral(0.0), NumberLiteral(1.0), Variable('x'), 'x');
+      final int2 = IntegralExpr(
+          NumberLiteral(0.0), NumberLiteral(1.0), Variable('x'), 'x');
 
       expect(int1.hashCode, equals(int2.hashCode));
     });
@@ -563,7 +586,8 @@ void main() {
       final less = Comparison(left, ComparisonOperator.less, right);
       final greater = Comparison(left, ComparisonOperator.greater, right);
       final lessEqual = Comparison(left, ComparisonOperator.lessEqual, right);
-      final greaterEqual = Comparison(left, ComparisonOperator.greaterEqual, right);
+      final greaterEqual =
+          Comparison(left, ComparisonOperator.greaterEqual, right);
       final equal = Comparison(left, ComparisonOperator.equal, right);
 
       expect(less.operator, equals(ComparisonOperator.less));
@@ -574,17 +598,22 @@ void main() {
     });
 
     test('equality works correctly', () {
-      final comp1 = Comparison(Variable('x'), ComparisonOperator.less, NumberLiteral(5.0));
-      final comp2 = Comparison(Variable('x'), ComparisonOperator.less, NumberLiteral(5.0));
-      final comp3 = Comparison(Variable('x'), ComparisonOperator.greater, NumberLiteral(5.0));
+      final comp1 = Comparison(
+          Variable('x'), ComparisonOperator.less, NumberLiteral(5.0));
+      final comp2 = Comparison(
+          Variable('x'), ComparisonOperator.less, NumberLiteral(5.0));
+      final comp3 = Comparison(
+          Variable('x'), ComparisonOperator.greater, NumberLiteral(5.0));
 
       expect(comp1, equals(comp2));
       expect(comp1, isNot(equals(comp3)));
     });
 
     test('hashCode is consistent', () {
-      final comp1 = Comparison(Variable('x'), ComparisonOperator.lessEqual, NumberLiteral(10.0));
-      final comp2 = Comparison(Variable('x'), ComparisonOperator.lessEqual, NumberLiteral(10.0));
+      final comp1 = Comparison(
+          Variable('x'), ComparisonOperator.lessEqual, NumberLiteral(10.0));
+      final comp2 = Comparison(
+          Variable('x'), ComparisonOperator.lessEqual, NumberLiteral(10.0));
 
       expect(comp1.hashCode, equals(comp2.hashCode));
     });
@@ -594,7 +623,8 @@ void main() {
     test('creates a conditional expression', () {
       final cond = ConditionalExpr(
         Variable('x'),
-        Comparison(Variable('x'), ComparisonOperator.greater, NumberLiteral(0.0)),
+        Comparison(
+            Variable('x'), ComparisonOperator.greater, NumberLiteral(0.0)),
       );
 
       expect(cond.expression, equals(Variable('x')));
@@ -613,15 +643,18 @@ void main() {
     test('equality works correctly', () {
       final cond1 = ConditionalExpr(
         Variable('x'),
-        Comparison(Variable('x'), ComparisonOperator.greater, NumberLiteral(0.0)),
+        Comparison(
+            Variable('x'), ComparisonOperator.greater, NumberLiteral(0.0)),
       );
       final cond2 = ConditionalExpr(
         Variable('x'),
-        Comparison(Variable('x'), ComparisonOperator.greater, NumberLiteral(0.0)),
+        Comparison(
+            Variable('x'), ComparisonOperator.greater, NumberLiteral(0.0)),
       );
       final cond3 = ConditionalExpr(
         Variable('y'),
-        Comparison(Variable('y'), ComparisonOperator.greater, NumberLiteral(0.0)),
+        Comparison(
+            Variable('y'), ComparisonOperator.greater, NumberLiteral(0.0)),
       );
 
       expect(cond1, equals(cond2));

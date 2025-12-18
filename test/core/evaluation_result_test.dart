@@ -186,7 +186,9 @@ void main() {
       test('equality works correctly', () {
         final result1 = MatrixResult(matrix);
         final result2 = MatrixResult(matrix);
-        final result3 = MatrixResult(Matrix([[1]]));
+        final result3 = MatrixResult(Matrix([
+          [1]
+        ]));
 
         expect(result1, equals(result2));
         expect(result1, isNot(equals(result3)));

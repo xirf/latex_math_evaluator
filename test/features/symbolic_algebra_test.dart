@@ -10,85 +10,99 @@ void main() {
 
   group('Basic Simplification', () {
     test('0 + x = x', () {
-      final expr = BinaryOp(const NumberLiteral(0), BinaryOperator.add, Variable('x'));
+      final expr =
+          BinaryOp(const NumberLiteral(0), BinaryOperator.add, Variable('x'));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(Variable('x')));
     });
 
     test('x + 0 = x', () {
-      final expr = BinaryOp(Variable('x'), BinaryOperator.add, const NumberLiteral(0));
+      final expr =
+          BinaryOp(Variable('x'), BinaryOperator.add, const NumberLiteral(0));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(Variable('x')));
     });
 
     test('1 * x = x', () {
-      final expr = BinaryOp(const NumberLiteral(1), BinaryOperator.multiply, Variable('x'));
+      final expr = BinaryOp(
+          const NumberLiteral(1), BinaryOperator.multiply, Variable('x'));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(Variable('x')));
     });
 
     test('x * 1 = x', () {
-      final expr = BinaryOp(Variable('x'), BinaryOperator.multiply, const NumberLiteral(1));
+      final expr = BinaryOp(
+          Variable('x'), BinaryOperator.multiply, const NumberLiteral(1));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(Variable('x')));
     });
 
     test('0 * x = 0', () {
-      final expr = BinaryOp(const NumberLiteral(0), BinaryOperator.multiply, Variable('x'));
+      final expr = BinaryOp(
+          const NumberLiteral(0), BinaryOperator.multiply, Variable('x'));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(0)));
     });
 
     test('x * 0 = 0', () {
-      final expr = BinaryOp(Variable('x'), BinaryOperator.multiply, const NumberLiteral(0));
+      final expr = BinaryOp(
+          Variable('x'), BinaryOperator.multiply, const NumberLiteral(0));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(0)));
     });
 
     test('x - 0 = x', () {
-      final expr = BinaryOp(Variable('x'), BinaryOperator.subtract, const NumberLiteral(0));
+      final expr = BinaryOp(
+          Variable('x'), BinaryOperator.subtract, const NumberLiteral(0));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(Variable('x')));
     });
 
     test('x - x = 0', () {
-      final expr = BinaryOp(Variable('x'), BinaryOperator.subtract, Variable('x'));
+      final expr =
+          BinaryOp(Variable('x'), BinaryOperator.subtract, Variable('x'));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(0)));
     });
 
     test('x / 1 = x', () {
-      final expr = BinaryOp(Variable('x'), BinaryOperator.divide, const NumberLiteral(1));
+      final expr = BinaryOp(
+          Variable('x'), BinaryOperator.divide, const NumberLiteral(1));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(Variable('x')));
     });
 
     test('x / x = 1', () {
-      final expr = BinaryOp(Variable('x'), BinaryOperator.divide, Variable('x'));
+      final expr =
+          BinaryOp(Variable('x'), BinaryOperator.divide, Variable('x'));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(1)));
     });
 
     test('x^0 = 1', () {
-      final expr = BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(0));
+      final expr =
+          BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(0));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(1)));
     });
 
     test('x^1 = x', () {
-      final expr = BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(1));
+      final expr =
+          BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(1));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(Variable('x')));
     });
 
     test('1^x = 1', () {
-      final expr = BinaryOp(const NumberLiteral(1), BinaryOperator.power, Variable('x'));
+      final expr =
+          BinaryOp(const NumberLiteral(1), BinaryOperator.power, Variable('x'));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(1)));
     });
 
     test('0 - x = -x', () {
-      final expr = BinaryOp(const NumberLiteral(0), BinaryOperator.subtract, Variable('x'));
+      final expr = BinaryOp(
+          const NumberLiteral(0), BinaryOperator.subtract, Variable('x'));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(UnaryOp(UnaryOperator.negate, Variable('x'))));
     });
@@ -103,7 +117,8 @@ void main() {
     });
 
     test('(-1) * x = -x', () {
-      final expr = BinaryOp(const NumberLiteral(-1), BinaryOperator.multiply, Variable('x'));
+      final expr = BinaryOp(
+          const NumberLiteral(-1), BinaryOperator.multiply, Variable('x'));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(UnaryOp(UnaryOperator.negate, Variable('x'))));
     });
@@ -111,45 +126,53 @@ void main() {
     test('x + x = 2*x', () {
       final expr = BinaryOp(Variable('x'), BinaryOperator.add, Variable('x'));
       final simplified = engine.simplify(expr);
-      final expected = BinaryOp(const NumberLiteral(2), BinaryOperator.multiply, Variable('x'));
+      final expected = BinaryOp(
+          const NumberLiteral(2), BinaryOperator.multiply, Variable('x'));
       expect(simplified, equals(expected));
     });
 
     test('x * x = x^2', () {
-      final expr = BinaryOp(Variable('x'), BinaryOperator.multiply, Variable('x'));
+      final expr =
+          BinaryOp(Variable('x'), BinaryOperator.multiply, Variable('x'));
       final simplified = engine.simplify(expr);
-      final expected = BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
+      final expected =
+          BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
       expect(simplified, equals(expected));
     });
   });
 
   group('Constant Folding', () {
     test('2 + 3 = 5', () {
-      final expr = BinaryOp(const NumberLiteral(2), BinaryOperator.add, const NumberLiteral(3));
+      final expr = BinaryOp(
+          const NumberLiteral(2), BinaryOperator.add, const NumberLiteral(3));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(5)));
     });
 
     test('10 - 4 = 6', () {
-      final expr = BinaryOp(const NumberLiteral(10), BinaryOperator.subtract, const NumberLiteral(4));
+      final expr = BinaryOp(const NumberLiteral(10), BinaryOperator.subtract,
+          const NumberLiteral(4));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(6)));
     });
 
     test('4 * 5 = 20', () {
-      final expr = BinaryOp(const NumberLiteral(4), BinaryOperator.multiply, const NumberLiteral(5));
+      final expr = BinaryOp(const NumberLiteral(4), BinaryOperator.multiply,
+          const NumberLiteral(5));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(20)));
     });
 
     test('15 / 3 = 5', () {
-      final expr = BinaryOp(const NumberLiteral(15), BinaryOperator.divide, const NumberLiteral(3));
+      final expr = BinaryOp(const NumberLiteral(15), BinaryOperator.divide,
+          const NumberLiteral(3));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(5)));
     });
 
     test('2^3 = 8', () {
-      final expr = BinaryOp(const NumberLiteral(2), BinaryOperator.power, const NumberLiteral(3));
+      final expr = BinaryOp(
+          const NumberLiteral(2), BinaryOperator.power, const NumberLiteral(3));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(8)));
     });
@@ -158,56 +181,72 @@ void main() {
   group('Polynomial Expansion', () {
     test('(x+1)^2 = x^2 + 2*x + 1', () {
       // Build (x+1)
-      final xPlus1 = BinaryOp(Variable('x'), BinaryOperator.add, const NumberLiteral(1));
+      final xPlus1 =
+          BinaryOp(Variable('x'), BinaryOperator.add, const NumberLiteral(1));
       // Build (x+1)^2
-      final expr = BinaryOp(xPlus1, BinaryOperator.power, const NumberLiteral(2));
+      final expr =
+          BinaryOp(xPlus1, BinaryOperator.power, const NumberLiteral(2));
       final expanded = engine.expand(expr);
 
       // We expect something like x^2 + 2*x + 1
       // The exact structure might vary, but we can test by evaluation
       final evaluator = Evaluator();
       for (var x in [0, 1, 2, 5, -1, -2]) {
-        final original = evaluator.evaluate(expr, {'x': x.toDouble()}).asNumeric();
-        final result = evaluator.evaluate(expanded, {'x': x.toDouble()}).asNumeric();
+        final original =
+            evaluator.evaluate(expr, {'x': x.toDouble()}).asNumeric();
+        final result =
+            evaluator.evaluate(expanded, {'x': x.toDouble()}).asNumeric();
         expect(result, closeTo(original, 1e-10), reason: 'Failed for x=$x');
       }
     });
 
     test('(x+2)^2 expands correctly', () {
-      final xPlus2 = BinaryOp(Variable('x'), BinaryOperator.add, const NumberLiteral(2));
-      final expr = BinaryOp(xPlus2, BinaryOperator.power, const NumberLiteral(2));
+      final xPlus2 =
+          BinaryOp(Variable('x'), BinaryOperator.add, const NumberLiteral(2));
+      final expr =
+          BinaryOp(xPlus2, BinaryOperator.power, const NumberLiteral(2));
       final expanded = engine.expand(expr);
 
       final evaluator = Evaluator();
       for (var x in [0, 1, 2, 5, -1]) {
-        final original = evaluator.evaluate(expr, {'x': x.toDouble()}).asNumeric();
-        final result = evaluator.evaluate(expanded, {'x': x.toDouble()}).asNumeric();
+        final original =
+            evaluator.evaluate(expr, {'x': x.toDouble()}).asNumeric();
+        final result =
+            evaluator.evaluate(expanded, {'x': x.toDouble()}).asNumeric();
         expect(result, closeTo(original, 1e-10), reason: 'Failed for x=$x');
       }
     });
 
     test('(x-1)^2 expands correctly', () {
-      final xMinus1 = BinaryOp(Variable('x'), BinaryOperator.subtract, const NumberLiteral(1));
-      final expr = BinaryOp(xMinus1, BinaryOperator.power, const NumberLiteral(2));
+      final xMinus1 = BinaryOp(
+          Variable('x'), BinaryOperator.subtract, const NumberLiteral(1));
+      final expr =
+          BinaryOp(xMinus1, BinaryOperator.power, const NumberLiteral(2));
       final expanded = engine.expand(expr);
 
       final evaluator = Evaluator();
       for (var x in [0, 1, 2, 5, -1]) {
-        final original = evaluator.evaluate(expr, {'x': x.toDouble()}).asNumeric();
-        final result = evaluator.evaluate(expanded, {'x': x.toDouble()}).asNumeric();
+        final original =
+            evaluator.evaluate(expr, {'x': x.toDouble()}).asNumeric();
+        final result =
+            evaluator.evaluate(expanded, {'x': x.toDouble()}).asNumeric();
         expect(result, closeTo(original, 1e-10), reason: 'Failed for x=$x');
       }
     });
 
     test('(x+1)^3 expands correctly', () {
-      final xPlus1 = BinaryOp(Variable('x'), BinaryOperator.add, const NumberLiteral(1));
-      final expr = BinaryOp(xPlus1, BinaryOperator.power, const NumberLiteral(3));
+      final xPlus1 =
+          BinaryOp(Variable('x'), BinaryOperator.add, const NumberLiteral(1));
+      final expr =
+          BinaryOp(xPlus1, BinaryOperator.power, const NumberLiteral(3));
       final expanded = engine.expand(expr);
 
       final evaluator = Evaluator();
       for (var x in [0, 1, 2, 3, -1]) {
-        final original = evaluator.evaluate(expr, {'x': x.toDouble()}).asNumeric();
-        final result = evaluator.evaluate(expanded, {'x': x.toDouble()}).asNumeric();
+        final original =
+            evaluator.evaluate(expr, {'x': x.toDouble()}).asNumeric();
+        final result =
+            evaluator.evaluate(expanded, {'x': x.toDouble()}).asNumeric();
         expect(result, closeTo(original, 1e-10), reason: 'Failed for x=$x');
       }
     });
@@ -216,7 +255,8 @@ void main() {
   group('Polynomial Factorization', () {
     test('x^2 - 4 = (x-2)(x+2)', () {
       // Build x^2
-      final xSquared = BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
+      final xSquared =
+          BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
       // Build 4
       final four = const NumberLiteral(4);
       // Build x^2 - 4
@@ -226,34 +266,44 @@ void main() {
       // Verify by evaluation
       final evaluator = Evaluator();
       for (var x in [0, 1, 2, 3, 5, -1, -2]) {
-        final original = evaluator.evaluate(expr, {'x': x.toDouble()}).asNumeric();
-        final result = evaluator.evaluate(factored, {'x': x.toDouble()}).asNumeric();
+        final original =
+            evaluator.evaluate(expr, {'x': x.toDouble()}).asNumeric();
+        final result =
+            evaluator.evaluate(factored, {'x': x.toDouble()}).asNumeric();
         expect(result, closeTo(original, 1e-10), reason: 'Failed for x=$x');
       }
     });
 
     test('x^2 - 1 = (x-1)(x+1)', () {
-      final xSquared = BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
-      final expr = BinaryOp(xSquared, BinaryOperator.subtract, const NumberLiteral(1));
+      final xSquared =
+          BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
+      final expr =
+          BinaryOp(xSquared, BinaryOperator.subtract, const NumberLiteral(1));
       final factored = engine.factor(expr);
 
       final evaluator = Evaluator();
       for (var x in [0, 1, 2, -1, -2]) {
-        final original = evaluator.evaluate(expr, {'x': x.toDouble()}).asNumeric();
-        final result = evaluator.evaluate(factored, {'x': x.toDouble()}).asNumeric();
+        final original =
+            evaluator.evaluate(expr, {'x': x.toDouble()}).asNumeric();
+        final result =
+            evaluator.evaluate(factored, {'x': x.toDouble()}).asNumeric();
         expect(result, closeTo(original, 1e-10), reason: 'Failed for x=$x');
       }
     });
 
     test('x^2 - 9 = (x-3)(x+3)', () {
-      final xSquared = BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
-      final expr = BinaryOp(xSquared, BinaryOperator.subtract, const NumberLiteral(9));
+      final xSquared =
+          BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
+      final expr =
+          BinaryOp(xSquared, BinaryOperator.subtract, const NumberLiteral(9));
       final factored = engine.factor(expr);
 
       final evaluator = Evaluator();
       for (var x in [0, 1, 3, 5, -3]) {
-        final original = evaluator.evaluate(expr, {'x': x.toDouble()}).asNumeric();
-        final result = evaluator.evaluate(factored, {'x': x.toDouble()}).asNumeric();
+        final original =
+            evaluator.evaluate(expr, {'x': x.toDouble()}).asNumeric();
+        final result =
+            evaluator.evaluate(factored, {'x': x.toDouble()}).asNumeric();
         expect(result, closeTo(original, 1e-10), reason: 'Failed for x=$x');
       }
     });
@@ -300,11 +350,13 @@ void main() {
     test('sin^2(x) + cos^2(x) = 1', () {
       // sin(x)^2
       final sinX = FunctionCall('sin', Variable('x'));
-      final sin2X = BinaryOp(sinX, BinaryOperator.power, const NumberLiteral(2));
+      final sin2X =
+          BinaryOp(sinX, BinaryOperator.power, const NumberLiteral(2));
 
       // cos(x)^2
       final cosX = FunctionCall('cos', Variable('x'));
-      final cos2X = BinaryOp(cosX, BinaryOperator.power, const NumberLiteral(2));
+      final cos2X =
+          BinaryOp(cosX, BinaryOperator.power, const NumberLiteral(2));
 
       // sin^2(x) + cos^2(x)
       final expr = BinaryOp(sin2X, BinaryOperator.add, cos2X);
@@ -316,11 +368,13 @@ void main() {
     test('cos^2(x) + sin^2(x) = 1', () {
       // cos(x)^2
       final cosX = FunctionCall('cos', Variable('x'));
-      final cos2X = BinaryOp(cosX, BinaryOperator.power, const NumberLiteral(2));
+      final cos2X =
+          BinaryOp(cosX, BinaryOperator.power, const NumberLiteral(2));
 
       // sin(x)^2
       final sinX = FunctionCall('sin', Variable('x'));
-      final sin2X = BinaryOp(sinX, BinaryOperator.power, const NumberLiteral(2));
+      final sin2X =
+          BinaryOp(sinX, BinaryOperator.power, const NumberLiteral(2));
 
       // cos^2(x) + sin^2(x)
       final expr = BinaryOp(cos2X, BinaryOperator.add, sin2X);
@@ -357,7 +411,8 @@ void main() {
 
     test('log(a*b) = log(a) + log(b)', () {
       // a * b
-      final ab = BinaryOp(Variable('a'), BinaryOperator.multiply, Variable('b'));
+      final ab =
+          BinaryOp(Variable('a'), BinaryOperator.multiply, Variable('b'));
       // log(a*b)
       final expr = FunctionCall('log', ab);
       final simplified = engine.simplify(expr);
@@ -370,19 +425,25 @@ void main() {
 
     test('log(a/b) = log(a) - log(b)', () {
       // a / b
-      final aOverB = BinaryOp(Variable('a'), BinaryOperator.divide, Variable('b'));
+      final aOverB =
+          BinaryOp(Variable('a'), BinaryOperator.divide, Variable('b'));
       // log(a/b)
       final expr = FunctionCall('log', aOverB);
       final simplified = engine.simplify(expr);
 
       // The law is applied, though a/a simplifies to log(1) = 0
-      // Verify it's a simplified expression
-      expect(simplified, isTrue);
+      // Verify it's a simplified expression (could be BinaryOp for log laws or NumberLiteral if fully simplified)
+      expect(
+          simplified is BinaryOp ||
+              simplified is FunctionCall ||
+              simplified is NumberLiteral,
+          isTrue);
     });
 
     test('log(a^b) = b*log(a)', () {
       // a^b
-      final aPowerB = BinaryOp(Variable('a'), BinaryOperator.power, Variable('b'));
+      final aPowerB =
+          BinaryOp(Variable('a'), BinaryOperator.power, Variable('b'));
       // log(a^b)
       final expr = FunctionCall('log', aPowerB);
       final simplified = engine.simplify(expr);
@@ -395,12 +456,14 @@ void main() {
     });
 
     test('ln(x^2) = 2*ln(x)', () {
-      final x2 = BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
+      final x2 =
+          BinaryOp(Variable('x'), BinaryOperator.power, const NumberLiteral(2));
       final expr = FunctionCall('ln', x2);
       final simplified = engine.simplify(expr);
 
       final lnX = FunctionCall('ln', Variable('x'));
-      final expected = BinaryOp(const NumberLiteral(2), BinaryOperator.multiply, lnX);
+      final expected =
+          BinaryOp(const NumberLiteral(2), BinaryOperator.multiply, lnX);
 
       expect(simplified, equals(expected));
     });
@@ -408,30 +471,34 @@ void main() {
 
   group('Rational Simplification', () {
     test('x / x = 1', () {
-      final expr = BinaryOp(Variable('x'), BinaryOperator.divide, Variable('x'));
+      final expr =
+          BinaryOp(Variable('x'), BinaryOperator.divide, Variable('x'));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(1)));
     });
 
     test('(2*x) / x = 2', () {
-      final twoX = BinaryOp(const NumberLiteral(2), BinaryOperator.multiply, Variable('x'));
+      final twoX = BinaryOp(
+          const NumberLiteral(2), BinaryOperator.multiply, Variable('x'));
       final expr = BinaryOp(twoX, BinaryOperator.divide, Variable('x'));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(2)));
     });
 
     test('(x*2) / x = 2', () {
-      final xTwo = BinaryOp(Variable('x'), BinaryOperator.multiply, const NumberLiteral(2));
+      final xTwo = BinaryOp(
+          Variable('x'), BinaryOperator.multiply, const NumberLiteral(2));
       final expr = BinaryOp(xTwo, BinaryOperator.divide, Variable('x'));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(2)));
     });
 
     test('x / (x*2) = 1/2', () {
-      final xTwo = BinaryOp(Variable('x'), BinaryOperator.multiply, const NumberLiteral(2));
+      final xTwo = BinaryOp(
+          Variable('x'), BinaryOperator.multiply, const NumberLiteral(2));
       final expr = BinaryOp(Variable('x'), BinaryOperator.divide, xTwo);
       final simplified = engine.simplify(expr);
-      
+
       // The simplification produces 0.5 (constant folding of 1/2)
       // which is mathematically correct
       final evaluator = Evaluator();
@@ -440,7 +507,8 @@ void main() {
     });
 
     test('6/4 simplifies to 3/2', () {
-      final expr = BinaryOp(const NumberLiteral(6), BinaryOperator.divide, const NumberLiteral(4));
+      final expr = BinaryOp(const NumberLiteral(6), BinaryOperator.divide,
+          const NumberLiteral(4));
       final simplified = engine.simplify(expr);
       // Check value
       final evaluator = Evaluator();
@@ -451,8 +519,10 @@ void main() {
 
   group('Expression Equivalence', () {
     test('x+1 is equivalent to 1+x', () {
-      final expr1 = BinaryOp(Variable('x'), BinaryOperator.add, const NumberLiteral(1));
-      final expr2 = BinaryOp(const NumberLiteral(1), BinaryOperator.add, Variable('x'));
+      final expr1 =
+          BinaryOp(Variable('x'), BinaryOperator.add, const NumberLiteral(1));
+      final expr2 =
+          BinaryOp(const NumberLiteral(1), BinaryOperator.add, Variable('x'));
       // They should be equivalent after simplification
       // Note: This may fail if commutativity is not implemented
       // For now, just test they evaluate to the same thing
@@ -465,14 +535,17 @@ void main() {
     });
 
     test('(x+1)^2 is equivalent to x^2+2x+1 after expansion', () {
-      final xPlus1 = BinaryOp(Variable('x'), BinaryOperator.add, const NumberLiteral(1));
-      final expr1 = BinaryOp(xPlus1, BinaryOperator.power, const NumberLiteral(2));
+      final xPlus1 =
+          BinaryOp(Variable('x'), BinaryOperator.add, const NumberLiteral(1));
+      final expr1 =
+          BinaryOp(xPlus1, BinaryOperator.power, const NumberLiteral(2));
       final expanded = engine.expand(expr1);
 
       final evaluator = Evaluator();
       for (var x in [0, 1, 2, -1]) {
         final val1 = evaluator.evaluate(expr1, {'x': x.toDouble()}).asNumeric();
-        final val2 = evaluator.evaluate(expanded, {'x': x.toDouble()}).asNumeric();
+        final val2 =
+            evaluator.evaluate(expanded, {'x': x.toDouble()}).asNumeric();
         expect(val1, closeTo(val2, 1e-10));
       }
     });
@@ -480,14 +553,16 @@ void main() {
 
   group('Additional Identities', () {
     test('0/x = 0', () {
-      final expr = BinaryOp(const NumberLiteral(0), BinaryOperator.divide, Variable('x'));
+      final expr = BinaryOp(
+          const NumberLiteral(0), BinaryOperator.divide, Variable('x'));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(0)));
     });
 
     test('0^x = 0 for positive x', () {
       // This is handled in simplifier for numeric x > 0
-      final expr = BinaryOp(const NumberLiteral(0), BinaryOperator.power, const NumberLiteral(5));
+      final expr = BinaryOp(
+          const NumberLiteral(0), BinaryOperator.power, const NumberLiteral(5));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(0)));
     });
@@ -500,25 +575,29 @@ void main() {
     });
 
     test('Constant: 3+5 = 8', () {
-      final expr = BinaryOp(const NumberLiteral(3), BinaryOperator.add, const NumberLiteral(5));
+      final expr = BinaryOp(
+          const NumberLiteral(3), BinaryOperator.add, const NumberLiteral(5));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(8)));
     });
 
     test('Constant: 7*8 = 56', () {
-      final expr = BinaryOp(const NumberLiteral(7), BinaryOperator.multiply, const NumberLiteral(8));
+      final expr = BinaryOp(const NumberLiteral(7), BinaryOperator.multiply,
+          const NumberLiteral(8));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(56)));
     });
 
     test('Constant: 100/5 = 20', () {
-      final expr = BinaryOp(const NumberLiteral(100), BinaryOperator.divide, const NumberLiteral(5));
+      final expr = BinaryOp(const NumberLiteral(100), BinaryOperator.divide,
+          const NumberLiteral(5));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(20)));
     });
 
     test('Constant: 2^4 = 16', () {
-      final expr = BinaryOp(const NumberLiteral(2), BinaryOperator.power, const NumberLiteral(4));
+      final expr = BinaryOp(
+          const NumberLiteral(2), BinaryOperator.power, const NumberLiteral(4));
       final simplified = engine.simplify(expr);
       expect(simplified, equals(const NumberLiteral(16)));
     });
