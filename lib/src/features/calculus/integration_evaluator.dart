@@ -2,6 +2,7 @@
 library;
 
 import '../../ast.dart';
+import '../../exceptions.dart';
 
 /// Handles symbolic integration of expressions.
 ///
@@ -13,11 +14,23 @@ import '../../ast.dart';
 /// - Exponential integrals: e^x, a^x
 /// - Logarithmic integrals: 1/x -> ln|x|
 class IntegrationEvaluator {
-  /// Evaluates specific expressions numerically if needed (though mostly symbolic here).
-  // final double Function(Expression, Map<String, double>) _evaluateAsDouble;
-
-  // IntegrationEvaluator(this._evaluateAsDouble);
   IntegrationEvaluator();
+
+  int _recursionDepth = 0;
+  static const int maxRecursionDepth = 500;
+
+  void _enterRecursion() {
+    if (++_recursionDepth > maxRecursionDepth) {
+      throw EvaluatorException(
+        'Maximum integration depth exceeded',
+        suggestion: 'The expression is too complex to integrate symbolically',
+      );
+    }
+  }
+
+  void _exitRecursion() {
+    _recursionDepth--;
+  }
 
   /// Integrates an expression with respect to a variable.
   ///
@@ -30,155 +43,160 @@ class IntegrationEvaluator {
   }
 
   Expression _integrateRec(Expression expr, String variable) {
-    // 1. Check for linearity (Sum/Difference)
-    if (expr is BinaryOp) {
-      if (expr.operator == BinaryOperator.add) {
-        return BinaryOp(_integrateRec(expr.left, variable), BinaryOperator.add,
-            _integrateRec(expr.right, variable));
+    _enterRecursion();
+    try {
+      // 1. Check for linearity (Sum/Difference)
+      if (expr is BinaryOp) {
+        if (expr.operator == BinaryOperator.add) {
+          return BinaryOp(_integrateRec(expr.left, variable),
+              BinaryOperator.add, _integrateRec(expr.right, variable));
+        }
+        if (expr.operator == BinaryOperator.subtract) {
+          return BinaryOp(_integrateRec(expr.left, variable),
+              BinaryOperator.subtract, _integrateRec(expr.right, variable));
+        }
       }
-      if (expr.operator == BinaryOperator.subtract) {
-        return BinaryOp(_integrateRec(expr.left, variable),
-            BinaryOperator.subtract, _integrateRec(expr.right, variable));
+
+      // 2. Check for constant factor: c * f(x)
+      // We need to determine if a term is constant w.r.t variable.
+      if (expr is BinaryOp && expr.operator == BinaryOperator.multiply) {
+        final leftIsConst = !_containsVariable(expr.left, variable);
+        final rightIsConst = !_containsVariable(expr.right, variable);
+
+        if (leftIsConst && rightIsConst) {
+          // entire expression is constant c -> \int c dx = c*x
+          return BinaryOp(expr, BinaryOperator.multiply, Variable(variable));
+        }
+        if (leftIsConst) {
+          // c * f(x) -> c * \int f(x)
+          return BinaryOp(expr.left, BinaryOperator.multiply,
+              _integrateRec(expr.right, variable));
+        }
+        if (rightIsConst) {
+          // f(x) * c -> c * \int f(x)
+          return BinaryOp(expr.right, BinaryOperator.multiply,
+              _integrateRec(expr.left, variable));
+        }
       }
-    }
 
-    // 2. Check for constant factor: c * f(x)
-    // We need to determine if a term is constant w.r.t variable.
-    if (expr is BinaryOp && expr.operator == BinaryOperator.multiply) {
-      final leftIsConst = !_containsVariable(expr.left, variable);
-      final rightIsConst = !_containsVariable(expr.right, variable);
-
-      if (leftIsConst && rightIsConst) {
-        // entire expression is constant c -> \int c dx = c*x
+      // 3. Constant rule alone
+      if (!_containsVariable(expr, variable)) {
         return BinaryOp(expr, BinaryOperator.multiply, Variable(variable));
       }
-      if (leftIsConst) {
-        // c * f(x) -> c * \int f(x)
-        return BinaryOp(expr.left, BinaryOperator.multiply,
-            _integrateRec(expr.right, variable));
-      }
-      if (rightIsConst) {
-        // f(x) * c -> c * \int f(x)
-        return BinaryOp(expr.right, BinaryOperator.multiply,
-            _integrateRec(expr.left, variable));
-      }
-    }
 
-    // 3. Constant rule alone
-    if (!_containsVariable(expr, variable)) {
-      return BinaryOp(expr, BinaryOperator.multiply, Variable(variable));
-    }
+      // 4. Power Rule: x^n
+      if (expr is BinaryOp && expr.operator == BinaryOperator.power) {
+        // Check base is x and exponent is constant check
+        if (expr.left is Variable && (expr.left as Variable).name == variable) {
+          if (!_containsVariable(expr.right, variable)) {
+            // Special case: n = -1 -> ln|x|
+            // We can check if exponent is NumberLiteral(-1)
+            if (expr.right is NumberLiteral &&
+                (expr.right as NumberLiteral).value == -1) {
+              return FunctionCall('ln', AbsoluteValue(Variable(variable)));
+            }
+            if (expr.right is UnaryOp &&
+                (expr.right as UnaryOp).operator == UnaryOperator.negate &&
+                (expr.right as UnaryOp).operand is NumberLiteral &&
+                ((expr.right as UnaryOp).operand as NumberLiteral).value == 1) {
+              return FunctionCall('ln', AbsoluteValue(Variable(variable)));
+            }
+            // x^(n+1) / (n+1)
+            Expression newExponent;
+            if (expr.right is NumberLiteral) {
+              newExponent =
+                  NumberLiteral((expr.right as NumberLiteral).value + 1);
+            } else {
+              newExponent =
+                  BinaryOp(expr.right, BinaryOperator.add, NumberLiteral(1));
+            }
 
-    // 4. Power Rule: x^n
-    if (expr is BinaryOp && expr.operator == BinaryOperator.power) {
-      // Check base is x and exponent is constant check
-      if (expr.left is Variable && (expr.left as Variable).name == variable) {
-        if (!_containsVariable(expr.right, variable)) {
-          // Special case: n = -1 -> ln|x|
-          // We can check if exponent is NumberLiteral(-1)
-          if (expr.right is NumberLiteral &&
-              (expr.right as NumberLiteral).value == -1) {
-            return FunctionCall('ln', AbsoluteValue(Variable(variable)));
+            return BinaryOp(
+                BinaryOp(expr.left, BinaryOperator.power, newExponent),
+                BinaryOperator.divide,
+                newExponent // In a real System we'd simplify this
+                );
           }
-          if (expr.right is UnaryOp &&
-              (expr.right as UnaryOp).operator == UnaryOperator.negate &&
-              (expr.right as UnaryOp).operand is NumberLiteral &&
-              ((expr.right as UnaryOp).operand as NumberLiteral).value == 1) {
-            return FunctionCall('ln', AbsoluteValue(Variable(variable)));
-          }
-          // x^(n+1) / (n+1)
-          Expression newExponent;
-          if (expr.right is NumberLiteral) {
-            newExponent =
-                NumberLiteral((expr.right as NumberLiteral).value + 1);
-          } else {
-            newExponent =
-                BinaryOp(expr.right, BinaryOperator.add, NumberLiteral(1));
-          }
-
-          return BinaryOp(
-              BinaryOp(expr.left, BinaryOperator.power, newExponent),
-              BinaryOperator.divide,
-              newExponent // In a real System we'd simplify this
-              );
         }
-      }
 
-      // Check for e^x
-      if (expr.right is Variable && (expr.right as Variable).name == variable) {
-        // Base should be 'e' or 'E'
-        if (expr.left is Variable &&
-            ['e', 'E'].contains((expr.left as Variable).name)) {
-          return expr; // \int e^x = e^x
-        }
-      }
-    }
-
-    // Check for 1/x -> ln|x|
-    if (expr is BinaryOp && expr.operator == BinaryOperator.divide) {
-      if (expr.left is NumberLiteral &&
-          (expr.left as NumberLiteral).value == 1) {
+        // Check for e^x
         if (expr.right is Variable &&
             (expr.right as Variable).name == variable) {
-          return FunctionCall('ln', AbsoluteValue(Variable(variable)));
-        }
-      }
-    }
-
-    // 5. Basic Variable: x -> x^2 / 2
-    if (expr is Variable && expr.name == variable) {
-      return BinaryOp(
-          BinaryOp(Variable(variable), BinaryOperator.power, NumberLiteral(2)),
-          BinaryOperator.divide,
-          NumberLiteral(2));
-    }
-
-    // 6. Exponential: e^x or a^x
-    if (expr is FunctionCall && expr.name == 'exp') {
-      if (expr.args.length == 1) {
-        final linear = _extractLinearCoefficients(expr.args[0], variable);
-        if (linear != null) {
-          final (a, b) = linear;
-          // \int e^(ax+b) dx = (1/a) * e^(ax+b)
-          // If a=1, b=0, it's e^x
-          final result = expr;
-
-          if (a is NumberLiteral && a.value == 1) return result;
-
-          return BinaryOp(result, BinaryOperator.divide, a);
-        }
-      }
-    }
-
-    // 7. Trig functions
-    if (expr is FunctionCall) {
-      if (expr.args.length == 1) {
-        final linear = _extractLinearCoefficients(expr.args[0], variable);
-        if (linear != null) {
-          final (a, _) = linear;
-
-          if (expr.name == 'sin') {
-            // \int sin(ax+b) = -cos(ax+b)/a
-            final antideriv = UnaryOp(
-                UnaryOperator.negate, FunctionCall('cos', expr.args[0]));
-            if (a is NumberLiteral && a.value == 1) return antideriv;
-            return BinaryOp(antideriv, BinaryOperator.divide, a);
-          }
-          if (expr.name == 'cos') {
-            // \int cos(ax+b) = sin(ax+b)/a
-            final antideriv = FunctionCall('sin', expr.args[0]);
-            if (a is NumberLiteral && a.value == 1) return antideriv;
-            return BinaryOp(antideriv, BinaryOperator.divide, a);
+          // Base should be 'e' or 'E'
+          if (expr.left is Variable &&
+              ['e', 'E'].contains((expr.left as Variable).name)) {
+            return expr; // \int e^x = e^x
           }
         }
       }
-      // TODO: Add more like sec^2(x) -> tan(x) if identified
-    }
 
-    // Fallback: Return wrapped IntegralExpr (cannot integrate explicitly)
-    // Actually, user wants a symbolic result. If we fail, we typically return the integral syntax.
-    // Indefinite integral: IntegralExpr(null, null, expr, variable)
-    return IntegralExpr(null, null, expr, variable);
+      // Check for 1/x -> ln|x|
+      if (expr is BinaryOp && expr.operator == BinaryOperator.divide) {
+        if (expr.left is NumberLiteral &&
+            (expr.left as NumberLiteral).value == 1) {
+          if (expr.right is Variable &&
+              (expr.right as Variable).name == variable) {
+            return FunctionCall('ln', AbsoluteValue(Variable(variable)));
+          }
+        }
+      }
+
+      // 5. Basic Variable: x -> x^2 / 2
+      if (expr is Variable && expr.name == variable) {
+        return BinaryOp(
+            BinaryOp(
+                Variable(variable), BinaryOperator.power, NumberLiteral(2)),
+            BinaryOperator.divide,
+            NumberLiteral(2));
+      }
+
+      // 6. Exponential: e^x or a^x
+      if (expr is FunctionCall && expr.name == 'exp') {
+        if (expr.args.length == 1) {
+          final linear = _extractLinearCoefficients(expr.args[0], variable);
+          if (linear != null) {
+            final (a, b) = linear;
+            // \int e^(ax+b) dx = (1/a) * e^(ax+b)
+            // If a=1, b=0, it's e^x
+            final result = expr;
+
+            if (a is NumberLiteral && a.value == 1) return result;
+
+            return BinaryOp(result, BinaryOperator.divide, a);
+          }
+        }
+      }
+
+      // 7. Trig functions
+      if (expr is FunctionCall) {
+        if (expr.args.length == 1) {
+          final linear = _extractLinearCoefficients(expr.args[0], variable);
+          if (linear != null) {
+            final (a, _) = linear;
+
+            if (expr.name == 'sin') {
+              // \int sin(ax+b) = -cos(ax+b)/a
+              final antideriv = UnaryOp(
+                  UnaryOperator.negate, FunctionCall('cos', expr.args[0]));
+              if (a is NumberLiteral && a.value == 1) return antideriv;
+              return BinaryOp(antideriv, BinaryOperator.divide, a);
+            }
+            if (expr.name == 'cos') {
+              // \int cos(ax+b) = sin(ax+b)/a
+              final antideriv = FunctionCall('sin', expr.args[0]);
+              if (a is NumberLiteral && a.value == 1) return antideriv;
+              return BinaryOp(antideriv, BinaryOperator.divide, a);
+            }
+          }
+        }
+        // TODO: Add more like sec^2(x) -> tan(x) if identified
+      }
+
+      // Indefinite integral: IntegralExpr(null, null, expr, variable)
+      return IntegralExpr(null, null, expr, variable);
+    } finally {
+      _exitRecursion();
+    }
   }
 
   /// Extracts coefficients a, b from expression (ax + b).
@@ -268,26 +286,31 @@ class IntegrationEvaluator {
 
   /// Substitutes a variable with a value in an expression.
   Expression _substitute(Expression expr, String variable, Expression value) {
-    return switch (expr) {
-      NumberLiteral() => expr,
-      Variable(:final name) => name == variable ? value : expr,
-      BinaryOp(:final left, :final operator, :final right) => BinaryOp(
-          _substitute(left, variable, value),
-          operator,
-          _substitute(right, variable, value),
-        ),
-      UnaryOp(:final operator, :final operand) => UnaryOp(
-          operator,
-          _substitute(operand, variable, value),
-        ),
-      AbsoluteValue(:final argument) =>
-        AbsoluteValue(_substitute(argument, variable, value)),
-      FunctionCall(:final name, :final args) => FunctionCall.multivar(
-          name,
-          args.map((arg) => _substitute(arg, variable, value)).toList(),
-        ),
-      // For now, don't substitute inside nested integrals/derivatives blindly
-      _ => expr,
-    };
+    _enterRecursion();
+    try {
+      return switch (expr) {
+        NumberLiteral() => expr,
+        Variable(:final name) => name == variable ? value : expr,
+        BinaryOp(:final left, :final operator, :final right) => BinaryOp(
+            _substitute(left, variable, value),
+            operator,
+            _substitute(right, variable, value),
+          ),
+        UnaryOp(:final operator, :final operand) => UnaryOp(
+            operator,
+            _substitute(operand, variable, value),
+          ),
+        AbsoluteValue(:final argument) =>
+          AbsoluteValue(_substitute(argument, variable, value)),
+        FunctionCall(:final name, :final args) => FunctionCall.multivar(
+            name,
+            args.map((arg) => _substitute(arg, variable, value)).toList(),
+          ),
+        // For now, don't substitute inside nested integrals/derivatives blindly
+        _ => expr,
+      };
+    } finally {
+      _exitRecursion();
+    }
   }
 }

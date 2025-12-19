@@ -13,6 +13,38 @@ abstract class BaseParser {
 
   Token get current => tokens[position];
 
+  int _recursionDepth = 0;
+  static const int maxRecursionDepth = 500;
+
+  int _nodeCount = 0;
+  static const int maxNodeCount = 10000;
+
+  void registerNode() {
+    if (++_nodeCount > maxNodeCount) {
+      throw ParserException(
+        'Expression complexity limit exceeded (too many nodes)',
+        position: isAtEnd ? null : current.position,
+        expression: sourceExpression,
+        suggestion: 'Simplify your expression to reduce its size',
+      );
+    }
+  }
+
+  void enterRecursion() {
+    if (++_recursionDepth > maxRecursionDepth) {
+      throw ParserException(
+        'Maximum nesting depth exceeded',
+        position: isAtEnd ? null : current.position,
+        expression: sourceExpression,
+        suggestion: 'Simplify your expression or check for infinite recursion',
+      );
+    }
+  }
+
+  void exitRecursion() {
+    _recursionDepth--;
+  }
+
   Token advance() {
     if (!isAtEnd) position++;
     return tokens[position - 1];

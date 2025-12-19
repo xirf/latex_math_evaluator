@@ -6,7 +6,12 @@ import 'base_parser.dart';
 mixin ExpressionParserMixin on BaseParser {
   @override
   Expression parseExpression() {
-    return parseComparison();
+    enterRecursion();
+    try {
+      return parseComparison();
+    } finally {
+      exitRecursion();
+    }
   }
 
   Expression parseComparison() {
@@ -56,8 +61,10 @@ mixin ExpressionParserMixin on BaseParser {
     }
 
     if (operators.length > 1) {
+      registerNode();
       return ChainedComparison(expressions, operators);
     } else if (operators.length == 1) {
+      registerNode();
       return Comparison(expressions[0], operators[0], expressions[1]);
     }
 
@@ -71,6 +78,7 @@ mixin ExpressionParserMixin on BaseParser {
       final operator = tokens[position - 1];
       final right = parseTerm();
 
+      registerNode();
       left = BinaryOp(
         left,
         operator.type == TokenType.plus
@@ -92,6 +100,7 @@ mixin ExpressionParserMixin on BaseParser {
         final operator = tokens[position - 1];
         final right = parsePower();
 
+        registerNode();
         left = BinaryOp(
           left,
           operator.type == TokenType.multiply
@@ -102,6 +111,7 @@ mixin ExpressionParserMixin on BaseParser {
         );
       } else if (checkImplicitMultiplication()) {
         final right = parsePower();
+        registerNode();
         left = BinaryOp(left, BinaryOperator.multiply, right);
       } else {
         break;
@@ -127,30 +137,43 @@ mixin ExpressionParserMixin on BaseParser {
 
   @override
   Expression parsePower() {
-    var left = parseUnary();
+    enterRecursion();
+    try {
+      var left = parseUnary();
 
-    if (match([TokenType.power])) {
-      if (check(TokenType.lparen) && current.value == '{') {
-        advance();
-        final right = parseExpression();
-        consume(TokenType.rparen, "Expected '}' after exponent");
-        return BinaryOp(left, BinaryOperator.power, right);
-      } else {
-        final right = parsePower();
-        return BinaryOp(left, BinaryOperator.power, right);
+      if (match([TokenType.power])) {
+        if (check(TokenType.lparen) && current.value == '{') {
+          advance();
+          final right = parseExpression();
+          consume(TokenType.rparen, "Expected '}' after exponent");
+          registerNode();
+          return BinaryOp(left, BinaryOperator.power, right);
+        } else {
+          final right = parsePower();
+          registerNode();
+          return BinaryOp(left, BinaryOperator.power, right);
+        }
       }
-    }
 
-    return left;
+      return left;
+    } finally {
+      exitRecursion();
+    }
   }
 
   @override
   Expression parseUnary() {
-    if (match([TokenType.minus])) {
-      final operand = parseUnary();
-      return UnaryOp(UnaryOperator.negate, operand);
-    }
+    enterRecursion();
+    try {
+      if (match([TokenType.minus])) {
+        final operand = parseUnary();
+        registerNode();
+        return UnaryOp(UnaryOperator.negate, operand);
+      }
 
-    return parsePrimary();
+      return parsePrimary();
+    } finally {
+      exitRecursion();
+    }
   }
 }

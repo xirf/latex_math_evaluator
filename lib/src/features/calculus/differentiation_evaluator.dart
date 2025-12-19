@@ -21,6 +21,23 @@ class DifferentiationEvaluator {
   /// Creates a differentiation evaluator.
   DifferentiationEvaluator(this._evaluateAsDouble);
 
+  int _recursionDepth = 0;
+  static const int maxRecursionDepth = 500;
+
+  void _enterRecursion() {
+    if (++_recursionDepth > maxRecursionDepth) {
+      throw EvaluatorException(
+        'Maximum differentiation depth exceeded',
+        suggestion:
+            'The expression is too complex to differentiate symbolically',
+      );
+    }
+  }
+
+  void _exitRecursion() {
+    _recursionDepth--;
+  }
+
   /// Differentiates an expression with respect to a variable.
   ///
   /// Returns a new [Expression] representing the symbolic derivative.
@@ -52,94 +69,99 @@ class DifferentiationEvaluator {
 
   /// Performs a single differentiation step.
   Expression _differentiateOnce(Expression expr, String variable) {
-    return switch (expr) {
-      // Constant rule: d/dx(c) = 0
-      NumberLiteral() => const NumberLiteral(0),
+    _enterRecursion();
+    try {
+      return switch (expr) {
+        // Constant rule: d/dx(c) = 0
+        NumberLiteral() => const NumberLiteral(0),
 
-      // Variable rule: d/dx(x) = 1, d/dx(y) = 0
-      Variable(:final name) =>
-        name == variable ? const NumberLiteral(1) : const NumberLiteral(0),
+        // Variable rule: d/dx(x) = 1, d/dx(y) = 0
+        Variable(:final name) =>
+          name == variable ? const NumberLiteral(1) : const NumberLiteral(0),
 
-      // Sum/Difference rule: d/dx(f ± g) = f' ± g'
-      BinaryOp(:final left, :final right, :final operator)
-          when operator == BinaryOperator.add ||
-              operator == BinaryOperator.subtract =>
-        BinaryOp(
-          _differentiateOnce(left, variable),
-          operator,
-          _differentiateOnce(right, variable),
-        ),
-
-      // Product rule: d/dx(f * g) = f' * g + f * g'
-      BinaryOp(:final left, :final right, :final operator)
-          when operator == BinaryOperator.multiply =>
-        BinaryOp(
+        // Sum/Difference rule: d/dx(f ± g) = f' ± g'
+        BinaryOp(:final left, :final right, :final operator)
+            when operator == BinaryOperator.add ||
+                operator == BinaryOperator.subtract =>
           BinaryOp(
             _differentiateOnce(left, variable),
-            BinaryOperator.multiply,
-            right,
-          ),
-          BinaryOperator.add,
-          BinaryOp(
-            left,
-            BinaryOperator.multiply,
+            operator,
             _differentiateOnce(right, variable),
           ),
-        ),
 
-      // Quotient rule: d/dx(f / g) = (f' * g - f * g') / g^2
-      BinaryOp(:final left, :final right, :final operator)
-          when operator == BinaryOperator.divide =>
-        BinaryOp(
+        // Product rule: d/dx(f * g) = f' * g + f * g'
+        BinaryOp(:final left, :final right, :final operator)
+            when operator == BinaryOperator.multiply =>
           BinaryOp(
             BinaryOp(
               _differentiateOnce(left, variable),
               BinaryOperator.multiply,
               right,
             ),
-            BinaryOperator.subtract,
+            BinaryOperator.add,
             BinaryOp(
               left,
               BinaryOperator.multiply,
               _differentiateOnce(right, variable),
             ),
           ),
-          BinaryOperator.divide,
-          BinaryOp(right, BinaryOperator.power, const NumberLiteral(2)),
-        ),
 
-      // Power rule: d/dx(f^g)
-      BinaryOp(:final left, :final right, :final operator)
-          when operator == BinaryOperator.power =>
-        _differentiatePower(left, right, variable),
+        // Quotient rule: d/dx(f / g) = (f' * g - f * g') / g^2
+        BinaryOp(:final left, :final right, :final operator)
+            when operator == BinaryOperator.divide =>
+          BinaryOp(
+            BinaryOp(
+              BinaryOp(
+                _differentiateOnce(left, variable),
+                BinaryOperator.multiply,
+                right,
+              ),
+              BinaryOperator.subtract,
+              BinaryOp(
+                left,
+                BinaryOperator.multiply,
+                _differentiateOnce(right, variable),
+              ),
+            ),
+            BinaryOperator.divide,
+            BinaryOp(right, BinaryOperator.power, const NumberLiteral(2)),
+          ),
 
-      // Unary minus: d/dx(-f) = -f'
-      UnaryOp(:final operand, :final operator)
-          when operator == UnaryOperator.negate =>
-        UnaryOp(UnaryOperator.negate, _differentiateOnce(operand, variable)),
+        // Power rule: d/dx(f^g)
+        BinaryOp(:final left, :final right, :final operator)
+            when operator == BinaryOperator.power =>
+          _differentiatePower(left, right, variable),
 
-      // Absolute value: d/dx(|f|) = f' * sign(f)
-      AbsoluteValue(:final argument) => BinaryOp(
-          _differentiateOnce(argument, variable),
-          BinaryOperator.multiply,
-          FunctionCall('sign', argument),
-        ),
+        // Unary minus: d/dx(-f) = -f'
+        UnaryOp(:final operand, :final operator)
+            when operator == UnaryOperator.negate =>
+          UnaryOp(UnaryOperator.negate, _differentiateOnce(operand, variable)),
 
-      // Function calls (trig, exp, log, etc.)
-      FunctionCall(:final name, :final args) =>
-        _differentiateFunctionCall(name, args, variable),
+        // Absolute value: d/dx(|f|) = f' * sign(f)
+        AbsoluteValue(:final argument) => BinaryOp(
+            _differentiateOnce(argument, variable),
+            BinaryOperator.multiply,
+            FunctionCall('sign', argument),
+          ),
 
-      // Derivative expression (higher order)
-      DerivativeExpr(:final body, :final variable, :final order) =>
-        DerivativeExpr(body, variable, order: order + 1),
+        // Function calls (trig, exp, log, etc.)
+        FunctionCall(:final name, :final args) =>
+          _differentiateFunctionCall(name, args, variable),
 
-      // Other types not yet supported
-      _ => throw EvaluatorException(
-          'Cannot differentiate expression of type ${expr.runtimeType}',
-          suggestion: 'Symbolic differentiation is only supported for '
-              'basic arithmetic, functions, and variables',
-        ),
-    };
+        // Derivative expression (higher order)
+        DerivativeExpr(:final body, :final variable, :final order) =>
+          DerivativeExpr(body, variable, order: order + 1),
+
+        // Other types not yet supported
+        _ => throw EvaluatorException(
+            'Cannot differentiate expression of type ${expr.runtimeType}',
+            suggestion: 'Symbolic differentiation is only supported for '
+                'basic arithmetic, functions, and variables',
+          ),
+      };
+    } finally {
+      _exitRecursion();
+    }
   }
 
   /// Differentiates a power expression f^g.
@@ -362,76 +384,81 @@ class DifferentiationEvaluator {
   /// This performs basic algebraic simplifications to make the result
   /// more readable.
   Expression _simplify(Expression expr) {
-    return switch (expr) {
-      // Simplify 0 + x = x, x + 0 = x
-      BinaryOp(left: NumberLiteral(value: 0), :final operator, :final right)
-          when operator == BinaryOperator.add =>
-        _simplify(right),
-      BinaryOp(:final left, :final operator, right: NumberLiteral(value: 0))
-          when operator == BinaryOperator.add =>
-        _simplify(left),
+    _enterRecursion();
+    try {
+      return switch (expr) {
+        // Simplify 0 + x = x, x + 0 = x
+        BinaryOp(left: NumberLiteral(value: 0), :final operator, :final right)
+            when operator == BinaryOperator.add =>
+          _simplify(right),
+        BinaryOp(:final left, :final operator, right: NumberLiteral(value: 0))
+            when operator == BinaryOperator.add =>
+          _simplify(left),
 
-      // Simplify x - 0 = x
-      BinaryOp(:final left, :final operator, right: NumberLiteral(value: 0))
-          when operator == BinaryOperator.subtract =>
-        _simplify(left),
+        // Simplify x - 0 = x
+        BinaryOp(:final left, :final operator, right: NumberLiteral(value: 0))
+            when operator == BinaryOperator.subtract =>
+          _simplify(left),
 
-      // Simplify 0 * x = 0, x * 0 = 0
-      BinaryOp(left: NumberLiteral(value: 0), :final operator, right: _)
-          when operator == BinaryOperator.multiply =>
-        const NumberLiteral(0),
-      BinaryOp(left: _, :final operator, right: NumberLiteral(value: 0))
-          when operator == BinaryOperator.multiply =>
-        const NumberLiteral(0),
+        // Simplify 0 * x = 0, x * 0 = 0
+        BinaryOp(left: NumberLiteral(value: 0), :final operator, right: _)
+            when operator == BinaryOperator.multiply =>
+          const NumberLiteral(0),
+        BinaryOp(left: _, :final operator, right: NumberLiteral(value: 0))
+            when operator == BinaryOperator.multiply =>
+          const NumberLiteral(0),
 
-      // Simplify 1 * x = x, x * 1 = x
-      BinaryOp(left: NumberLiteral(value: 1), :final operator, :final right)
-          when operator == BinaryOperator.multiply =>
-        _simplify(right),
-      BinaryOp(:final left, :final operator, right: NumberLiteral(value: 1))
-          when operator == BinaryOperator.multiply =>
-        _simplify(left),
+        // Simplify 1 * x = x, x * 1 = x
+        BinaryOp(left: NumberLiteral(value: 1), :final operator, :final right)
+            when operator == BinaryOperator.multiply =>
+          _simplify(right),
+        BinaryOp(:final left, :final operator, right: NumberLiteral(value: 1))
+            when operator == BinaryOperator.multiply =>
+          _simplify(left),
 
-      // Simplify x / 1 = x
-      BinaryOp(:final left, :final operator, right: NumberLiteral(value: 1))
-          when operator == BinaryOperator.divide =>
-        _simplify(left),
+        // Simplify x / 1 = x
+        BinaryOp(:final left, :final operator, right: NumberLiteral(value: 1))
+            when operator == BinaryOperator.divide =>
+          _simplify(left),
 
-      // Simplify x ^ 0 = 1
-      BinaryOp(left: _, :final operator, right: NumberLiteral(value: 0))
-          when operator == BinaryOperator.power =>
-        const NumberLiteral(1),
+        // Simplify x ^ 0 = 1
+        BinaryOp(left: _, :final operator, right: NumberLiteral(value: 0))
+            when operator == BinaryOperator.power =>
+          const NumberLiteral(1),
 
-      // Simplify x ^ 1 = x
-      BinaryOp(:final left, :final operator, right: NumberLiteral(value: 1))
-          when operator == BinaryOperator.power =>
-        _simplify(left),
+        // Simplify x ^ 1 = x
+        BinaryOp(:final left, :final operator, right: NumberLiteral(value: 1))
+            when operator == BinaryOperator.power =>
+          _simplify(left),
 
-      // Simplify -(-x) = x
-      UnaryOp(
-        operator: UnaryOperator.negate,
-        operand: UnaryOp(operator: UnaryOperator.negate, :final operand)
-      ) =>
-        _simplify(operand),
+        // Simplify -(-x) = x
+        UnaryOp(
+          operator: UnaryOperator.negate,
+          operand: UnaryOp(operator: UnaryOperator.negate, :final operand)
+        ) =>
+          _simplify(operand),
 
-      // Recursively simplify binary operations
-      BinaryOp(:final left, :final operator, :final right) =>
-        BinaryOp(_simplify(left), operator, _simplify(right)),
+        // Recursively simplify binary operations
+        BinaryOp(:final left, :final operator, :final right) =>
+          BinaryOp(_simplify(left), operator, _simplify(right)),
 
-      // Recursively simplify unary operations
-      UnaryOp(:final operator, :final operand) =>
-        UnaryOp(operator, _simplify(operand)),
+        // Recursively simplify unary operations
+        UnaryOp(:final operator, :final operand) =>
+          UnaryOp(operator, _simplify(operand)),
 
-      // Recursively simplify absolute values
-      AbsoluteValue(:final argument) => AbsoluteValue(_simplify(argument)),
+        // Recursively simplify absolute values
+        AbsoluteValue(:final argument) => AbsoluteValue(_simplify(argument)),
 
-      // Recursively simplify function calls
-      FunctionCall(:final name, :final args) =>
-        FunctionCall.multivar(name, args.map(_simplify).toList()),
+        // Recursively simplify function calls
+        FunctionCall(:final name, :final args) =>
+          FunctionCall.multivar(name, args.map(_simplify).toList()),
 
-      // Return other expressions as-is
-      _ => expr,
-    };
+        // Return other expressions as-is
+        _ => expr,
+      };
+    } finally {
+      _exitRecursion();
+    }
   }
 
   /// Evaluates a derivative at a specific point.

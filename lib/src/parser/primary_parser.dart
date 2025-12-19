@@ -6,115 +6,132 @@ import 'base_parser.dart';
 mixin PrimaryParserMixin on BaseParser {
   @override
   Expression parsePrimary() {
-    if (match([TokenType.number])) {
-      final value = double.parse(tokens[position - 1].value);
-      return NumberLiteral(value);
-    }
-
-    if (match([TokenType.variable])) {
-      return Variable(tokens[position - 1].value);
-    }
-
-    if (match([TokenType.constant])) {
-      return Variable(tokens[position - 1].value);
-    }
-
-    if (match([TokenType.infty])) {
-      return NumberLiteral(double.infinity);
-    }
-
-    if (match([TokenType.function])) {
-      return parseFunctionCall();
-    }
-
-    if (match([TokenType.lim])) {
-      return parseLimitExpr();
-    }
-
-    if (match([TokenType.sum])) {
-      return parseSumExpr();
-    }
-
-    if (match([TokenType.prod])) {
-      return parseProductExpr();
-    }
-
-    if (match([TokenType.int])) {
-      return parseIntegralExpr();
-    }
-
-    if (match([TokenType.frac])) {
-      return parseFraction();
-    }
-
-    if (match([TokenType.binom])) {
-      return parseBinom();
-    }
-
-    if (match([TokenType.begin])) {
-      return parseMatrix();
-    }
-
-    if (match([TokenType.pipe])) {
-      final expr = parseExpression();
-      consume(TokenType.pipe, "Expected '|' after absolute value expression");
-      return AbsoluteValue(expr);
-    }
-
-    if (match([TokenType.lparen])) {
-      final closingChar = tokens[position - 1].value == '(' ? ')' : '}';
-      final expr = parseExpression();
-
-      if (!check(TokenType.rparen)) {
-        throw ParserException(
-          "Expected '$closingChar'",
-          position: current.position,
-          expression: sourceExpression,
-          suggestion: closingChar == ')'
-              ? 'Add a closing parenthesis ) to match the opening'
-              : 'Add a closing brace } to match the opening',
-        );
+    enterRecursion();
+    try {
+      if (match([TokenType.number])) {
+        final value = double.parse(tokens[position - 1].value);
+        registerNode();
+        return NumberLiteral(value);
       }
-      advance();
 
-      if (closingChar == '}' &&
-          check(TokenType.lparen) &&
-          current.value == '{') {
+      if (match([TokenType.variable])) {
+        registerNode();
+        return Variable(tokens[position - 1].value);
+      }
+
+      if (match([TokenType.constant])) {
+        registerNode();
+        return Variable(tokens[position - 1].value);
+      }
+
+      if (match([TokenType.infty])) {
+        registerNode();
+        return NumberLiteral(double.infinity);
+      }
+
+      if (match([TokenType.function])) {
+        return parseFunctionCall();
+      }
+
+      if (match([TokenType.lim])) {
+        return parseLimitExpr();
+      }
+
+      if (match([TokenType.sum])) {
+        return parseSumExpr();
+      }
+
+      if (match([TokenType.prod])) {
+        return parseProductExpr();
+      }
+
+      if (match([TokenType.int])) {
+        return parseIntegralExpr();
+      }
+
+      if (match([TokenType.frac])) {
+        return parseFraction();
+      }
+
+      if (match([TokenType.binom])) {
+        return parseBinom();
+      }
+
+      if (match([TokenType.begin])) {
+        return parseMatrix();
+      }
+
+      if (match([TokenType.pipe])) {
+        final expr = parseExpression();
+        consume(TokenType.pipe, "Expected '|' after absolute value expression");
+        registerNode();
+        return AbsoluteValue(expr);
+      }
+
+      if (match([TokenType.lparen])) {
+        final closingChar = tokens[position - 1].value == '(' ? ')' : '}';
+        final expr = parseExpression();
+
+        if (!check(TokenType.rparen)) {
+          throw ParserException(
+            "Expected '$closingChar'",
+            position: current.position,
+            expression: sourceExpression,
+            suggestion: closingChar == ')'
+                ? 'Add a closing parenthesis ) to match the opening'
+                : 'Add a closing brace } to match the opening',
+          );
+        }
         advance();
-        final condition = parseExpression();
-        consume(TokenType.rparen, "Expected '}' after condition");
-        return ConditionalExpr(expr, condition);
+
+        if (closingChar == '}' &&
+            check(TokenType.lparen) &&
+            current.value == '{') {
+          advance();
+          final condition = parseExpression();
+          consume(TokenType.rparen, "Expected '}' after condition");
+          registerNode();
+          return ConditionalExpr(expr, condition);
+        }
+
+        return expr;
       }
 
-      return expr;
+      throw ParserException(
+        'Expected expression, got: ${current.value}',
+        position: current.position,
+        expression: sourceExpression,
+        suggestion: 'Check for missing operands or invalid syntax',
+      );
+    } finally {
+      exitRecursion();
     }
-
-    throw ParserException(
-      'Expected expression, got: ${current.value}',
-      position: current.position,
-      expression: sourceExpression,
-      suggestion: 'Check for missing operands or invalid syntax',
-    );
   }
 
   Expression parseFraction() {
-    consume(TokenType.lparen, "Expected '{' after \\frac");
+    enterRecursion();
+    try {
+      consume(TokenType.lparen, "Expected '{' after \\frac");
 
-    // Check if this looks like derivative notation: \frac{d}{dx} or \frac{d^n}{dx^n}
-    // We need to check the raw tokens before parsing
-    if (_isDerivativeNotation()) {
-      return _parseDerivative();
+      // Check if this looks like derivative notation: \frac{d}{dx} or \frac{d^n}{dx^n}
+      // We need to check the raw tokens before parsing
+      if (_isDerivativeNotation()) {
+        return _parseDerivative();
+      }
+
+      // Otherwise, parse as a regular fraction
+      final numerator = parseExpression();
+      consume(TokenType.rparen, "Expected '}' after numerator");
+
+      consume(TokenType.lparen, "Expected '{' after numerator");
+      final denominator = parseExpression();
+      consume(TokenType.rparen, "Expected '}' after denominator");
+
+      registerNode();
+      return BinaryOp(numerator, BinaryOperator.divide, denominator);
+    } finally {
+      exitRecursion();
     }
-
-    // Otherwise, parse as a regular fraction
-    final numerator = parseExpression();
-    consume(TokenType.rparen, "Expected '}' after numerator");
-
-    consume(TokenType.lparen, "Expected '{' after numerator");
-    final denominator = parseExpression();
-    consume(TokenType.rparen, "Expected '}' after denominator");
-
-    return BinaryOp(numerator, BinaryOperator.divide, denominator);
   }
 
   /// Checks if the current fraction represents derivative notation by examining tokens.
@@ -242,6 +259,7 @@ mixin PrimaryParserMixin on BaseParser {
     final body = parseExpression();
     consume(TokenType.rparen, "Expected ')' after derivative body");
 
+    registerNode();
     return DerivativeExpr(body, variable, order: order);
   }
 
@@ -254,6 +272,7 @@ mixin PrimaryParserMixin on BaseParser {
     final k = parseExpression();
     consume(TokenType.rparen, "Expected '}' after k");
 
+    registerNode();
     return FunctionCall.multivar('binom', [n, k]);
   }
 }

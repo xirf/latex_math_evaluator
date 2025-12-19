@@ -23,6 +23,7 @@ mixin MatrixParserMixin on BaseParser {
       if (check(TokenType.ampersand) ||
           check(TokenType.backslash) ||
           check(TokenType.end)) {
+        registerNode();
         currentRow.add(NumberLiteral(0.0));
       } else {
         currentRow.add(parseExpression());
@@ -59,6 +60,7 @@ mixin MatrixParserMixin on BaseParser {
       );
     }
 
+    registerNode();
     return MatrixExpr(rows);
   }
 }

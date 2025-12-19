@@ -47,6 +47,22 @@ class EvaluationVisitor
     _integrationEvaluator = IntegrationEvaluator();
   }
 
+  int _recursionDepth = 0;
+  static const int maxRecursionDepth = 500;
+
+  void _enterRecursion() {
+    if (++_recursionDepth > maxRecursionDepth) {
+      throw EvaluatorException(
+        'Maximum evaluation depth exceeded',
+        suggestion: 'Simplify your expression to reduce its complexity',
+      );
+    }
+  }
+
+  void _exitRecursion() {
+    _recursionDepth--;
+  }
+
   /// Gets the differentiation evaluator (for internal use by public API).
   DifferentiationEvaluator get differentiationEvaluator =>
       _differentiationEvaluator;
@@ -56,7 +72,12 @@ class EvaluationVisitor
 
   /// Helper to evaluate an expression and get a raw result.
   dynamic _evaluateRaw(Expression expr, Map<String, double> variables) {
-    return expr.accept(this, variables);
+    _enterRecursion();
+    try {
+      return expr.accept(this, variables);
+    } finally {
+      _exitRecursion();
+    }
   }
 
   /// Helper to evaluate an expression as a double.
@@ -152,6 +173,19 @@ class EvaluationVisitor
       }
     }
 
+    // Try custom extensions first
+    if (_extensions != null) {
+      final result = _extensions!.tryEvaluate(
+        node,
+        variables,
+        (e) => _evaluateRaw(e, variables),
+      );
+      if (result != null) {
+        return result;
+      }
+    }
+
+    // Fall back to built-in functions
     return FunctionRegistry.instance.evaluate(
       node,
       variables,

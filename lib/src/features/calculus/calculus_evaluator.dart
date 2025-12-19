@@ -12,6 +12,21 @@ class CalculusEvaluator {
   /// Creates a calculus evaluator with a callback for evaluating expressions.
   CalculusEvaluator(this._evaluateAsDouble);
 
+  /// Maximum allowed iterations for sums and products.
+  static const int maxIterations = 100000;
+
+  void _checkIterations(int start, int end) {
+    if (end < start) return; // Loop won't execute
+    final count = end - start + 1;
+    if (count > maxIterations) {
+      throw EvaluatorException(
+        'Iteration limit exceeded: $count iterations (max $maxIterations)',
+        suggestion:
+            'Reduce the range of your sum or product to fewer than $maxIterations iterations',
+      );
+    }
+  }
+
   /// Evaluates a limit expression.
   double evaluateLimit(LimitExpr limit, Map<String, double> variables) {
     final targetValue = _evaluateAsDouble(limit.target, variables);
@@ -101,6 +116,8 @@ class CalculusEvaluator {
     final startVal = _evaluateAsDouble(sum.start, variables).toInt();
     final endVal = _evaluateAsDouble(sum.end, variables).toInt();
 
+    _checkIterations(startVal, endVal);
+
     double result = 0;
     for (int i = startVal; i <= endVal; i++) {
       final vars = Map<String, double>.from(variables);
@@ -115,6 +132,8 @@ class CalculusEvaluator {
   double evaluateProduct(ProductExpr prod, Map<String, double> variables) {
     final startVal = _evaluateAsDouble(prod.start, variables).toInt();
     final endVal = _evaluateAsDouble(prod.end, variables).toInt();
+
+    _checkIterations(startVal, endVal);
 
     double result = 1;
     for (int i = startVal; i <= endVal; i++) {
