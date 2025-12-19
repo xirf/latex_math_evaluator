@@ -23,3 +23,6 @@ const double zeta3 = 1.2020569031595943;
 
 /// G - Gravitational constant (m³/(kg·s²))
 const double gravitationalConstant = 6.67430e-11;
+
+/// Infinity
+const double infty = double.infinity;

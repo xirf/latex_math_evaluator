@@ -8,12 +8,13 @@ mixin FunctionParserMixin on BaseParser {
   Expression parseFunctionCall() {
     enterRecursion();
     try {
+      // Note: function token was already consumed by match1(TokenType.function) in parsePrimary
       final name = tokens[position - 1].value;
       Expression? base;
       Expression? optionalParam;
 
       // Check for optional parameter in square brackets (e.g., \sqrt[3]{x})
-      if (match([TokenType.lbracket])) {
+      if (match1(TokenType.lbracket)) {
         optionalParam = parseExpression();
         consume(TokenType.rbracket, "Expected ']' after optional parameter");
       }
@@ -23,7 +24,7 @@ mixin FunctionParserMixin on BaseParser {
         consume(TokenType.lparen, "Expected '{' after \\$name");
         final components = <Expression>[];
         components.add(parseExpression());
-        while (match([TokenType.comma])) {
+        while (match1(TokenType.comma)) {
           components.add(parseExpression());
         }
         consume(TokenType.rparen, "Expected '}' after vector components");
@@ -31,7 +32,7 @@ mixin FunctionParserMixin on BaseParser {
         return VectorExpr(components, isUnitVector: name == 'hat');
       }
 
-      if (match([TokenType.underscore])) {
+      if (match1(TokenType.underscore)) {
         consume(TokenType.lparen, "Expected '{' after '_'");
         base = parseExpression();
         consume(TokenType.rparen, "Expected '}' after base");
@@ -41,7 +42,7 @@ mixin FunctionParserMixin on BaseParser {
       if (check(TokenType.lparen)) {
         advance();
         args.add(parseExpression());
-        while (match([TokenType.comma])) {
+        while (match1(TokenType.comma)) {
           args.add(parseExpression());
         }
         consume(TokenType.rparen,
@@ -152,11 +153,11 @@ mixin FunctionParserMixin on BaseParser {
 
     // Handle bounds (optional, loop to allow _ then ^ or ^ then _)
     while (check(TokenType.underscore) || check(TokenType.power)) {
-      if (match([TokenType.underscore])) {
+      if (match1(TokenType.underscore)) {
         consume(TokenType.lparen, "Expected '{' after '_'");
         lower = parseExpression();
         consume(TokenType.rparen, "Expected '}' after lower bound");
-      } else if (match([TokenType.power])) {
+      } else if (match1(TokenType.power)) {
         consume(TokenType.lparen, "Expected '{' after '^'");
         upper = parseExpression();
         consume(TokenType.rparen, "Expected '}' after upper bound");

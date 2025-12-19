@@ -43,7 +43,7 @@ class Tokenizer {
       if (_isAtEnd) break;
 
       final token = _nextToken();
-      if (token != null) {
+      if (token != null && token.type != TokenType.spacing) {
         tokens.add(token);
       }
     }
@@ -188,8 +188,12 @@ class Tokenizer {
       }
     }
 
+    final valueStr = buffer.toString();
     return Token(
-        type: TokenType.number, value: buffer.toString(), position: startPos);
+        type: TokenType.number,
+        value: valueStr,
+        position: startPos,
+        numberValue: double.parse(valueStr));
   }
 
   Token? _readLatexCommand() {
@@ -221,6 +225,13 @@ class Tokenizer {
     if (_current == '}') {
       _position++;
       return Token(type: TokenType.rparen, value: '}', position: startPos);
+    }
+
+    // Handle punctuation spacing commands (\, \; \: \! \ )
+    if (const [',', ';', ':', '!', ' '].contains(_current)) {
+      final value = _current;
+      _position++;
+      return Token(type: TokenType.spacing, value: value, position: startPos);
     }
 
     final buffer = StringBuffer();

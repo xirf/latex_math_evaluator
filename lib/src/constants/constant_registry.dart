@@ -43,6 +43,7 @@ class ConstantRegistry {
     register('delta', mathematical.delta);
     register('zeta3', mathematical.zeta3);
     register('G', mathematical.gravitationalConstant);
+    register('infty', mathematical.infty);
 
     // Common values
     register('sqrt2', common.sqrt2);

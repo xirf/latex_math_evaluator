@@ -62,6 +62,25 @@ abstract class BaseParser {
     return false;
   }
 
+  @pragma('vm:prefer-inline')
+  bool match1(TokenType type) {
+    if (check(type)) {
+      advance();
+      return true;
+    }
+    return false;
+  }
+
+  @pragma('vm:prefer-inline')
+  Token? matchToken(TokenType type) {
+    if (check(type)) {
+      final t = current;
+      advance();
+      return t;
+    }
+    return null;
+  }
+
   Token consume(TokenType type, String message) {
     if (check(type)) return advance();
     throw ParserException(
@@ -93,6 +112,13 @@ abstract class BaseParser {
     }
     consume(TokenType.rparen, "Expected '}'");
     return buffer.toString();
+  }
+
+  Expression parseLatexArgumentExpr() {
+    consume(TokenType.lparen, "Expected '{'");
+    final expr = parseExpression();
+    consume(TokenType.rparen, "Expected '}'");
+    return expr;
   }
 
   // Abstract methods for mutual recursion

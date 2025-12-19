@@ -20,14 +20,13 @@ mixin ExpressionParserMixin on BaseParser {
     final expressions = <Expression>[left];
     final operators = <ComparisonOperator>[];
 
-    while (match([
-      TokenType.less,
-      TokenType.greater,
-      TokenType.lessEqual,
-      TokenType.greaterEqual,
-      TokenType.equals
-    ])) {
-      final operator = tokens[position - 1];
+    Token? mt;
+    while ((mt = matchToken(TokenType.less)) != null ||
+        (mt = matchToken(TokenType.greater)) != null ||
+        (mt = matchToken(TokenType.lessEqual)) != null ||
+        (mt = matchToken(TokenType.greaterEqual)) != null ||
+        (mt = matchToken(TokenType.equals)) != null) {
+      final operator = mt!;
       final right = parsePlusMinus();
 
       ComparisonOperator op;
@@ -74,8 +73,10 @@ mixin ExpressionParserMixin on BaseParser {
   Expression parsePlusMinus() {
     var left = parseTerm();
 
-    while (match([TokenType.plus, TokenType.minus])) {
-      final operator = tokens[position - 1];
+    Token? mt;
+    while ((mt = matchToken(TokenType.plus)) != null ||
+        (mt = matchToken(TokenType.minus)) != null) {
+      final operator = mt!;
       final right = parseTerm();
 
       registerNode();
@@ -95,9 +96,11 @@ mixin ExpressionParserMixin on BaseParser {
   Expression parseTerm() {
     var left = parsePower();
 
+    Token? mt;
     while (true) {
-      if (match([TokenType.multiply, TokenType.divide])) {
-        final operator = tokens[position - 1];
+      if ((mt = matchToken(TokenType.multiply)) != null ||
+          (mt = matchToken(TokenType.divide)) != null) {
+        final operator = mt!;
         final right = parsePower();
 
         registerNode();
@@ -132,6 +135,7 @@ mixin ExpressionParserMixin on BaseParser {
         check(TokenType.sum) ||
         check(TokenType.prod) ||
         check(TokenType.frac) ||
+        check(TokenType.text) ||
         check(TokenType.infty);
   }
 
@@ -141,7 +145,7 @@ mixin ExpressionParserMixin on BaseParser {
     try {
       var left = parseUnary();
 
-      if (match([TokenType.power])) {
+      if (match1(TokenType.power)) {
         if (check(TokenType.lparen) && current.value == '{') {
           advance();
           final right = parseExpression();
@@ -165,7 +169,7 @@ mixin ExpressionParserMixin on BaseParser {
   Expression parseUnary() {
     enterRecursion();
     try {
-      if (match([TokenType.minus])) {
+      if (match1(TokenType.minus)) {
         final operand = parseUnary();
         registerNode();
         return UnaryOp(UnaryOperator.negate, operand);

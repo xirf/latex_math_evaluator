@@ -98,21 +98,27 @@ class LatexCommandRegistry {
     _commands['hat'] = TokenType.function;
   }
 
-  /// Registers Greek letters and constants.
   void _registerGreekLetters() {
     _commands['pi'] = TokenType.constant;
     _commands['tau'] = TokenType.constant;
     _commands['phi'] = TokenType.constant;
-    _commands['gamma'] = TokenType.constant;
+    _commands['gamma'] = TokenType.variable;
     _commands['Omega'] = TokenType.constant;
-    _commands['delta'] = TokenType.constant;
-    _commands['theta'] = TokenType.constant;
-    _commands['alpha'] = TokenType.constant;
-    _commands['beta'] = TokenType.constant;
-    _commands['epsilon'] = TokenType.constant;
-    _commands['lambda'] = TokenType.constant;
-    _commands['mu'] = TokenType.constant;
-    _commands['sigma'] = TokenType.constant;
+    _commands['delta'] = TokenType.variable;
+    _commands['theta'] = TokenType.variable;
+    _commands['alpha'] = TokenType.variable;
+    _commands['beta'] = TokenType.variable;
+    _commands['epsilon'] = TokenType.variable;
+    _commands['lambda'] = TokenType.variable;
+    _commands['mu'] = TokenType.variable;
+    _commands['sigma'] = TokenType.variable;
+    _commands['rho'] = TokenType.variable;
+    _commands['omega'] = TokenType.variable;
+    _commands['zeta'] = TokenType.variable;
+    _commands['eta'] = TokenType.variable;
+    _commands['kappa'] = TokenType.variable;
+    _commands['chi'] = TokenType.variable;
+    _commands['psi'] = TokenType.variable;
   }
 
   /// Registers calculus notation commands.
@@ -121,6 +127,10 @@ class LatexCommandRegistry {
     _commands['sum'] = TokenType.sum;
     _commands['prod'] = TokenType.prod;
     _commands['int'] = TokenType.int;
+    _commands['iint'] = TokenType.iint;
+    _commands['iiint'] = TokenType.iiint;
+    _commands['partial'] = TokenType.partial;
+    _commands['nabla'] = TokenType.nabla;
     _commands['to'] = TokenType.to;
     _commands['rightarrow'] = TokenType.to;
     _commands['infty'] = TokenType.infty;
@@ -153,6 +163,12 @@ class LatexCommandRegistry {
     _commands['Big'] = TokenType.ignored;
     _commands['bigg'] = TokenType.ignored;
     _commands['Bigg'] = TokenType.ignored;
+
+    // Spacing commands
+    _commands['quad'] = TokenType.spacing;
+    _commands['qquad'] = TokenType.spacing;
+    _commands['thinspace'] = TokenType.spacing;
+    _commands['negspace'] = TokenType.spacing;
 
     // Text mode
     _commands['text'] = TokenType.text;

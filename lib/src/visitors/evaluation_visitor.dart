@@ -218,10 +218,40 @@ class EvaluationVisitor
   }
 
   @override
+  dynamic visitMultiIntegralExpr(
+      MultiIntegralExpr node, Map<String, double>? context) {
+    throw EvaluatorException(
+      'Evaluation of multiple integrals is not yet supported',
+      suggestion: 'Use multiple single integrals instead',
+    );
+  }
+
+  @override
   dynamic visitDerivativeExpr(
       DerivativeExpr node, Map<String, double>? context) {
     final variables = context ?? const {};
     return _differentiationEvaluator.evaluateDerivative(node, variables);
+  }
+
+  @override
+  dynamic visitPartialDerivativeExpr(
+      PartialDerivativeExpr node, Map<String, double>? context) {
+    final variables = context ?? const {};
+    // Treat partial derivative as regular derivative for evaluation
+    final derivative =
+        DerivativeExpr(node.body, node.variable, order: node.order);
+    return _differentiationEvaluator.evaluateDerivative(derivative, variables);
+  }
+
+  @override
+  dynamic visitBinomExpr(BinomExpr node, Map<String, double>? context) {
+    final variables = context ?? const {};
+    final funcCall = FunctionCall.multivar('binom', [node.n, node.k]);
+    return FunctionRegistry.instance.evaluate(
+      funcCall,
+      variables,
+      (e) => _evaluateRaw(e, variables),
+    );
   }
 
   @override

@@ -29,7 +29,7 @@ class Parser extends BaseParser
 
     var expr = parseExpression();
 
-    if (match([TokenType.comma])) {
+    if (match1(TokenType.comma)) {
       final condition = parseExpression();
       expr = ConditionalExpr(expr, condition);
     }

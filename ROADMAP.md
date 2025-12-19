@@ -13,7 +13,7 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 
 ---
 
-## 📊 Current State (v0.1.2)
+## 📊 Current State (v0.1.4-nightly)
 
 ### ✅ Implemented Features
 
@@ -35,7 +35,7 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 - ✅ Extensible architecture for custom functions
 - ✅ Implicit multiplication support
 - ✅ LaTeX regeneration from AST (toLatex() method)
-- ✅ 390+ passing tests
+- ✅ 1000+ passing tests
 
 ---
 
@@ -83,7 +83,7 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 - [x] Symbolic definite integration with bounds evaluation
 - [x] LaTeX notation: `\int f(x) dx` returns symbolic result
 - [ ] Add 100+ integration test cases
-- [ ] Document supported integration patterns
+- [x] Document supported integration patterns
 
 **Rationale:** Currently only numerical integration via Simpson's Rule. Symbolic integration enables closed-form solutions.
 
@@ -163,19 +163,19 @@ f(x) = \begin{cases}
 
 ### 🔴 2.1 Extended LaTeX Notation Support
 
-**Status:** 🚧 On Progress | **Owner:** @xirf
+**Status:** ✅ 19/12/2025 | **Owner:** @xirf
 
 **Tasks:**
 
 - [x] `\left( \right)` - Automatic sizing delimiters
-- [ ] `\binom{n}{k}` - Binomial coefficient notation (currently only `\binom` function)
-- [ ] Multi-line equations with `\begin{align}...\end{align}`
-- [ ] `\iint`, `\iiint` - Multiple integrals
-- [ ] `\partial` - Partial derivatives
-- [ ] `\nabla` - Gradient operator
-- [ ] LaTeX spacing commands (`\,`, `\;`, `\quad`)
-- [ ] Greek letter support (α, β, γ as variables)
-- [ ] Add 200+ parser tests for new constructs
+- [x] `\binom{n}{k}` - Binomial coefficient notation
+- [x] Multi-line equations with `\begin{align}...\end{align}`
+- [x] `\iint`, `\iiint` - Multiple integrals
+- [x] `\partial` - Partial derivatives
+- [x] `\nabla` - Gradient operator
+- [x] LaTeX spacing commands (`\,`, `\;`, `\quad`)
+- [x] Greek letter support (α, β, γ as variables)
+- [x] Add 200+ parser tests for new constructs
 
 **Rationale:** Users copy expressions from papers/textbooks expecting them to work.
 
@@ -501,7 +501,7 @@ f(x) = \begin{cases}
 - [ ] Breaking change checklist
 - [ ] Version compatibility matrix
 - [ ] Automated API diff tool in CI
-- [ ] Publish roadmap for v1.0 stable
+- [x] Publish roadmap for v1.0 stable
 
 **Current State:** Pre-1.0, API changes happening frequently.
 
@@ -519,14 +519,14 @@ f(x) = \begin{cases}
 
 **Tasks:**
 
-- [ ] Achieve 95%+ code coverage (currently unknown)
-- [ ] Property-based testing expansion (fuzz testing)
+- [ ] Achieve 95%+ code coverage (currently 80%)
+- [x] Property-based testing expansion (fuzz testing)
 - [ ] Integration testing with real-world expressions corpus
-- [ ] Regression test suite (prevent re-introducing bugs)
+- [x] Regression test suite (prevent re-introducing bugs)
 - [ ] Performance regression tests
 - [ ] Coverage reports published with each release
 
-**Current State:** 390+ tests, good coverage but edge cases remain.
+**Current State:** 820+ tests, good coverage but edge cases remain.
 
 **Success Criteria:**
 
@@ -568,10 +568,10 @@ f(x) = \begin{cases}
 - [x] Trigonometric identities (Pythagorean, double-angle)
 - [x] Logarithm laws and rational simplification
 - [x] LaTeX regeneration (toLatex() method)
-- [ ] Extended LaTeX notation (`\left/\right`, `\binom`)
+- [x] Extended LaTeX notation (`\left/\right`, `\binom`, `\iint`, `\partial`, `\nabla`, Greek letters)
 - [ ] Enhanced complex number support
 - [ ] Improved error messages
-- [x] 500+ tests (currently 700+ passing)
+- [x] 1000+ tests
 
 ### v0.3.0 - Integration & Tooling (Target: Q2 2026)
 

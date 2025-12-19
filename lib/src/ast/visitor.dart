@@ -54,7 +54,10 @@ abstract class ExpressionVisitor<R, C> {
   R visitSumExpr(SumExpr node, C? context);
   R visitProductExpr(ProductExpr node, C? context);
   R visitIntegralExpr(IntegralExpr node, C? context);
+  R visitMultiIntegralExpr(MultiIntegralExpr node, C? context);
   R visitDerivativeExpr(DerivativeExpr node, C? context);
+  R visitPartialDerivativeExpr(PartialDerivativeExpr node, C? context);
+  R visitBinomExpr(BinomExpr node, C? context);
 
   // Logic
   R visitComparison(Comparison node, C? context);
