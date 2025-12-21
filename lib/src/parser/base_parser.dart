@@ -6,6 +6,7 @@ abstract class BaseParser {
   final List<Token> tokens;
   String? sourceExpression;
   int position = 0;
+  final List<String> delimiterStack = [];
 
   BaseParser(this.tokens, [this.sourceExpression]);
 
@@ -51,6 +52,16 @@ abstract class BaseParser {
       return 'Add a closing parenthesis ) or check for matching parentheses';
     }
     return null;
+  }
+
+  Expression parseWithDelimiter(
+      String delimiter, Expression Function() parser) {
+    delimiterStack.add(delimiter);
+    try {
+      return parser();
+    } finally {
+      delimiterStack.removeLast();
+    }
   }
 
   String parseLatexArgument() {

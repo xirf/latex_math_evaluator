@@ -15,12 +15,7 @@ class AbsoluteValue extends Expression {
 
   @override
   R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
-    // AbsoluteValue is a special case of FunctionCall
-    // We'll visit it as a function call with name 'abs'
-    return visitor.visitFunctionCall(
-      FunctionCall('abs', argument),
-      context,
-    );
+    return visitor.visitAbsoluteValue(this, context);
   }
 
   @override

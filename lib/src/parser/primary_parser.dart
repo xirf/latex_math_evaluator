@@ -56,23 +56,33 @@ mixin PrimaryParserMixin on BaseParser {
     }
 
     if (match([TokenType.pipe])) {
-      final expr = parseExpression();
+      final expr = parseWithDelimiter('|', parseExpression);
       consume(TokenType.pipe, "Expected '|' after absolute value expression");
       return AbsoluteValue(expr);
     }
 
     if (match([TokenType.lparen])) {
-      final closingChar = tokens[position - 1].value == '(' ? ')' : '}';
-      final expr = parseExpression();
+      final openToken = tokens[position - 1].value;
+      final closingChar = openToken == '('
+          ? ')'
+          : openToken == '{'
+              ? '}'
+              : openToken == '['
+                  ? ']'
+                  : '';
 
-      if (!check(TokenType.rparen)) {
+      final expr = parseWithDelimiter(closingChar, parseExpression);
+
+      if (!check(TokenType.rparen) && !check(TokenType.rbracket)) {
         throw ParserException(
           "Expected '$closingChar'",
           position: current.position,
           expression: sourceExpression,
           suggestion: closingChar == ')'
               ? 'Add a closing parenthesis ) to match the opening'
-              : 'Add a closing brace } to match the opening',
+              : closingChar == '}'
+                  ? 'Add a closing brace } to match the opening'
+                  : 'Add a closing bracket ] to match the opening',
         );
       }
       advance();
@@ -81,7 +91,7 @@ mixin PrimaryParserMixin on BaseParser {
           check(TokenType.lparen) &&
           current.value == '{') {
         advance();
-        final condition = parseExpression();
+        final condition = parseWithDelimiter('}', parseExpression);
         consume(TokenType.rparen, "Expected '}' after condition");
         return ConditionalExpr(expr, condition);
       }
@@ -107,11 +117,11 @@ mixin PrimaryParserMixin on BaseParser {
     }
 
     // Otherwise, parse as a regular fraction
-    final numerator = parseExpression();
+    final numerator = parseWithDelimiter('}', parseExpression);
     consume(TokenType.rparen, "Expected '}' after numerator");
 
     consume(TokenType.lparen, "Expected '{' after numerator");
-    final denominator = parseExpression();
+    final denominator = parseWithDelimiter('}', parseExpression);
     consume(TokenType.rparen, "Expected '}' after denominator");
 
     return BinaryOp(numerator, BinaryOperator.divide, denominator);
@@ -238,11 +248,17 @@ mixin PrimaryParserMixin on BaseParser {
     consume(TokenType.rparen, "Expected '}' after derivative denominator");
 
     // Now parse the function body in parentheses
-    consume(TokenType.lparen, "Expected '(' after derivative operator");
-    final body = parseExpression();
-    consume(TokenType.rparen, "Expected ')' after derivative body");
-
-    return DerivativeExpr(body, variable, order: order);
+    if (check(TokenType.lparen)) {
+      final openToken = current.value;
+      final closeToken = openToken == '(' ? ')' : '}';
+      advance();
+      final body = parseWithDelimiter(closeToken, parseExpression);
+      consume(TokenType.rparen, "Expected '$closeToken' after derivative body");
+      return DerivativeExpr(body, variable, order: order);
+    } else {
+      final body = parseExpression();
+      return DerivativeExpr(body, variable, order: order);
+    }
   }
 
   Expression parseBinom() {

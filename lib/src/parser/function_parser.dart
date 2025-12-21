@@ -30,16 +30,18 @@ mixin FunctionParserMixin on BaseParser {
 
     if (match([TokenType.underscore])) {
       consume(TokenType.lparen, "Expected '{' after '_'");
-      base = parseExpression();
+      base = parseWithDelimiter('}', parseExpression);
       consume(TokenType.rparen, "Expected '}' after base");
     }
 
     List<Expression> args = [];
     if (check(TokenType.lparen)) {
+      final openToken = current.value;
+      final closeToken = openToken == '(' ? ')' : '}';
       advance();
-      args.add(parseExpression());
+      args.add(parseWithDelimiter(closeToken, parseExpression));
       while (match([TokenType.comma])) {
-        args.add(parseExpression());
+        args.add(parseWithDelimiter(closeToken, parseExpression));
       }
       consume(TokenType.rparen,
           "Expected closing brace/paren after function argument");
@@ -65,7 +67,7 @@ mixin FunctionParserMixin on BaseParser {
 
     consume(TokenType.to, "Expected '\\to' in limit");
 
-    final target = parseExpression();
+    final target = parseWithDelimiter('}', parseExpression);
 
     consume(TokenType.rparen, "Expected '}' after limit subscript");
 
@@ -84,14 +86,14 @@ mixin FunctionParserMixin on BaseParser {
 
     consume(TokenType.equals, "Expected '=' after variable");
 
-    final start = parseExpression();
+    final start = parseWithDelimiter('}', parseExpression);
 
     consume(TokenType.rparen, "Expected '}' after start value");
 
     consume(TokenType.power, "Expected '^' after sum subscript");
     consume(TokenType.lparen, "Expected '{' after '^'");
 
-    final end = parseExpression();
+    final end = parseWithDelimiter('}', parseExpression);
 
     consume(TokenType.rparen, "Expected '}' after end value");
 
@@ -111,14 +113,14 @@ mixin FunctionParserMixin on BaseParser {
 
     consume(TokenType.equals, "Expected '=' after variable");
 
-    final start = parseExpression();
+    final start = parseWithDelimiter('}', parseExpression);
 
     consume(TokenType.rparen, "Expected '}' after start value");
 
     consume(TokenType.power, "Expected '^' after product subscript");
     consume(TokenType.lparen, "Expected '{' after '^'");
 
-    final end = parseExpression();
+    final end = parseWithDelimiter('}', parseExpression);
 
     consume(TokenType.rparen, "Expected '}' after end value");
 
@@ -131,12 +133,12 @@ mixin FunctionParserMixin on BaseParser {
   Expression parseIntegralExpr() {
     consume(TokenType.underscore, "Expected '_' after \\int");
     consume(TokenType.lparen, "Expected '{' after '_'");
-    final lower = parseExpression();
+    final lower = parseWithDelimiter('}', parseExpression);
     consume(TokenType.rparen, "Expected '}' after lower bound");
 
     consume(TokenType.power, "Expected '^' after integral subscript");
     consume(TokenType.lparen, "Expected '{' after '^'");
-    final upper = parseExpression();
+    final upper = parseWithDelimiter('}', parseExpression);
     consume(TokenType.rparen, "Expected '}' after upper bound");
 
     final fullBody = parseExpression();
