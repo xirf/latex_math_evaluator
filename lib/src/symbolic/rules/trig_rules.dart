@@ -75,7 +75,8 @@ class DoubleAngleSinRule extends RewriteRule {
   @override
   RuleCategory get category => RuleCategory.expansion;
   @override
-  bool matches(Expression expr, {Assumptions? assumptions}) => _matchDoubleAngle(expr, 'sin');
+  bool matches(Expression expr, {Assumptions? assumptions}) =>
+      _matchDoubleAngle(expr, 'sin');
   @override
   Expression apply(Expression expr, {Assumptions? assumptions}) {
     final arg = _isDoubleAngle((expr as FunctionCall).args[0])!;
@@ -94,7 +95,8 @@ class DoubleAngleCosRule extends RewriteRule {
   @override
   RuleCategory get category => RuleCategory.expansion;
   @override
-  bool matches(Expression expr, {Assumptions? assumptions}) => _matchDoubleAngle(expr, 'cos');
+  bool matches(Expression expr, {Assumptions? assumptions}) =>
+      _matchDoubleAngle(expr, 'cos');
   @override
   Expression apply(Expression expr, {Assumptions? assumptions}) {
     final arg = _isDoubleAngle((expr as FunctionCall).args[0])!;
@@ -110,10 +112,13 @@ class DoubleAngleCosRule extends RewriteRule {
 Expression? _isDoubleAngle(Expression expr) {
   // Check for 2*x or x*2
   if (expr is BinaryOp && expr.operator == BinaryOperator.multiply) {
-    if (expr.left is NumberLiteral && (expr.left as NumberLiteral).value == 2)
+    if (expr.left is NumberLiteral && (expr.left as NumberLiteral).value == 2) {
       return expr.right;
-    if (expr.right is NumberLiteral && (expr.right as NumberLiteral).value == 2)
+    }
+    if (expr.right is NumberLiteral &&
+        (expr.right as NumberLiteral).value == 2) {
       return expr.left;
+    }
   }
   return null;
 }
@@ -125,7 +130,8 @@ class HalfAngleSinRule extends RewriteRule {
   @override
   RuleCategory get category => RuleCategory.expansion;
   @override
-  bool matches(Expression expr, {Assumptions? assumptions}) => _matchHalfAngle(expr, 'sin');
+  bool matches(Expression expr, {Assumptions? assumptions}) =>
+      _matchHalfAngle(expr, 'sin');
   @override
   Expression apply(Expression expr, {Assumptions? assumptions}) {
     final arg = _extractHalfAngleArg((expr as FunctionCall).args[0])!;
@@ -147,7 +153,8 @@ class HalfAngleCosRule extends RewriteRule {
   @override
   RuleCategory get category => RuleCategory.expansion;
   @override
-  bool matches(Expression expr, {Assumptions? assumptions}) => _matchHalfAngle(expr, 'cos');
+  bool matches(Expression expr, {Assumptions? assumptions}) =>
+      _matchHalfAngle(expr, 'cos');
   @override
   Expression apply(Expression expr, {Assumptions? assumptions}) {
     final arg = _extractHalfAngleArg((expr as FunctionCall).args[0])!;
@@ -169,7 +176,8 @@ class HalfAngleTanRule extends RewriteRule {
   @override
   RuleCategory get category => RuleCategory.expansion;
   @override
-  bool matches(Expression expr, {Assumptions? assumptions}) => _matchHalfAngle(expr, 'tan');
+  bool matches(Expression expr, {Assumptions? assumptions}) =>
+      _matchHalfAngle(expr, 'tan');
   @override
   Expression apply(Expression expr, {Assumptions? assumptions}) {
     final arg = _extractHalfAngleArg((expr as FunctionCall).args[0])!;
@@ -199,9 +207,13 @@ Expression? _extractHalfAngleArg(Expression expr) {
     }
     if (expr.operator == BinaryOperator.multiply) {
       if (expr.right is NumberLiteral &&
-          (expr.right as NumberLiteral).value == 0.5) return expr.left;
+          (expr.right as NumberLiteral).value == 0.5) {
+        return expr.left;
+      }
       if (expr.left is NumberLiteral &&
-          (expr.left as NumberLiteral).value == 0.5) return expr.right;
+          (expr.left as NumberLiteral).value == 0.5) {
+        return expr.right;
+      }
     }
   }
   return null;
@@ -259,8 +271,9 @@ bool _isNegated(Expression expr) {
 }
 
 Expression? _extractNegatedArg(Expression expr) {
-  if (expr is UnaryOp && expr.operator == UnaryOperator.negate)
+  if (expr is UnaryOp && expr.operator == UnaryOperator.negate) {
     return expr.operand;
+  }
   return null;
 }
 
@@ -271,7 +284,8 @@ class DoubleAngleTanRule extends RewriteRule {
   @override
   RuleCategory get category => RuleCategory.expansion;
   @override
-  bool matches(Expression expr, {Assumptions? assumptions}) => _matchDoubleAngle(expr, 'tan');
+  bool matches(Expression expr, {Assumptions? assumptions}) =>
+      _matchDoubleAngle(expr, 'tan');
   @override
   Expression apply(Expression expr, {Assumptions? assumptions}) {
     final arg = _isDoubleAngle((expr as FunctionCall).args[0])!;

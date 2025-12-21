@@ -55,12 +55,13 @@ class TrigEvaluationRule extends RewriteRule {
         expr.args[0] is NumberLiteral) {
       final val = (expr.args[0] as NumberLiteral).value;
       final name = expr.name;
-      if (val == 0)
+      if (val == 0) {
         return name == 'sin' ||
             name == 'cos' ||
             name == 'tan' ||
             name == 'asin' ||
             name == 'atan';
+      }
       // Add pi/2 etc if needed, but 0 is most common
     }
     return false;

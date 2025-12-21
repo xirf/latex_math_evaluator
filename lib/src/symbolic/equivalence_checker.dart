@@ -1,6 +1,5 @@
 import 'dart:math';
 import '../ast.dart';
-import '../visitors/evaluation_visitor.dart';
 import 'normalizer.dart';
 
 enum EquivalenceLevel {
