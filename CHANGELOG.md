@@ -9,6 +9,13 @@
   - Expansion of expressions (distributive property)
   - Factorization of expressions
   - Symbolic algebra support for mathematical operations
+- **Reduced Planck Constant Support**: Added `\hbar` to built-in commands and constants.
+
+### Improved
+
+- **Improve Delimiter Parsing**: Implemented a delimiter stack in the parser to correctly handle nested `\left/\right` delimiters and absolute value pipes `|`.
+- **Improve Implicit Multiplication**: The parser now correctly recognizes when implicit multiplication should stop before a closing delimiter.
+- **Improve Calculus Evaluation**: Increased numeric tolerance for limit evaluation to handle edge cases in floating-point approximations.
 
 ### Changed
 

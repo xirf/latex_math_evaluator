@@ -3,18 +3,24 @@ library;
 
 import '../../ast.dart';
 import '../../exceptions.dart';
+import '../../complex.dart';
 
 /// Handles evaluation of calculus operations.
 class CalculusEvaluator {
   /// Callback to evaluate arbitrary expressions.
-  final double Function(Expression, Map<String, double>) _evaluateAsDouble;
+  final dynamic Function(Expression, Map<String, double>) _evaluate;
 
   /// Creates a calculus evaluator with a callback for evaluating expressions.
-  CalculusEvaluator(this._evaluateAsDouble);
+  CalculusEvaluator(this._evaluate);
 
   /// Evaluates a limit expression.
-  double evaluateLimit(LimitExpr limit, Map<String, double> variables) {
-    final targetValue = _evaluateAsDouble(limit.target, variables);
+  dynamic evaluateLimit(LimitExpr limit, Map<String, double> variables) {
+    final targetValue = _evaluate(limit.target, variables);
+
+    if (targetValue is! double) {
+      // Simple fallback for now
+      throw EvaluatorException('Limits only supported for real targets');
+    }
 
     // Handle infinity
     if (targetValue.isInfinite) {
@@ -22,18 +28,18 @@ class CalculusEvaluator {
     }
 
     // Numeric approximation: evaluate approaching from both sides
-    const epsilon = 1e-10;
+    const epsilon = 1e-7;
     const steps = [1e-1, 1e-3, 1e-5, 1e-7, 1e-9];
 
-    double? leftApproach;
-    double? rightApproach;
+    dynamic leftApproach;
+    dynamic rightApproach;
 
     // Approach from left
     for (final h in steps) {
       final vars = Map<String, double>.from(variables);
       vars[limit.variable] = targetValue - h;
       try {
-        leftApproach = _evaluateAsDouble(limit.body, vars);
+        leftApproach = _evaluate(limit.body, vars);
       } catch (_) {
         // Continue to next step
       }
@@ -44,22 +50,27 @@ class CalculusEvaluator {
       final vars = Map<String, double>.from(variables);
       vars[limit.variable] = targetValue + h;
       try {
-        rightApproach = _evaluateAsDouble(limit.body, vars);
+        rightApproach = _evaluate(limit.body, vars);
       } catch (_) {
         // Continue to next step
       }
     }
 
-    // If both sides converge to similar values
+    // If only one side works, use that
+    if (leftApproach != null && rightApproach == null) return leftApproach;
+    if (rightApproach != null && leftApproach == null) return rightApproach;
+
     if (leftApproach != null && rightApproach != null) {
-      if ((leftApproach - rightApproach).abs() < epsilon) {
-        return (leftApproach + rightApproach) / 2;
+      if (leftApproach is double && rightApproach is double) {
+        if ((leftApproach - rightApproach).abs() < epsilon) {
+          return (leftApproach + rightApproach) / 2;
+        }
+      } else if (leftApproach is Complex && rightApproach is Complex) {
+        if ((leftApproach - rightApproach).abs < epsilon) {
+          return (leftApproach + rightApproach) * 0.5;
+        }
       }
     }
-
-    // If only one side works, use that
-    if (leftApproach != null) return leftApproach;
-    if (rightApproach != null) return rightApproach;
 
     throw EvaluatorException(
       'Limit does not exist or cannot be computed',
@@ -68,19 +79,19 @@ class CalculusEvaluator {
     );
   }
 
-  double _evaluateLimitAtInfinity(
+  dynamic _evaluateLimitAtInfinity(
     LimitExpr limit,
     Map<String, double> variables,
     bool positive,
   ) {
     const steps = [1e2, 1e4, 1e6, 1e8];
-    double? lastValue;
+    dynamic lastValue;
 
     for (final n in steps) {
       final vars = Map<String, double>.from(variables);
       vars[limit.variable] = positive ? n : -n;
       try {
-        lastValue = _evaluateAsDouble(limit.body, vars);
+        lastValue = _evaluate(limit.body, vars);
       } catch (_) {
         // Continue
       }
@@ -97,65 +108,116 @@ class CalculusEvaluator {
   }
 
   /// Evaluates a summation expression.
-  double evaluateSum(SumExpr sum, Map<String, double> variables) {
-    final startVal = _evaluateAsDouble(sum.start, variables).toInt();
-    final endVal = _evaluateAsDouble(sum.end, variables).toInt();
+  dynamic evaluateSum(SumExpr sum, Map<String, double> variables) {
+    final startVal = (_evaluate(sum.start, variables) as num).toInt();
+    final endVal = (_evaluate(sum.end, variables) as num).toInt();
 
-    double result = 0;
+    dynamic result = 0.0;
+    bool isFirst = true;
+
     for (int i = startVal; i <= endVal; i++) {
       final vars = Map<String, double>.from(variables);
       vars[sum.variable] = i.toDouble();
-      result += _evaluateAsDouble(sum.body, vars);
+      final val = _evaluate(sum.body, vars);
+
+      if (isFirst) {
+        result = val;
+        isFirst = false;
+      } else {
+        if (result is double) {
+          result += (val as num);
+        } else if (result is Complex) {
+          result += (val is Complex ? val : Complex.fromNum(val as num));
+        }
+      }
     }
 
     return result;
   }
 
   /// Evaluates a product expression.
-  double evaluateProduct(ProductExpr prod, Map<String, double> variables) {
-    final startVal = _evaluateAsDouble(prod.start, variables).toInt();
-    final endVal = _evaluateAsDouble(prod.end, variables).toInt();
+  dynamic evaluateProduct(ProductExpr prod, Map<String, double> variables) {
+    final startVal = (_evaluate(prod.start, variables) as num).toInt();
+    final endVal = (_evaluate(prod.end, variables) as num).toInt();
 
-    double result = 1;
+    dynamic result = 1.0;
+
     for (int i = startVal; i <= endVal; i++) {
       final vars = Map<String, double>.from(variables);
       vars[prod.variable] = i.toDouble();
-      result *= _evaluateAsDouble(prod.body, vars);
+      final val = _evaluate(prod.body, vars);
+
+      if (result is double) {
+        result *= (val as num);
+      } else if (result is Complex) {
+        result *= (val is Complex ? val : Complex.fromNum(val as num));
+      }
     }
 
     return result;
   }
 
   /// Evaluates an integral expression using Simpson's rule.
-  double evaluateIntegral(IntegralExpr expr, Map<String, double> variables) {
-    final lower = _evaluateAsDouble(expr.lower, variables);
-    final upper = _evaluateAsDouble(expr.upper, variables);
+  dynamic evaluateIntegral(IntegralExpr expr, Map<String, double> variables) {
+    var lower = _evaluate(expr.lower, variables);
+    var upper = _evaluate(expr.upper, variables);
 
-    final n = 1000; // Number of intervals (must be even for Simpson's)
+    if (lower is! num || upper is! num) {
+      throw EvaluatorException('Integral bounds must be numeric');
+    }
+
+    // Handle Improper Integrals (infinite bounds)
+    // Basic approximation: Replace infinity with large number
+    // For most functions decaying at infinity, +/- 100 is sufficient range
+    const largeNumber = 100.0;
+    if (lower == double.negativeInfinity) lower = -largeNumber;
+    if (upper == double.infinity) upper = largeNumber;
+
+    final n = 10000; // Increase steps for better accuracy
     final h = (upper - lower) / n;
 
-    double sum = 0.0;
-
     // Helper to evaluate body at x
-    double f(double x) {
+    dynamic f(dynamic x) {
       final newVars = Map<String, double>.from(variables);
-      newVars[expr.variable] = x;
-      return _evaluateAsDouble(expr.body, newVars);
+      if (x is num) {
+        newVars[expr.variable] = x.toDouble();
+      } else {
+        throw EvaluatorException('Integration variable must be numeric');
+      }
+      return _evaluate(expr.body, newVars);
     }
 
     // Simpson's Rule
-    sum += f(lower);
-    sum += f(upper);
+    dynamic sum = 0.0;
+
+    final fLower = f(lower);
+    if (fLower is Complex) {
+      sum = Complex(0, 0); // Initialize sum as Complex if needed
+    }
+
+    sum = _addToSum(sum, fLower, 1);
+    sum = _addToSum(sum, f(upper), 1);
 
     for (var i = 1; i < n; i++) {
       final x = lower + i * h;
-      if (i % 2 == 0) {
-        sum += 2 * f(x);
-      } else {
-        sum += 4 * f(x);
-      }
+      final weight = (i % 2 == 0) ? 2 : 4;
+      sum = _addToSum(sum, f(x), weight);
     }
 
-    return (h / 3) * sum;
+    if (sum is double) return (h / 3) * sum;
+    if (sum is Complex) return sum * (h / 3);
+    return sum; // Should not happen
+  }
+
+  dynamic _addToSum(dynamic sum, dynamic val, int weight) {
+    if (sum is double) {
+      if (val is num) return sum + (weight * val).toDouble();
+      if (val is Complex) return Complex.fromNum(sum) + val * weight;
+    }
+    if (sum is Complex) {
+      if (val is num) return sum + Complex.fromNum(val * weight);
+      if (val is Complex) return sum + val * weight;
+    }
+    return sum;
   }
 }

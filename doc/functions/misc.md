@@ -36,9 +36,9 @@ Returns e^x (e raised to the power x).
 \exp{2}          -> 7.38905...
 ```
 
-## `\abs{x}` / `|x|` - Absolute Value
+## `\abs{x}` / `|x|` - Absolute Value / Magnitude
 
-Returns the absolute value of x.
+Returns the absolute value of x (or magnitude if x is a vector).
 
 **Syntax**: `\abs{x}` or `|x|` (pipe notation)
 
@@ -49,6 +49,8 @@ Returns the absolute value of x.
 |-5|             -> 5
 |x^2 - 4|        -> depends on x
 ||x||            -> |x| (nested)
+|\vec{3, 4}|     -> 5.0 (vector magnitude)
+\abs{\vec{1, 1}} -> 1.414...
 ```
 
 ## `\sgn{x}` - Sign Function

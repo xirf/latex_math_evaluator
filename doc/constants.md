@@ -6,6 +6,7 @@ Constants are used as fallback when a variable is not provided by the user.
 
 | Name    | Symbol | Value            | Description            |
 | ------- | ------ | ---------------- | ---------------------- |
+| `hbar`  | ℏ      | 1.054571817e-34  | Reduced Planck (J·s)   |
 | `e`     | e      | 2.71828182845905 | Euler's number         |
 | `pi`    | π      | 3.14159265358979 | Pi                     |
 | `tau`   | τ      | 6.28318530717959 | 2 × π                  |
@@ -22,17 +23,22 @@ Constants are used as fallback when a variable is not provided by the user.
 
 ## Usage
 
-Constants work as single-letter variable names:
+Constants can be accessed using their standard LaTeX commands or as variables:
 
 ```dart
-final e = LatexMathEvaluator();
+final evaluator = LatexMathEvaluator();
 
-// 'e' resolves to Euler's number
-e.evaluate('e');  // 2.71828...
+// LaTeX command notation (Recommended for multi-character)
+evaluator.evaluateNumeric(r'\hbar');  // 1.05457...
+evaluator.evaluateNumeric(r'\pi');     // 3.14159...
 
-// Use in expressions
-e.evaluate(r'\ln{e}');  // 1.0 (ln(e) = 1)
+// Variable name notation
+evaluator.evaluateNumeric('pi');  // 3.14159... (if allowImplicitMultiplication is false)
+evaluator.evaluateNumeric('e');   // 2.71828...
 ```
+
+> [!TIP]
+> Always use the backslash notation (e.g., `\pi`, `\hbar`) for multi-character constants to avoid ambiguity with implicit multiplication of single-letter variables.
 
 ## Overriding Constants
 

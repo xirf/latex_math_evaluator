@@ -113,6 +113,12 @@ mixin ExpressionParserMixin on BaseParser {
 
   bool checkImplicitMultiplication() {
     if (isAtEnd) return false;
+
+    // Don't treat expected closing delimiter as start of new operand
+    if (delimiterStack.isNotEmpty && current.value == delimiterStack.last) {
+      return false;
+    }
+
     return check(TokenType.number) ||
         check(TokenType.variable) ||
         check(TokenType.constant) ||
@@ -122,7 +128,11 @@ mixin ExpressionParserMixin on BaseParser {
         check(TokenType.sum) ||
         check(TokenType.prod) ||
         check(TokenType.frac) ||
-        check(TokenType.infty);
+        check(TokenType.infty) ||
+        check(TokenType.int) ||
+        check(TokenType.binom) ||
+        check(TokenType.begin) ||
+        check(TokenType.pipe);
   }
 
   @override
@@ -132,7 +142,7 @@ mixin ExpressionParserMixin on BaseParser {
     if (match([TokenType.power])) {
       if (check(TokenType.lparen) && current.value == '{') {
         advance();
-        final right = parseExpression();
+        final right = parseWithDelimiter('}', parseExpression);
         consume(TokenType.rparen, "Expected '}' after exponent");
         return BinaryOp(left, BinaryOperator.power, right);
       } else {

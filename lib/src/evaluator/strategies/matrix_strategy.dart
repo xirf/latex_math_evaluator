@@ -62,9 +62,25 @@ class MatrixStrategy implements BinaryOperationStrategy {
         if (right == -1) {
           return left.inverse();
         }
+        if (right is int && right > 0) {
+          var result = left;
+          for (var i = 1; i < right; i++) {
+            result = result * left;
+          }
+          return result;
+        }
+        if (right is double && right == right.toInt() && right > 0) {
+          var result = left;
+          final exponent = right.toInt();
+          for (var i = 1; i < exponent; i++) {
+            result = result * left;
+          }
+          return result;
+        }
         throw EvaluatorException(
-          'Matrix power only supports -1 (inverse) or T (transpose)',
-          suggestion: 'Use M^{-1} for inverse or M^T for transpose',
+          'Matrix power only supports positive integers or -1 (inverse)',
+          suggestion:
+              'Use M^{-1} for inverse, M^T for transpose, or M^n for integer powers',
         );
       default:
         throw EvaluatorException(

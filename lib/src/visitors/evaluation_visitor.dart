@@ -34,13 +34,14 @@ class EvaluationVisitor
   late final DifferentiationEvaluator _differentiationEvaluator;
 
   /// Creates an evaluation visitor with optional extension registry.
-  EvaluationVisitor({ExtensionRegistry? extensions}) : _extensions = extensions {
+  EvaluationVisitor({ExtensionRegistry? extensions})
+      : _extensions = extensions {
     _binaryEvaluator = BinaryEvaluator();
     _unaryEvaluator = UnaryEvaluator();
-    _calculusEvaluator = CalculusEvaluator(_evaluateAsDouble);
+    _calculusEvaluator = CalculusEvaluator(_evaluateRaw);
     _comparisonEvaluator = ComparisonEvaluator(_evaluateAsDouble, _evaluateRaw);
     _matrixEvaluator = MatrixEvaluator(_evaluateRaw);
-    _differentiationEvaluator = DifferentiationEvaluator(_evaluateAsDouble);
+    _differentiationEvaluator = DifferentiationEvaluator(_evaluateRaw);
   }
 
   /// Gets the differentiation evaluator (for internal use by public API).
@@ -72,7 +73,7 @@ class EvaluationVisitor
   @override
   dynamic visitVariable(Variable node, Map<String, double>? context) {
     final variables = context ?? const {};
-    
+
     // First check user-provided variables
     if (variables.containsKey(node.name)) {
       return variables[node.name]!;
@@ -136,7 +137,7 @@ class EvaluationVisitor
   @override
   dynamic visitFunctionCall(FunctionCall node, Map<String, double>? context) {
     final variables = context ?? const {};
-    
+
     // Special handling for abs() with vector argument
     if (node.name == 'abs') {
       final argValue = _evaluateRaw(node.argument, variables);
@@ -144,9 +145,38 @@ class EvaluationVisitor
         return argValue.magnitude;
       }
     }
-    
+
+    // Try extension registry first
+    if (_extensions != null) {
+      final result = _extensions!.tryEvaluate(
+        node,
+        variables,
+        (e) => _evaluateRaw(e, variables),
+      );
+      if (result != null) {
+        return result;
+      }
+    }
+
     return FunctionRegistry.instance.evaluate(
       node,
+      variables,
+      (e) => _evaluateRaw(e, variables),
+    );
+  }
+
+  @override
+  dynamic visitAbsoluteValue(AbsoluteValue node, Map<String, double>? context) {
+    final variables = context ?? const {};
+    final argValue = _evaluateRaw(node.argument, variables);
+
+    // Quick handle for vector magnitude if arg is vector
+    if (argValue is Vector) {
+      return argValue.magnitude;
+    }
+
+    return FunctionRegistry.instance.evaluate(
+      FunctionCall('abs', node.argument),
       variables,
       (e) => _evaluateRaw(e, variables),
     );
