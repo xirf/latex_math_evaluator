@@ -113,6 +113,7 @@ class LatexCommandRegistry {
     _commands['lambda'] = TokenType.constant;
     _commands['mu'] = TokenType.constant;
     _commands['sigma'] = TokenType.constant;
+    _commands['hbar'] = TokenType.constant;
   }
 
   /// Registers calculus notation commands.
