@@ -40,7 +40,7 @@ class EvaluationVisitor
       : _extensions = extensions {
     _binaryEvaluator = BinaryEvaluator();
     _unaryEvaluator = UnaryEvaluator();
-    _calculusEvaluator = CalculusEvaluator(_evaluateAsDouble);
+    _calculusEvaluator = CalculusEvaluator(_evaluateRaw);
     _comparisonEvaluator = ComparisonEvaluator(_evaluateAsDouble, _evaluateRaw);
     _matrixEvaluator = MatrixEvaluator(_evaluateRaw);
     _differentiationEvaluator = DifferentiationEvaluator(_evaluateAsDouble);
@@ -173,7 +173,7 @@ class EvaluationVisitor
       }
     }
 
-    // Try custom extensions first
+    // Try extension registry first
     if (_extensions != null) {
       final result = _extensions!.tryEvaluate(
         node,
@@ -185,9 +185,25 @@ class EvaluationVisitor
       }
     }
 
-    // Fall back to built-in functions
     return FunctionRegistry.instance.evaluate(
       node,
+      variables,
+      (e) => _evaluateRaw(e, variables),
+    );
+  }
+
+  @override
+  dynamic visitAbsoluteValue(AbsoluteValue node, Map<String, double>? context) {
+    final variables = context ?? const {};
+    final argValue = _evaluateRaw(node.argument, variables);
+
+    // Quick handle for vector magnitude if arg is vector
+    if (argValue is Vector) {
+      return argValue.magnitude;
+    }
+
+    return FunctionRegistry.instance.evaluate(
+      FunctionCall('abs', node.argument),
       variables,
       (e) => _evaluateRaw(e, variables),
     );

@@ -10,8 +10,6 @@ void main() {
 
   print('=== Basic Arithmetic ===');
   print('2 + 3 × 4 = ${evaluator.evaluateNumeric(r"2 + 3 \times 4")}');
-  print('10 ÷ 2 = ${evaluator.evaluateNumeric(r"10 \div 2")}');
-  print('2^{10} = ${evaluator.evaluateNumeric(r"2^{10}")}');
 
   print('\n=== Variables ===');
   print(
@@ -21,14 +19,14 @@ void main() {
         "b": 7
       })}');
 
-  print('\n=== Trigonometry ===');
-  print('sin(0) = ${evaluator.evaluateNumeric(r"\sin{0}")}');
-  print('cos(0) = ${evaluator.evaluateNumeric(r"\cos{0}")}');
-  print('tan(0) = ${evaluator.evaluateNumeric(r"\tan{0}")}');
-
   print('\n=== Logarithms ===');
-  print('ln(e) ≈ ${evaluator.evaluateNumeric(r"\ln{x}", {"x": math.e})}');
-  print('log₁₀(100) = ${evaluator.evaluateNumeric(r"\log{100}")}');
+  print('Step 1: Before ln');
+  final lnVal = evaluator.evaluateNumeric(r"\ln{2.71828}");
+  print('Step 2: After ln: $lnVal');
+  print('Step 3: Before log10');
+  final log10Val = evaluator.evaluateNumeric(r"\log{100}");
+  print('Step 4: After log10: $log10Val');
+  print('Evaluating log2(8)...');
   print('log₂(8) = ${evaluator.evaluateNumeric(r"\log_{2}{8}")}');
 
   print('\n=== Other Functions ===');
@@ -40,8 +38,7 @@ void main() {
 
   print('\n=== Constants ===');
   print('e = ${evaluator.evaluateNumeric("e")}');
-  // Note: Multi-char constants need to be bound to single-letter variables
-
+  print('pi = ${evaluator.evaluateNumeric(r"\pi")}');
   print('\n=== Summation ===');
   print('∑(i=1 to 5) i = ${evaluator.evaluateNumeric(r"\sum_{i=1}^{5} i")}');
   print(
@@ -52,6 +49,12 @@ void main() {
       '∏(i=1 to 5) i = 5! = ${evaluator.evaluateNumeric(r"\prod_{i=1}^{5} i")}');
   print(
       '∏(i=1 to 3) 2 = 2³ = ${evaluator.evaluateNumeric(r"\prod_{i=1}^{3} 2")}');
+
+  print('\n=== Advanced Physics & Calculus ===');
+  final qmExpr = r'\int_{0}^{\pi} \hbar \sin{x} dx';
+  print('QM Integral: $qmExpr');
+  final qmResult = evaluator.evaluate(qmExpr);
+  print('  Result: $qmResult');
 
   print('\n=== Custom Extensions ===');
   customExtensionExample();

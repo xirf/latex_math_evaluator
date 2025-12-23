@@ -6,7 +6,7 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  latex_math_evaluator: ^0.1.2
+  latex_math_evaluator: ^0.1.5
 ```
 
 Then run:
@@ -42,6 +42,7 @@ The evaluator works in 3 stages:
 1. **Tokenization**: LaTeX string -> Tokens
 2. **Parsing**: Tokens -> Abstract Syntax Tree (AST)
 3. **Evaluation**: AST + Variables -> Result
+   Result types: [NumericResult], [ComplexResult], [MatrixResult], [VectorResult]
 
 ```dart
 // Manual pipeline (for advanced use)

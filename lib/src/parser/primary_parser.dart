@@ -99,14 +99,16 @@ mixin PrimaryParserMixin on BaseParser {
       final char = pt.value;
       final expr = parseExpression();
 
-      if (!check(TokenType.rparen)) {
+      if (!check(TokenType.rparen) && !check(TokenType.rbracket)) {
         throw ParserException(
           "Expected '${char == '(' ? ')' : '}'}'",
           position: current.position,
           expression: sourceExpression,
           suggestion: char == '('
               ? 'Add a closing parenthesis ) to match the opening'
-              : 'Add a closing brace } to match the opening',
+              : char == '{'
+                  ? 'Add a closing brace } to match the opening'
+                  : 'Add a closing bracket ] to match the opening',
         );
       }
       advance();

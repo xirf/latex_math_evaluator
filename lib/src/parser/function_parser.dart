@@ -74,7 +74,7 @@ mixin FunctionParserMixin on BaseParser {
 
     consume(TokenType.to, "Expected '\\to' in limit");
 
-    final target = parseExpression();
+    final target = parseWithDelimiter('}', parseExpression);
 
     consume(TokenType.rparen, "Expected '}' after limit subscript");
 

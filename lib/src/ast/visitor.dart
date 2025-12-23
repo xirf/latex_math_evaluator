@@ -48,6 +48,7 @@ abstract class ExpressionVisitor<R, C> {
 
   // Functions
   R visitFunctionCall(FunctionCall node, C? context);
+  R visitAbsoluteValue(AbsoluteValue node, C? context);
 
   // Calculus
   R visitLimitExpr(LimitExpr node, C? context);

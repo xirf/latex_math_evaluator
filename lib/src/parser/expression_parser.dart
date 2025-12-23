@@ -126,6 +126,12 @@ mixin ExpressionParserMixin on BaseParser {
 
   bool checkImplicitMultiplication() {
     if (isAtEnd) return false;
+
+    // Don't treat expected closing delimiter as start of new operand
+    if (delimiterStack.isNotEmpty && current.value == delimiterStack.last) {
+      return false;
+    }
+
     return check(TokenType.number) ||
         check(TokenType.variable) ||
         check(TokenType.constant) ||
@@ -136,7 +142,11 @@ mixin ExpressionParserMixin on BaseParser {
         check(TokenType.prod) ||
         check(TokenType.frac) ||
         check(TokenType.text) ||
-        check(TokenType.infty);
+        check(TokenType.infty) ||
+        check(TokenType.int) ||
+        check(TokenType.binom) ||
+        check(TokenType.begin) ||
+        check(TokenType.pipe);
   }
 
   @override

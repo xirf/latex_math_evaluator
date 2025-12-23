@@ -26,3 +26,6 @@ const double gravitationalConstant = 6.67430e-11;
 
 /// Infinity
 const double infty = double.infinity;
+
+/// ℏ (hbar) - Reduced Planck constant (J·s)
+const double hbar = 1.054571817e-34;

@@ -16,10 +16,10 @@ import '../../exceptions.dart';
 /// - Exponential and logarithmic functions
 class DifferentiationEvaluator {
   /// Callback to evaluate arbitrary expressions.
-  final double Function(Expression, Map<String, double>) _evaluateAsDouble;
+  final dynamic Function(Expression, Map<String, double>) _evaluate;
 
   /// Creates a differentiation evaluator.
-  DifferentiationEvaluator(this._evaluateAsDouble);
+  DifferentiationEvaluator(this._evaluate);
 
   int _recursionDepth = 0;
   static const int maxRecursionDepth = 500;
@@ -464,7 +464,7 @@ class DifferentiationEvaluator {
   /// Evaluates a derivative at a specific point.
   ///
   /// This computes the symbolic derivative and then evaluates it numerically.
-  double evaluateDerivative(
+  dynamic evaluateDerivative(
     DerivativeExpr derivative,
     Map<String, double> variables,
   ) {
@@ -476,6 +476,6 @@ class DifferentiationEvaluator {
     );
 
     // Evaluate it numerically
-    return _evaluateAsDouble(symbolicDerivative, variables);
+    return _evaluate(symbolicDerivative, variables);
   }
 }

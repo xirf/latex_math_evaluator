@@ -119,6 +119,7 @@ class LatexCommandRegistry {
     _commands['kappa'] = TokenType.variable;
     _commands['chi'] = TokenType.variable;
     _commands['psi'] = TokenType.variable;
+    _commands['hbar'] = TokenType.constant;
   }
 
   /// Registers calculus notation commands.

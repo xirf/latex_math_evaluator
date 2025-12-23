@@ -1,14 +1,31 @@
 # CHANGELOG
 
-## 0.1.4-nightly - 2025-12-18
+## 0.1.4 - 2025-12-22
 
 ### Added
 
+- **3D Graphing Enhancements**:
+  - Solid surfaces with configurable material properties
+  - Dynamic reflections on checkerboard floor (updates with camera movement)
+  - Fixed world-space lighting (highlights remain stationary on rotation)
+  - Improved camera-based zoom behavior (bounds scaling)
+  - Axis labels (X, Y, Z) and clear spatial orientation
 - **Symbolic Algebra Engine** with algebraic manipulation:
   - Simplification of algebraic expressions
   - Expansion of expressions (distributive property)
   - Factorization of expressions
   - Symbolic algebra support for mathematical operations
+- **Reduced Planck Constant Support**: Added `\hbar` to built-in commands and constants.
+
+### Improved
+
+- **Recursion Safety**: Implemented recursion depth limits in evaluation and rule engines to prevent stack overflows on complex nested expressions.
+- **Graph UI**:
+  - Fixed label overflow in graph legends
+  - Improved error handling for invalid graph equations
+- **Improve Delimiter Parsing**: Implemented a delimiter stack in the parser to correctly handle nested `\left/\right` delimiters and absolute value pipes `|`.
+- **Improve Implicit Multiplication**: The parser now correctly recognizes when implicit multiplication should stop before a closing delimiter.
+- **Improve Calculus Evaluation**: Increased numeric tolerance for limit evaluation to handle edge cases in floating-point approximations.
 
 ### Changed
 
@@ -38,7 +55,6 @@
   - Support for escaped braces: `\{` and `\}` treated as regular grouping
   - Enables direct copy-paste from academic sources without manual cleanup
   - Documentation in `doc/academic_latex.md`
-
 
 ## 0.1.2 - 2025-12-15
 
