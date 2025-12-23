@@ -97,6 +97,21 @@ class BinaryOp extends Expression {
           right == other.right &&
           sourceToken == other.sourceToken;
 
+  /// Hash code implementation using [Object.hash] to preserve operand order.
+  ///
+  /// IMPORTANT: We use [Object.hash] instead of XOR-based hashing because
+  /// XOR is commutative (a ^ b == b ^ a), which would cause cache collisions
+  /// for non-commutative operations.
+  ///
+  /// For example, with XOR-based hashing:
+  /// - `vec1 × vec2` and `vec2 × vec1` would have the same hash code
+  /// - `a - b` and `b - a` would have the same hash code
+  /// - `a / b` and `b / a` would have the same hash code
+  ///
+  /// This would cause the cache to return incorrect results for expressions
+  /// where operand order matters. [Object.hash] preserves order, ensuring
+  /// that `BinaryOp(a, op, b)` and `BinaryOp(b, op, a)` have different
+  /// hash codes when `op` is non-commutative.
   @override
   int get hashCode => Object.hash(left, operator, right, sourceToken);
 }
