@@ -94,14 +94,14 @@ mixin ExpressionParserMixin on BaseParser {
 
   @override
   Expression parseTerm() {
-    var left = parsePower();
+    var left = parseUnary();
 
     Token? mt;
     while (true) {
       if ((mt = matchToken(TokenType.multiply)) != null ||
           (mt = matchToken(TokenType.divide)) != null) {
         final operator = mt!;
-        final right = parsePower();
+        final right = parseUnary();
 
         registerNode();
         left = BinaryOp(
@@ -113,7 +113,7 @@ mixin ExpressionParserMixin on BaseParser {
           sourceToken: operator.value,
         );
       } else if (checkImplicitMultiplication()) {
-        final right = parsePower();
+        final right = parseUnary();
         registerNode();
         left = BinaryOp(left, BinaryOperator.multiply, right);
       } else {
@@ -153,7 +153,7 @@ mixin ExpressionParserMixin on BaseParser {
   Expression parsePower() {
     enterRecursion();
     try {
-      var left = parseUnary();
+      var left = parsePrimary();
 
       if (match1(TokenType.power)) {
         if (check(TokenType.lparen) && current.value == '{') {
@@ -185,7 +185,7 @@ mixin ExpressionParserMixin on BaseParser {
         return UnaryOp(UnaryOperator.negate, operand);
       }
 
-      return parsePrimary();
+      return parsePower();
     } finally {
       exitRecursion();
     }
