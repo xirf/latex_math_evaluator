@@ -1,15 +1,37 @@
 # CHANGELOG
 
+## 0.1.5-nightly - 2025-12-23
+
+### Added
+
+- **Advanced Multi-Layer Caching System**:
+  - `CacheConfig` for fine-grained cache configuration with presets (`disabled`, `highPerformance`, `withStatistics`)
+  - `CacheManager` with 4-layer cache architecture:
+    - L1: Parsed expression cache (String → AST)
+    - L2: Evaluation result cache (AST + Variables → Result)
+    - L3: Differentiation result cache (AST + Variable + Order → Derivative)
+    - L4: Sub-expression cache (for hierarchical caching)
+  - `CacheStatistics` and `MultiLayerCacheStatistics` for cache performance monitoring
+  - `LfuCache` (Least Frequently Used) as alternative to LRU for hot-spot access patterns
+  - TTL (Time-to-Live) support for automatic cache entry expiration
+  - `warmUpCache()` method to preload frequently-used expressions
+  - `clearAllCaches()` method to clear all cache layers at once
+
+### Improved
+
+- **LRU Cache**: Enhanced with TTL support, statistics tracking, and `getOrPut()` atomic operation
+- **Cache Hit Rates**: Multi-layer caching provides significant speedup for repeated evaluations with same variables
+- **Differentiation Performance**: Repeated derivatives are now cached for better performance
+
+### Changed
+
+- **LatexMathEvaluator**: Now accepts `CacheConfig` for advanced cache configuration (backwards compatible)
+- **Evaluator**: Updated to support `CacheManager` for sub-expression caching
+
 ## 0.1.4 - 2025-12-22
 
 ### Added
 
-- **3D Graphing Enhancements**:
-  - Solid surfaces with configurable material properties
-  - Dynamic reflections on checkerboard floor (updates with camera movement)
-  - Fixed world-space lighting (highlights remain stationary on rotation)
-  - Improved camera-based zoom behavior (bounds scaling)
-  - Axis labels (X, Y, Z) and clear spatial orientation
 - **Symbolic Algebra Engine** with algebraic manipulation:
   - Simplification of algebraic expressions
   - Expansion of expressions (distributive property)
