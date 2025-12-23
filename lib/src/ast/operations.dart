@@ -98,11 +98,7 @@ class BinaryOp extends Expression {
           sourceToken == other.sourceToken;
 
   @override
-  int get hashCode =>
-      left.hashCode ^
-      operator.hashCode ^
-      right.hashCode ^
-      (sourceToken?.hashCode ?? 0);
+  int get hashCode => Object.hash(left, operator, right, sourceToken);
 }
 
 /// Unary operation types.
