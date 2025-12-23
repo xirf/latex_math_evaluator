@@ -7,12 +7,13 @@ mixin MatrixParserMixin on BaseParser {
   @override
   Expression parseMatrix() {
     final env = parseLatexArgument();
-    if (!['matrix', 'pmatrix', 'bmatrix', 'vmatrix'].contains(env)) {
+    if (!['matrix', 'pmatrix', 'bmatrix', 'vmatrix', 'align', 'aligned']
+        .contains(env)) {
       throw ParserException(
-        'Unsupported matrix environment: $env',
+        'Unsupported environment: $env',
         position: position,
         expression: sourceExpression,
-        suggestion: 'Use matrix, pmatrix, bmatrix, or vmatrix',
+        suggestion: 'Use matrix, pmatrix, bmatrix, vmatrix, or align',
       );
     }
 
@@ -23,14 +24,15 @@ mixin MatrixParserMixin on BaseParser {
       if (check(TokenType.ampersand) ||
           check(TokenType.backslash) ||
           check(TokenType.end)) {
+        registerNode();
         currentRow.add(NumberLiteral(0.0));
       } else {
         currentRow.add(parseExpression());
       }
 
-      if (match([TokenType.ampersand])) {
+      if (match1(TokenType.ampersand)) {
         continue;
-      } else if (match([TokenType.backslash])) {
+      } else if (match1(TokenType.backslash)) {
         rows.add(currentRow);
         currentRow = [];
       } else if (!check(TokenType.end)) {
@@ -59,6 +61,7 @@ mixin MatrixParserMixin on BaseParser {
       );
     }
 
+    registerNode();
     return MatrixExpr(rows);
   }
 }

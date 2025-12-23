@@ -6,55 +6,62 @@ import 'base_parser.dart';
 mixin FunctionParserMixin on BaseParser {
   @override
   Expression parseFunctionCall() {
-    final name = tokens[position - 1].value;
-    Expression? base;
-    Expression? optionalParam;
+    enterRecursion();
+    try {
+      // Note: function token was already consumed by match1(TokenType.function) in parsePrimary
+      final name = tokens[position - 1].value;
+      Expression? base;
+      Expression? optionalParam;
 
-    // Check for optional parameter in square brackets (e.g., \sqrt[3]{x})
-    if (match([TokenType.lbracket])) {
-      optionalParam = parseExpression();
-      consume(TokenType.rbracket, "Expected ']' after optional parameter");
-    }
+      // Check for optional parameter in square brackets (e.g., \sqrt[3]{x})
+      if (match1(TokenType.lbracket)) {
+        optionalParam = parseExpression();
+        consume(TokenType.rbracket, "Expected ']' after optional parameter");
+      }
 
-    // Special handling for \vec{} and \hat{}
-    if (name == 'vec' || name == 'hat') {
-      consume(TokenType.lparen, "Expected '{' after \\$name");
-      final components = <Expression>[];
-      components.add(parseExpression());
-      while (match([TokenType.comma])) {
+      // Special handling for \vec{} and \hat{}
+      if (name == 'vec' || name == 'hat') {
+        consume(TokenType.lparen, "Expected '{' after \\$name");
+        final components = <Expression>[];
         components.add(parseExpression());
+        while (match1(TokenType.comma)) {
+          components.add(parseExpression());
+        }
+        consume(TokenType.rparen, "Expected '}' after vector components");
+        registerNode();
+        return VectorExpr(components, isUnitVector: name == 'hat');
       }
-      consume(TokenType.rparen, "Expected '}' after vector components");
-      return VectorExpr(components, isUnitVector: name == 'hat');
-    }
 
-    if (match([TokenType.underscore])) {
-      consume(TokenType.lparen, "Expected '{' after '_'");
-      base = parseWithDelimiter('}', parseExpression);
-      consume(TokenType.rparen, "Expected '}' after base");
-    }
-
-    List<Expression> args = [];
-    if (check(TokenType.lparen)) {
-      final openToken = current.value;
-      final closeToken = openToken == '(' ? ')' : '}';
-      advance();
-      args.add(parseWithDelimiter(closeToken, parseExpression));
-      while (match([TokenType.comma])) {
-        args.add(parseWithDelimiter(closeToken, parseExpression));
+      if (match1(TokenType.underscore)) {
+        consume(TokenType.lparen, "Expected '{' after '_'");
+        base = parseExpression();
+        consume(TokenType.rparen, "Expected '}' after base");
       }
-      consume(TokenType.rparen,
-          "Expected closing brace/paren after function argument");
-    } else {
-      args.add(parseUnary());
-    }
 
-    if (args.length == 1) {
-      return FunctionCall(name, args[0],
+      List<Expression> args = [];
+      if (check(TokenType.lparen)) {
+        advance();
+        args.add(parseExpression());
+        while (match1(TokenType.comma)) {
+          args.add(parseExpression());
+        }
+        consume(TokenType.rparen,
+            "Expected closing brace/paren after function argument");
+      } else {
+        args.add(parseUnary());
+      }
+
+      if (args.length == 1) {
+        registerNode();
+        return FunctionCall(name, args[0],
+            base: base, optionalParam: optionalParam);
+      }
+      registerNode();
+      return FunctionCall.multivar(name, args,
           base: base, optionalParam: optionalParam);
+    } finally {
+      exitRecursion();
     }
-    return FunctionCall.multivar(name, args,
-        base: base, optionalParam: optionalParam);
   }
 
   @override
@@ -72,74 +79,90 @@ mixin FunctionParserMixin on BaseParser {
     consume(TokenType.rparen, "Expected '}' after limit subscript");
 
     final body = parseExpression();
-
+    registerNode();
     return LimitExpr(variable, target, body);
   }
 
   @override
   Expression parseSumExpr() {
-    consume(TokenType.underscore, "Expected '_' after \\sum");
-    consume(TokenType.lparen, "Expected '{' after '_'");
+    enterRecursion();
+    try {
+      consume(TokenType.underscore, "Expected '_' after \\sum");
+      consume(TokenType.lparen, "Expected '{' after '_'");
 
-    final varToken = consume(TokenType.variable, "Expected variable in sum");
-    final variable = varToken.value;
+      final varToken = consume(TokenType.variable, "Expected variable in sum");
+      final variable = varToken.value;
 
-    consume(TokenType.equals, "Expected '=' after variable");
+      consume(TokenType.equals, "Expected '=' after variable");
 
-    final start = parseWithDelimiter('}', parseExpression);
+      final start = parseExpression();
 
-    consume(TokenType.rparen, "Expected '}' after start value");
+      consume(TokenType.rparen, "Expected '}' after start value");
 
-    consume(TokenType.power, "Expected '^' after sum subscript");
-    consume(TokenType.lparen, "Expected '{' after '^'");
+      consume(TokenType.power, "Expected '^' after sum subscript");
+      consume(TokenType.lparen, "Expected '{' after '^'");
 
-    final end = parseWithDelimiter('}', parseExpression);
+      final end = parseExpression();
 
-    consume(TokenType.rparen, "Expected '}' after end value");
+      consume(TokenType.rparen, "Expected '}' after end value");
 
-    final body = parseExpression();
-
-    return SumExpr(variable, start, end, body);
+      final body = parseExpression();
+      registerNode();
+      return SumExpr(variable, start, end, body);
+    } finally {
+      exitRecursion();
+    }
   }
 
   @override
   Expression parseProductExpr() {
-    consume(TokenType.underscore, "Expected '_' after \\prod");
-    consume(TokenType.lparen, "Expected '{' after '_'");
+    enterRecursion();
+    try {
+      consume(TokenType.underscore, "Expected '_' after \\prod");
+      consume(TokenType.lparen, "Expected '{' after '_'");
 
-    final varToken =
-        consume(TokenType.variable, "Expected variable in product");
-    final variable = varToken.value;
+      final varToken =
+          consume(TokenType.variable, "Expected variable in product");
+      final variable = varToken.value;
 
-    consume(TokenType.equals, "Expected '=' after variable");
+      consume(TokenType.equals, "Expected '=' after variable");
 
-    final start = parseWithDelimiter('}', parseExpression);
+      final start = parseExpression();
 
-    consume(TokenType.rparen, "Expected '}' after start value");
+      consume(TokenType.rparen, "Expected '}' after start value");
 
-    consume(TokenType.power, "Expected '^' after product subscript");
-    consume(TokenType.lparen, "Expected '{' after '^'");
+      consume(TokenType.power, "Expected '^' after product subscript");
+      consume(TokenType.lparen, "Expected '{' after '^'");
 
-    final end = parseWithDelimiter('}', parseExpression);
+      final end = parseExpression();
 
-    consume(TokenType.rparen, "Expected '}' after end value");
+      consume(TokenType.rparen, "Expected '}' after end value");
 
-    final body = parseExpression();
-
-    return ProductExpr(variable, start, end, body);
+      final body = parseExpression();
+      registerNode();
+      return ProductExpr(variable, start, end, body);
+    } finally {
+      exitRecursion();
+    }
   }
 
   @override
   Expression parseIntegralExpr() {
-    consume(TokenType.underscore, "Expected '_' after \\int");
-    consume(TokenType.lparen, "Expected '{' after '_'");
-    final lower = parseWithDelimiter('}', parseExpression);
-    consume(TokenType.rparen, "Expected '}' after lower bound");
+    Expression? lower;
+    Expression? upper;
 
-    consume(TokenType.power, "Expected '^' after integral subscript");
-    consume(TokenType.lparen, "Expected '{' after '^'");
-    final upper = parseWithDelimiter('}', parseExpression);
-    consume(TokenType.rparen, "Expected '}' after upper bound");
+    // Handle bounds (optional, loop to allow _ then ^ or ^ then _)
+    while (check(TokenType.underscore) || check(TokenType.power)) {
+      if (match1(TokenType.underscore)) {
+        consume(TokenType.lparen, "Expected '{' after '_'");
+        lower = parseExpression();
+        consume(TokenType.rparen, "Expected '}' after lower bound");
+      } else if (match1(TokenType.power)) {
+        consume(TokenType.lparen, "Expected '{' after '^'");
+        upper = parseExpression();
+        consume(TokenType.rparen, "Expected '}' after upper bound");
+      }
+    }
 
     final fullBody = parseExpression();
 
@@ -180,6 +203,7 @@ mixin FunctionParserMixin on BaseParser {
       );
     }
 
+    registerNode();
     return IntegralExpr(lower, upper, body, variable);
   }
 }

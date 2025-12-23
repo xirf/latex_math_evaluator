@@ -1,6 +1,8 @@
 /// Tokenizer (lexer) for LaTeX math expressions.
 library;
 
+import 'dart:math' as math;
+
 import 'exceptions.dart';
 import 'extensions.dart';
 import 'token.dart';
@@ -17,7 +19,20 @@ class Tokenizer {
   Tokenizer(this._source,
       {ExtensionRegistry? extensions, bool allowImplicitMultiplication = true})
       : _extensions = extensions,
-        _allowImplicitMultiplication = allowImplicitMultiplication;
+        _allowImplicitMultiplication = allowImplicitMultiplication {
+    if (_source.length > maxInputLength) {
+      throw TokenizerException(
+        'Input exceeds maximum allowed length: ${_source.length} (max $maxInputLength)',
+        position: 0,
+        expression: _source.substring(0, math.min(_source.length, 100)) + '...',
+        suggestion:
+            'Reduce the size of your LaTeX expression to under $maxInputLength characters',
+      );
+    }
+  }
+
+  /// Maximum allowed length for input string.
+  static const int maxInputLength = 100000;
 
   /// Returns all tokens from the source string.
   List<Token> tokenize() {
@@ -28,7 +43,7 @@ class Tokenizer {
       if (_isAtEnd) break;
 
       final token = _nextToken();
-      if (token != null) {
+      if (token != null && token.type != TokenType.spacing) {
         tokens.add(token);
       }
     }
@@ -173,8 +188,12 @@ class Tokenizer {
       }
     }
 
+    final valueStr = buffer.toString();
     return Token(
-        type: TokenType.number, value: buffer.toString(), position: startPos);
+        type: TokenType.number,
+        value: valueStr,
+        position: startPos,
+        numberValue: double.parse(valueStr));
   }
 
   Token? _readLatexCommand() {
@@ -206,6 +225,13 @@ class Tokenizer {
     if (_current == '}') {
       _position++;
       return Token(type: TokenType.rparen, value: '}', position: startPos);
+    }
+
+    // Handle punctuation spacing commands (\, \; \: \! \ )
+    if (const [',', ';', ':', '!', ' '].contains(_current)) {
+      final value = _current;
+      _position++;
+      return Token(type: TokenType.spacing, value: value, position: startPos);
     }
 
     final buffer = StringBuffer();

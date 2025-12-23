@@ -9,6 +9,7 @@ import '../features/calculus/calculus_evaluator.dart';
 import '../features/logic/comparison_evaluator.dart';
 import '../features/linear_algebra/matrix_evaluator.dart';
 import '../features/calculus/differentiation_evaluator.dart';
+import '../features/calculus/integration_evaluator.dart';
 
 /// A visitor that evaluates expressions to produce results.
 ///
@@ -32,6 +33,7 @@ class EvaluationVisitor
   late final ComparisonEvaluator _comparisonEvaluator;
   late final MatrixEvaluator _matrixEvaluator;
   late final DifferentiationEvaluator _differentiationEvaluator;
+  late final IntegrationEvaluator _integrationEvaluator;
 
   /// Creates an evaluation visitor with optional extension registry.
   EvaluationVisitor({ExtensionRegistry? extensions})
@@ -41,16 +43,41 @@ class EvaluationVisitor
     _calculusEvaluator = CalculusEvaluator(_evaluateRaw);
     _comparisonEvaluator = ComparisonEvaluator(_evaluateAsDouble, _evaluateRaw);
     _matrixEvaluator = MatrixEvaluator(_evaluateRaw);
-    _differentiationEvaluator = DifferentiationEvaluator(_evaluateRaw);
+    _differentiationEvaluator = DifferentiationEvaluator(_evaluateAsDouble);
+    _integrationEvaluator = IntegrationEvaluator();
+  }
+
+  int _recursionDepth = 0;
+  static const int maxRecursionDepth = 500;
+
+  void _enterRecursion() {
+    if (++_recursionDepth > maxRecursionDepth) {
+      throw EvaluatorException(
+        'Maximum evaluation depth exceeded',
+        suggestion: 'Simplify your expression to reduce its complexity',
+      );
+    }
+  }
+
+  void _exitRecursion() {
+    _recursionDepth--;
   }
 
   /// Gets the differentiation evaluator (for internal use by public API).
   DifferentiationEvaluator get differentiationEvaluator =>
       _differentiationEvaluator;
 
+  /// Gets the integration evaluator (for internal use by public API).
+  IntegrationEvaluator get integrationEvaluator => _integrationEvaluator;
+
   /// Helper to evaluate an expression and get a raw result.
   dynamic _evaluateRaw(Expression expr, Map<String, double> variables) {
-    return expr.accept(this, variables);
+    _enterRecursion();
+    try {
+      return expr.accept(this, variables);
+    } finally {
+      _exitRecursion();
+    }
   }
 
   /// Helper to evaluate an expression as a double.
@@ -207,10 +234,40 @@ class EvaluationVisitor
   }
 
   @override
+  dynamic visitMultiIntegralExpr(
+      MultiIntegralExpr node, Map<String, double>? context) {
+    throw EvaluatorException(
+      'Evaluation of multiple integrals is not yet supported',
+      suggestion: 'Use multiple single integrals instead',
+    );
+  }
+
+  @override
   dynamic visitDerivativeExpr(
       DerivativeExpr node, Map<String, double>? context) {
     final variables = context ?? const {};
     return _differentiationEvaluator.evaluateDerivative(node, variables);
+  }
+
+  @override
+  dynamic visitPartialDerivativeExpr(
+      PartialDerivativeExpr node, Map<String, double>? context) {
+    final variables = context ?? const {};
+    // Treat partial derivative as regular derivative for evaluation
+    final derivative =
+        DerivativeExpr(node.body, node.variable, order: node.order);
+    return _differentiationEvaluator.evaluateDerivative(derivative, variables);
+  }
+
+  @override
+  dynamic visitBinomExpr(BinomExpr node, Map<String, double>? context) {
+    final variables = context ?? const {};
+    final funcCall = FunctionCall.multivar('binom', [node.n, node.k]);
+    return FunctionRegistry.instance.evaluate(
+      funcCall,
+      variables,
+      (e) => _evaluateRaw(e, variables),
+    );
   }
 
   @override

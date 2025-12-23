@@ -13,6 +13,21 @@ class CalculusEvaluator {
   /// Creates a calculus evaluator with a callback for evaluating expressions.
   CalculusEvaluator(this._evaluate);
 
+  /// Maximum allowed iterations for sums and products.
+  static const int maxIterations = 100000;
+
+  void _checkIterations(int start, int end) {
+    if (end < start) return; // Loop won't execute
+    final count = end - start + 1;
+    if (count > maxIterations) {
+      throw EvaluatorException(
+        'Iteration limit exceeded: $count iterations (max $maxIterations)',
+        suggestion:
+            'Reduce the range of your sum or product to fewer than $maxIterations iterations',
+      );
+    }
+  }
+
   /// Evaluates a limit expression.
   dynamic evaluateLimit(LimitExpr limit, Map<String, double> variables) {
     final targetValue = _evaluate(limit.target, variables);
@@ -115,6 +130,8 @@ class CalculusEvaluator {
     dynamic result = 0.0;
     bool isFirst = true;
 
+    _checkIterations(startVal, endVal);
+
     for (int i = startVal; i <= endVal; i++) {
       final vars = Map<String, double>.from(variables);
       vars[sum.variable] = i.toDouble();
@@ -142,6 +159,8 @@ class CalculusEvaluator {
 
     dynamic result = 1.0;
 
+    _checkIterations(startVal, endVal);
+
     for (int i = startVal; i <= endVal; i++) {
       final vars = Map<String, double>.from(variables);
       vars[prod.variable] = i.toDouble();
@@ -159,8 +178,16 @@ class CalculusEvaluator {
 
   /// Evaluates an integral expression using Simpson's rule.
   dynamic evaluateIntegral(IntegralExpr expr, Map<String, double> variables) {
-    var lower = _evaluate(expr.lower, variables);
-    var upper = _evaluate(expr.upper, variables);
+    if (expr.lower == null || expr.upper == null) {
+      throw EvaluatorException(
+        'Cannot numerically evaluate indefinite integral',
+        suggestion:
+            'Provide lower and upper bounds for numerical integration (e.g., \\int_{0}^{1})',
+      );
+    }
+
+    var lower = _evaluate(expr.lower!, variables);
+    var upper = _evaluate(expr.upper!, variables);
 
     if (lower is! num || upper is! num) {
       throw EvaluatorException('Integral bounds must be numeric');

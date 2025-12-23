@@ -14,6 +14,38 @@ abstract class BaseParser {
 
   Token get current => tokens[position];
 
+  int _recursionDepth = 0;
+  static const int maxRecursionDepth = 500;
+
+  int _nodeCount = 0;
+  static const int maxNodeCount = 10000;
+
+  void registerNode() {
+    if (++_nodeCount > maxNodeCount) {
+      throw ParserException(
+        'Expression complexity limit exceeded (too many nodes)',
+        position: isAtEnd ? null : current.position,
+        expression: sourceExpression,
+        suggestion: 'Simplify your expression to reduce its size',
+      );
+    }
+  }
+
+  void enterRecursion() {
+    if (++_recursionDepth > maxRecursionDepth) {
+      throw ParserException(
+        'Maximum nesting depth exceeded',
+        position: isAtEnd ? null : current.position,
+        expression: sourceExpression,
+        suggestion: 'Simplify your expression or check for infinite recursion',
+      );
+    }
+  }
+
+  void exitRecursion() {
+    _recursionDepth--;
+  }
+
   Token advance() {
     if (!isAtEnd) position++;
     return tokens[position - 1];
@@ -29,6 +61,25 @@ abstract class BaseParser {
       }
     }
     return false;
+  }
+
+  @pragma('vm:prefer-inline')
+  bool match1(TokenType type) {
+    if (check(type)) {
+      advance();
+      return true;
+    }
+    return false;
+  }
+
+  @pragma('vm:prefer-inline')
+  Token? matchToken(TokenType type) {
+    if (check(type)) {
+      final t = current;
+      advance();
+      return t;
+    }
+    return null;
   }
 
   Token consume(TokenType type, String message) {
@@ -72,6 +123,13 @@ abstract class BaseParser {
     }
     consume(TokenType.rparen, "Expected '}'");
     return buffer.toString();
+  }
+
+  Expression parseLatexArgumentExpr() {
+    consume(TokenType.lparen, "Expected '{'");
+    final expr = parseExpression();
+    consume(TokenType.rparen, "Expected '}'");
+    return expr;
   }
 
   // Abstract methods for mutual recursion

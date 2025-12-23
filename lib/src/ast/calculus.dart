@@ -125,13 +125,13 @@ class ProductExpr extends Expression {
       variable.hashCode ^ start.hashCode ^ end.hashCode ^ body.hashCode;
 }
 
-/// An integral expression: \int_{lower}^{upper} body dx.
+/// An integral expression: \int_{lower}^{upper} body dx or \int body dx.
 class IntegralExpr extends Expression {
-  /// The lower bound of the integral.
-  final Expression lower;
+  /// The lower bound of the integral (optional for indefinite integrals).
+  final Expression? lower;
 
-  /// The upper bound of the integral.
-  final Expression upper;
+  /// The upper bound of the integral (optional for indefinite integrals).
+  final Expression? upper;
 
   /// The expression body to integrate.
   final Expression body;
@@ -142,11 +142,20 @@ class IntegralExpr extends Expression {
   const IntegralExpr(this.lower, this.upper, this.body, this.variable);
 
   @override
-  String toString() => 'IntegralExpr($lower to $upper, $body d$variable)';
+  String toString() {
+    if (lower == null && upper == null) {
+      return 'IntegralExpr($body d$variable)';
+    }
+    return 'IntegralExpr($lower to $upper, $body d$variable)';
+  }
 
   @override
-  String toLatex() =>
-      '\\int_{${lower.toLatex()}}^{${upper.toLatex()}}{${body.toLatex()}} d$variable';
+  String toLatex() {
+    final bounds = (lower != null && upper != null)
+        ? '_{${lower!.toLatex()}}^{${upper!.toLatex()}}'
+        : '';
+    return '\\int$bounds{${body.toLatex()}} d$variable';
+  }
 
   @override
   R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
@@ -213,4 +222,134 @@ class DerivativeExpr extends Expression {
 
   @override
   int get hashCode => body.hashCode ^ variable.hashCode ^ order.hashCode;
+}
+
+/// A partial derivative expression: \frac{\partial f}{\partial x}.
+class PartialDerivativeExpr extends Expression {
+  /// The expression body to differentiate.
+  final Expression body;
+
+  /// The variable to differentiate with respect to.
+  final String variable;
+
+  /// The order of differentiation.
+  final int order;
+
+  const PartialDerivativeExpr(this.body, this.variable, {this.order = 1});
+
+  @override
+  String toString() =>
+      'PartialDerivativeExpr(∂^$order/∂$variable^$order, $body)';
+
+  @override
+  String toLatex() {
+    final orderStr = order > 1 ? '^{$order}' : '';
+    return '\\frac{\\partial$orderStr}{\\partial $variable$orderStr}{${body.toLatex()}}';
+  }
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitPartialDerivativeExpr(this, context);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PartialDerivativeExpr &&
+          runtimeType == other.runtimeType &&
+          body == other.body &&
+          variable == other.variable &&
+          order == other.order;
+
+  @override
+  int get hashCode => body.hashCode ^ variable.hashCode ^ order.hashCode;
+}
+
+/// A multiple integral expression: \iint, \iiint.
+class MultiIntegralExpr extends Expression {
+  /// The order of the integral (2 for double, 3 for triple).
+  final int order;
+
+  /// The lower bound (optional).
+  final Expression? lower;
+
+  /// The upper bound (optional).
+  final Expression? upper;
+
+  /// The expression body to integrate.
+  final Expression body;
+
+  /// The variables of integration.
+  final List<String> variables;
+
+  const MultiIntegralExpr(
+    this.order,
+    this.lower,
+    this.upper,
+    this.body,
+    this.variables,
+  );
+
+  @override
+  String toString() =>
+      'MultiIntegralExpr(order: $order, $body d${variables.join(' d')})';
+
+  @override
+  String toLatex() {
+    final cmd = order == 2 ? '\\iint' : '\\iiint';
+    final bounds = (lower != null && upper != null)
+        ? '_{${lower!.toLatex()}}^{${upper!.toLatex()}}'
+        : (lower != null ? '_{${lower!.toLatex()}}' : '');
+    return '$cmd$bounds{${body.toLatex()}} d${variables.join(' d')}';
+  }
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitMultiIntegralExpr(this, context);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MultiIntegralExpr &&
+          runtimeType == other.runtimeType &&
+          order == other.order &&
+          lower == other.lower &&
+          upper == other.upper &&
+          body == other.body &&
+          Object.hashAll(variables) == Object.hashAll(other.variables);
+
+  @override
+  int get hashCode =>
+      Object.hash(order, lower, upper, body, Object.hashAll(variables));
+}
+
+/// Binomial coefficient expression: \binom{n}{k}.
+class BinomExpr extends Expression {
+  final Expression n;
+  final Expression k;
+
+  const BinomExpr(this.n, this.k);
+
+  @override
+  String toString() => 'BinomExpr($n, $k)';
+
+  @override
+  String toLatex() => '\\binom{${n.toLatex()}}{${k.toLatex()}}';
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitBinomExpr(this, context);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BinomExpr &&
+          runtimeType == other.runtimeType &&
+          n == other.n &&
+          k == other.k;
+
+  @override
+  int get hashCode => n.hashCode ^ k.hashCode;
 }

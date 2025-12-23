@@ -6,7 +6,12 @@ import 'base_parser.dart';
 mixin ExpressionParserMixin on BaseParser {
   @override
   Expression parseExpression() {
-    return parseComparison();
+    enterRecursion();
+    try {
+      return parseComparison();
+    } finally {
+      exitRecursion();
+    }
   }
 
   Expression parseComparison() {
@@ -15,14 +20,13 @@ mixin ExpressionParserMixin on BaseParser {
     final expressions = <Expression>[left];
     final operators = <ComparisonOperator>[];
 
-    while (match([
-      TokenType.less,
-      TokenType.greater,
-      TokenType.lessEqual,
-      TokenType.greaterEqual,
-      TokenType.equals
-    ])) {
-      final operator = tokens[position - 1];
+    Token? mt;
+    while ((mt = matchToken(TokenType.less)) != null ||
+        (mt = matchToken(TokenType.greater)) != null ||
+        (mt = matchToken(TokenType.lessEqual)) != null ||
+        (mt = matchToken(TokenType.greaterEqual)) != null ||
+        (mt = matchToken(TokenType.equals)) != null) {
+      final operator = mt!;
       final right = parsePlusMinus();
 
       ComparisonOperator op;
@@ -56,8 +60,10 @@ mixin ExpressionParserMixin on BaseParser {
     }
 
     if (operators.length > 1) {
+      registerNode();
       return ChainedComparison(expressions, operators);
     } else if (operators.length == 1) {
+      registerNode();
       return Comparison(expressions[0], operators[0], expressions[1]);
     }
 
@@ -67,10 +73,13 @@ mixin ExpressionParserMixin on BaseParser {
   Expression parsePlusMinus() {
     var left = parseTerm();
 
-    while (match([TokenType.plus, TokenType.minus])) {
-      final operator = tokens[position - 1];
+    Token? mt;
+    while ((mt = matchToken(TokenType.plus)) != null ||
+        (mt = matchToken(TokenType.minus)) != null) {
+      final operator = mt!;
       final right = parseTerm();
 
+      registerNode();
       left = BinaryOp(
         left,
         operator.type == TokenType.plus
@@ -87,11 +96,14 @@ mixin ExpressionParserMixin on BaseParser {
   Expression parseTerm() {
     var left = parsePower();
 
+    Token? mt;
     while (true) {
-      if (match([TokenType.multiply, TokenType.divide])) {
-        final operator = tokens[position - 1];
+      if ((mt = matchToken(TokenType.multiply)) != null ||
+          (mt = matchToken(TokenType.divide)) != null) {
+        final operator = mt!;
         final right = parsePower();
 
+        registerNode();
         left = BinaryOp(
           left,
           operator.type == TokenType.multiply
@@ -102,6 +114,7 @@ mixin ExpressionParserMixin on BaseParser {
         );
       } else if (checkImplicitMultiplication()) {
         final right = parsePower();
+        registerNode();
         left = BinaryOp(left, BinaryOperator.multiply, right);
       } else {
         break;
@@ -128,6 +141,7 @@ mixin ExpressionParserMixin on BaseParser {
         check(TokenType.sum) ||
         check(TokenType.prod) ||
         check(TokenType.frac) ||
+        check(TokenType.text) ||
         check(TokenType.infty) ||
         check(TokenType.int) ||
         check(TokenType.binom) ||
@@ -137,30 +151,43 @@ mixin ExpressionParserMixin on BaseParser {
 
   @override
   Expression parsePower() {
-    var left = parseUnary();
+    enterRecursion();
+    try {
+      var left = parseUnary();
 
-    if (match([TokenType.power])) {
-      if (check(TokenType.lparen) && current.value == '{') {
-        advance();
-        final right = parseWithDelimiter('}', parseExpression);
-        consume(TokenType.rparen, "Expected '}' after exponent");
-        return BinaryOp(left, BinaryOperator.power, right);
-      } else {
-        final right = parsePower();
-        return BinaryOp(left, BinaryOperator.power, right);
+      if (match1(TokenType.power)) {
+        if (check(TokenType.lparen) && current.value == '{') {
+          advance();
+          final right = parseExpression();
+          consume(TokenType.rparen, "Expected '}' after exponent");
+          registerNode();
+          return BinaryOp(left, BinaryOperator.power, right);
+        } else {
+          final right = parsePower();
+          registerNode();
+          return BinaryOp(left, BinaryOperator.power, right);
+        }
       }
-    }
 
-    return left;
+      return left;
+    } finally {
+      exitRecursion();
+    }
   }
 
   @override
   Expression parseUnary() {
-    if (match([TokenType.minus])) {
-      final operand = parseUnary();
-      return UnaryOp(UnaryOperator.negate, operand);
-    }
+    enterRecursion();
+    try {
+      if (match1(TokenType.minus)) {
+        final operand = parseUnary();
+        registerNode();
+        return UnaryOp(UnaryOperator.negate, operand);
+      }
 
-    return parsePrimary();
+      return parsePrimary();
+    } finally {
+      exitRecursion();
+    }
   }
 }

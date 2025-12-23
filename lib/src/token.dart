@@ -60,7 +60,20 @@ enum TokenType {
   /// Integral keyword `\int`.
   int,
 
+  /// Double integral `\iint`.
+  iint,
+
+  /// Triple integral `\iiint`.
+  iiint,
+
   /// Square root `\sqrt`.
+  sqrt,
+
+  /// Partial derivative symbol `\partial`.
+  partial,
+
+  /// Gradient operator `\nabla`.
+  nabla,
 
   /// Arrow `\to` or `\rightarrow`.
   to,
@@ -105,6 +118,9 @@ enum TokenType {
   /// Not equal `\neq`.
   notEqual,
 
+  /// Spacing commands (e.g., `\,`, `\;`, `\quad`).
+  spacing,
+
   /// Ignored command (e.g., `\left`, `\right`, `\big`).
   ignored,
 
@@ -123,10 +139,14 @@ class Token {
   /// The position in the source string where this token starts.
   final int position;
 
+  /// The numeric value if this is a number token.
+  final double? numberValue;
+
   const Token({
     required this.type,
     required this.value,
     required this.position,
+    this.numberValue,
   });
 
   @override

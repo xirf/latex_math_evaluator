@@ -65,6 +65,12 @@ double handleFibonacci(FunctionCall func, Map<String, double> vars,
     return _fibonacciCache[n];
   }
 
+  // Double check cache size even though limited by n < 1477
+  if (_fibonacciCache.length > 2000) {
+    _fibonacciCache.clear();
+    _fibonacciCache.addAll([0.0, 1.0]);
+  }
+
   for (int i = _fibonacciCache.length; i <= n; i++) {
     final next = _fibonacciCache[i - 1] + _fibonacciCache[i - 2];
     if (!next.isFinite) {

@@ -4,6 +4,7 @@ library;
 import 'ast.dart';
 import 'complex.dart';
 import 'features/calculus/differentiation_evaluator.dart';
+import 'features/calculus/integration_evaluator.dart';
 import 'exceptions.dart';
 import 'extensions.dart';
 import 'matrix.dart';
@@ -40,6 +41,10 @@ class Evaluator {
   /// Gets the differentiation evaluator (for internal use by public API).
   DifferentiationEvaluator get differentiationEvaluator =>
       _visitor.differentiationEvaluator;
+
+  /// Gets the integration evaluator (for internal use by public API).
+  IntegrationEvaluator get integrationEvaluator =>
+      _visitor.integrationEvaluator;
 
   /// Evaluates the given expression using the provided variable bindings.
   ///
