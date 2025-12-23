@@ -88,7 +88,9 @@ mixin PrimaryParserMixin on BaseParser {
     }
 
     if (match1(TokenType.pipe)) {
+      delimiterStack.add('|');
       final expr = parseExpression();
+      delimiterStack.removeLast();
       consume(TokenType.pipe, "Expected closing |");
       registerNode();
       return AbsoluteValue(expr);
