@@ -2,6 +2,7 @@
 library;
 
 import 'ast.dart';
+import 'cache/cache_manager.dart';
 import 'complex.dart';
 import 'features/calculus/differentiation_evaluator.dart';
 import 'features/calculus/integration_evaluator.dart';
@@ -31,10 +32,16 @@ import 'vector.dart';
 class Evaluator {
   late final EvaluationVisitor _visitor;
 
-  /// Creates an evaluator with optional extension registry.
+  /// Optional cache manager for sub-expression caching.
+  // ignore: unused_field
+  final CacheManager? _cacheManager;
+
+  /// Creates an evaluator with optional extension registry and cache manager.
   ///
   /// [extensions] allows adding custom functions and variables to the evaluator.
-  Evaluator({ExtensionRegistry? extensions}) {
+  /// [cacheManager] enables sub-expression caching for better performance.
+  Evaluator({ExtensionRegistry? extensions, CacheManager? cacheManager})
+      : _cacheManager = cacheManager {
     _visitor = EvaluationVisitor(extensions: extensions);
   }
 
