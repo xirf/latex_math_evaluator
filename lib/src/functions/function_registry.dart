@@ -91,6 +91,7 @@ class FunctionRegistry {
     // Other
     reg('abs', other.handleAbs);
     reg('sgn', other.handleSgn);
+    reg('sign', other.handleSgn);
     reg('factorial', other.handleFactorial);
     reg('fibonacci', other.handleFibonacci);
     reg('min', other.handleMin);

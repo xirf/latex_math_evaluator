@@ -416,7 +416,10 @@ class LatexMathEvaluator {
   /// Results are cached for performance when computing the same derivative
   /// multiple times.
   ///
-  /// [expression] is the parsed expression AST or can be a string that will be parsed.
+  /// [expression] can be either:
+  /// - A parsed [Expression] AST (from [parse])
+  /// - A LaTeX string that will be automatically parsed
+  ///
   /// [variable] is the variable to differentiate with respect to (e.g., 'x').
   /// [order] is the order of differentiation (default is 1 for first derivative).
   ///
@@ -426,35 +429,41 @@ class LatexMathEvaluator {
   /// ```dart
   /// final evaluator = LatexMathEvaluator();
   ///
-  /// // Parse expression
+  /// // Option 1: Parse then differentiate
   /// final expr = evaluator.parse('x^{2}');
-  ///
-  /// // First derivative: d/dx(x^2) = 2x
   /// final derivative = evaluator.differentiate(expr, 'x');
+  ///
+  /// // Option 2: Direct string (more convenient)
+  /// final derivative2 = evaluator.differentiate('x^{2}', 'x');
   ///
   /// // Evaluate at x = 3
   /// final result = evaluator.evaluateParsed(derivative, {'x': 3});
   /// print(result.asNumeric()); // 6.0
   ///
   /// // Second derivative: d²/dx²(x^3) = 6x
-  /// final expr2 = evaluator.parse('x^{3}');
-  /// final secondDerivative = evaluator.differentiate(expr2, 'x', order: 2);
+  /// final secondDerivative = evaluator.differentiate('x^{3}', 'x', order: 2);
+  ///
+  /// // Works with piecewise functions too
+  /// final piecewise = evaluator.differentiate(r'|\sin{x}|, -3 < x < 3', 'x');
   /// ```
-  Expression differentiate(Expression expression, String variable,
+  Expression differentiate(dynamic expression, String variable,
       {int order = 1}) {
+    // Parse string expressions automatically
+    final expr =
+        expression is String ? parse(expression) : expression as Expression;
+
     // Check differentiation cache
     final cached =
-        _cacheManager.getDifferentiationResult(expression, variable, order);
+        _cacheManager.getDifferentiationResult(expr, variable, order);
     if (cached != null) return cached;
 
     final derivative = _evaluator.differentiationEvaluator.differentiate(
-      expression,
+      expr,
       variable,
       order: order,
     );
 
-    _cacheManager.putDifferentiationResult(
-        expression, variable, order, derivative);
+    _cacheManager.putDifferentiationResult(expr, variable, order, derivative);
     return derivative;
   }
 
@@ -463,7 +472,10 @@ class LatexMathEvaluator {
   /// This method performs symbolic integration rules and returns an expression
   /// representing the integral. Note that the "+ C" constant is not explicitly added.
   ///
-  /// [expression] is the parsed expression AST.
+  /// [expression] can be either:
+  /// - A parsed [Expression] AST (from [parse])
+  /// - A LaTeX string that will be automatically parsed
+  ///
   /// [variable] is the variable to integrate with respect to (e.g., 'x').
   ///
   /// Returns the symbolic integral as an [Expression] AST node.
@@ -472,13 +484,22 @@ class LatexMathEvaluator {
   /// Example:
   /// ```dart
   /// final evaluator = LatexMathEvaluator();
+  ///
+  /// // Option 1: Parse then integrate
   /// final expr = evaluator.parse('x^2');
   /// final integral = evaluator.integrate(expr, 'x'); // x^3 / 3
+  ///
+  /// // Option 2: Direct string (more convenient)
+  /// final integral2 = evaluator.integrate('x^2', 'x');
   /// ```
-  Expression integrate(Expression expression, String variable) {
-    if (expression is IntegralExpr) {
-      return _evaluator.integrationEvaluator.integrateIntegralExpr(expression);
+  Expression integrate(dynamic expression, String variable) {
+    // Parse string expressions automatically
+    final expr =
+        expression is String ? parse(expression) : expression as Expression;
+
+    if (expr is IntegralExpr) {
+      return _evaluator.integrationEvaluator.integrateIntegralExpr(expr);
     }
-    return _evaluator.integrationEvaluator.integrate(expression, variable);
+    return _evaluator.integrationEvaluator.integrate(expr, variable);
   }
 }

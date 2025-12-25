@@ -152,6 +152,10 @@ class DifferentiationEvaluator {
         DerivativeExpr(:final body, :final variable, :final order) =>
           DerivativeExpr(body, variable, order: order + 1),
 
+        // Conditional expression (piecewise): d/dx[f(x), condition] = d/dx[f(x)], condition
+        ConditionalExpr(:final expression, :final condition) =>
+          ConditionalExpr(_differentiateOnce(expression, variable), condition),
+
         // Other types not yet supported
         _ => throw EvaluatorException(
             'Cannot differentiate expression of type ${expr.runtimeType}',
