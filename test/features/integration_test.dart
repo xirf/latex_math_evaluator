@@ -112,4 +112,30 @@ void main() {
       expect(numeric.asNumeric(), closeTo(2.0, 0.0001));
     });
   });
+
+  group('Infinity Approximation (Known Limitation)', () {
+    test('integration with infinite bounds approximates as ±100', () {
+      // This test documents the known limitation that infinity is approximated
+      // See KNOWN_ISSUES.md: "Infinity Approximation in Calculus Operations"
+
+      // Gaussian integral: ∫_{-∞}^{∞} e^{-x²} dx = √π ≈ 1.772
+      final result = evaluator.evaluate(r'\int_{-\infty}^{\infty} e^{-x^2} dx');
+
+      // With bounds ±100, we get a close approximation
+      // The actual integral from -100 to 100 is essentially the full integral
+      // since e^{-100²} is practically 0
+      expect(result.asNumeric(), closeTo(1.772, 0.01));
+
+      // Note: This is a numerical approximation, not the exact analytical result
+    });
+
+    test('limits work for quickly converging functions', () {
+      // For functions that converge quickly, the approximation works well
+      final result = evaluator.evaluate(r'\int_{0}^{\infty} e^{-x} dx');
+
+      // Exact analytical result: 1.0
+      // Numerical approximation with upper bound 100: very close to 1.0
+      expect(result.asNumeric(), closeTo(1.0, 0.01));
+    });
+  });
 }

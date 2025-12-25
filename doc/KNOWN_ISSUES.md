@@ -60,15 +60,17 @@ All calculations use Dart's `double` type (IEEE 754 64-bit binary floating-point
 
 - Local pattern-based simplification (e.g., `x * 0 → 0`, `x + 0 → x`)
 - Basic derivative rules for elementary functions
-- Simple symbolic integration patterns
+- Linear and quadratic equation solving (via `solveLinear()` and `solveQuadratic()`)
+- Piecewise function evaluation and differentiation (via `ConditionalExpr`)
+- Numerical integration (Simpson's Rule)
 
 **What IS NOT Supported:**
 
 - **No canonical form:** `2x + 3x` and `5x` are not recognized as equivalent
-- **No expression rewriting:** No general term collection, factoring, or expansion
+- **No expression rewriting:** No general term collection, factoring, or expansion beyond basic patterns
 - **No algebraic equivalence checking:** Cannot determine if two expressions are mathematically equal
-- **No advanced integration:** Only basic patterns; most integrals remain symbolic
-- **No equation solving:** Cannot solve `x^2 - 4 = 0` for `x`
+- **No symbolic integration:** Only numerical integration is available (Simpson's Rule)
+- **No general equation solving:** Only linear and quadratic equations can be solved; no support for higher-degree polynomials, transcendental equations, or systems of equations
 
 **Rationale:** Full computer algebra system (CAS) capabilities require sophisticated term rewriting engines, current implementation is not designed for that.
 
@@ -94,6 +96,32 @@ All calculations use Dart's `double` type (IEEE 754 64-bit binary floating-point
 - **Without caching:** Can be exponential due to tree reuse (e.g., `f(x) + f(x)` evaluates `f(x)` twice)
 - **With caching:** Amortized to near-linear for repeated subexpressions
 - **Worst case:** Large expressions with no repeated subexpressions remain slow
+
+### 5. Infinity Approximation in Calculus Operations
+
+**Limitation:** Infinite bounds and limits at infinity use large finite values as approximations.
+
+**Specific Behaviors:**
+
+- **Improper integrals:** `∫_{-∞}^{∞}` replaces infinity with `±100.0`
+- **Limits at infinity:** `lim_{x→∞}` evaluates at `[1e2, 1e4, 1e6, 1e8]` and returns the last successful value
+- **Why this matters:** Results are approximations, not exact analytical values
+
+**Examples:**
+
+- `∫_{-∞}^{∞} e^{-x²} dx` approximates as `∫_{-100}^{100} e^{-x²} dx`
+- `lim_{x→∞} 1/x` evaluates `1/x` at increasingly large x values
+
+**Impact:**
+
+- Functions with slow convergence may produce inaccurate results
+- Oscillating functions (e.g., `sin(x)`) may give misleading limits
+- Integrals of functions that don't decay quickly may be inaccurate
+- **Functions with asymptotes** (e.g., `tan(x)`, `1/x`) are particularly problematic - the integration path may cross vertical asymptotes, causing incorrect results or errors
+
+**Rationale:** Numerical integration and limit evaluation algorithms require finite values. These approximations work well for most common mathematical functions (exponential decay, rational functions, etc.).
+
+**Workaround:** For better accuracy with slow-converging functions, use finite but large bounds explicitly, or use symbolic analysis if available.
 
 ---
 

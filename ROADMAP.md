@@ -13,7 +13,7 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 
 ---
 
-## 📊 Current State (v0.1.5-nightly)
+## 📊 Current State (v0.1.5)
 
 ### ✅ Implemented Features
 
@@ -30,6 +30,7 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 - ✅ Limit evaluation (numerical approximation)
 - ✅ Complex number support (basic arithmetic, Re, Im, conjugate)
 - ✅ Domain assumptions & tracking (e.g., x > 0 for log simplification)
+- ✅ Piecewise function evaluation and differentiation (ConditionalExpr)
 - ✅ Expression validation with detailed error messages
 - ✅ Parse-once-evaluate-many pattern with LRU caching
 - ✅ Extensible architecture for custom functions
@@ -60,6 +61,8 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 
 **Rationale:** Current differentiation has basic simplification, but advanced symbolic manipulation would enable algebraic workflows and make derivative results more readable.
 
+> [!NOTE] > **Limitations:** Despite completion status, the symbolic algebra engine uses pattern-based local simplification, not a full Computer Algebra System (CAS). It does not provide canonical forms or general term collection. See [KNOWN_ISSUES.md](doc/KNOWN_ISSUES.md) for details.
+
 **Success Criteria:**
 
 - [x] Can simplify `(x+1)^2` to `x^2 + 2x + 1`
@@ -85,7 +88,9 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 - [x] Add 100+ integration test cases
 - [x] Document supported integration patterns
 
-**Rationale:** Currently only numerical integration via Simpson's Rule. Symbolic integration enables closed-form solutions.
+**Rationale:** Currently only numerical integration via Simpson's Rule exists. Symbolic integration would enable closed-form solutions.
+
+**Current State:** Only numerical integration is implemented. The items above represent planned symbolic integration capabilities.
 
 **Success Criteria:**
 
@@ -124,11 +129,15 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 
 ### 🟡 1.4 Piecewise Functions and Conditionals
 
-**Status:** 📋 Planned | **Owner:** Unassigned
+**Status:** ✅ 25/12/2025 | **Owner:** @xirf
 
 **Tasks:**
 
-- [ ] Parse piecewise function syntax
+- [x] Parse piecewise function syntax (via conditional expressions)
+- [x] Conditional expression support with domain checking
+- [x] Evaluate piecewise functions correctly
+- [x] Derivative support for piecewise functions
+- [ ] Implement full `\begin{cases}` LaTeX command
 
 $$
 f(x) = \begin{cases}
@@ -144,18 +153,16 @@ f(x) = \begin{cases}
 \end{cases}
 ```
 
-- [ ] Conditional expression support with domain checking
-- [ ] Implement `\cases{}` LaTeX command
-- [ ] Add derivative support for piecewise functions
-- [ ] Add 50+ test cases
+- [x] Add test cases for piecewise differentiation
 
 **Rationale:** Essential for real-world mathematical modeling.
 
 **Success Criteria:**
 
-- [ ] Piecewise functions evaluate correctly
-- [ ] Domain violations throw clear errors
-- [ ] Works with differentiation and integration
+- [x] Piecewise functions evaluate correctly via ConditionalExpr
+- [x] Works with differentiation
+- [ ] Full `\begin{cases}` LaTeX syntax support
+- [ ] Works with integration
 
 ---
 
@@ -569,8 +576,8 @@ f(x) = \begin{cases}
 - [x] Logarithm laws and rational simplification
 - [x] LaTeX regeneration (toLatex() method)
 - [x] Extended LaTeX notation (`\left/\right`, `\binom`, `\iint`, `\partial`, `\nabla`, Greek letters)
-- [ ] Enhanced complex number support
-- [ ] Improved error messages
+- [x] Enhanced complex number support
+- [x] Improved error messages
 - [x] 1000+ tests
 
 ### v0.3.0 - Integration & Tooling (Target: Q2 2026)
@@ -590,7 +597,7 @@ f(x) = \begin{cases}
 - [ ] WASM compilation
 - [ ] VS Code extension
 - [ ] Piecewise functions
-- [ ] 700+ tests
+- [x] 700+ tests
 
 ### v1.0.0 - Stable Release (Target: Q4 2026)
 
@@ -619,4 +626,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
 
 ---
 
-**Last Updated:** December 19, 2025
+**Last Updated:** December 25, 2025

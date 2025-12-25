@@ -1,6 +1,6 @@
 # LaTeX Math Evaluator 🧮
 
-[![Tests](https://img.shields.io/badge/tests-1193%20passed-brightgreen)](https://github.com/xirf/latex_math_evaluator)
+[![Tests](https://img.shields.io/badge/tests-1197%20passed-brightgreen)](https://github.com/xirf/latex_math_evaluator)
 [![Dart](https://img.shields.io/badge/dart-%3E%3D3.0.0-blue)](https://github.com/xirf/latex_math_evaluator)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Pub Version](https://img.shields.io/pub/v/latex_math_evaluator)](https://pub.dev/packages/latex_math_evaluator)
@@ -13,13 +13,15 @@ A Flutter/Dart library designed for parsing and evaluating complex mathematical 
 ## ✨ Key Capabilities
 
 - 🎯 **Native LaTeX Parsing** – Evaluate expressions directly from academic papers without manual translation.
-- 🧮 **Symbolic Calculus** – Compute exact derivatives and simplify expressions using algebraic rules.
+- 🧮 **Symbolic Calculus** – Compute exact derivatives and simplify expressions using algebraic rules. Uses pattern-based simplification (not a full CAS).
 - 🔢 **Advanced Mathematics** – Support for summations, products, limits, integrals, and special functions.
 - 🏗️ **Linear Algebra** – Full suite of matrix and vector operations, including determinants and powers.
 - 🛡️ **Type-Safe Results** – Robust handling of Real, Complex, Matrix, and Vector types via Dart 3 sealed classes.
 - 🚩 **Domain Awareness** – Uses an Assumptions System (e.g., $x > 0$) to ensure mathematically sound transformations.
 - 🔧 **Extensible Architecture** – Easily add custom LaTeX commands and evaluation logic.
 - 🧩 **Implicit/Explicit Logic** – Natural parsing of $2\pi r$ or $\sin 2x$—no need to type every \*. easy to switch between implicit and explicit logic.
+- 🎲 **Equation Solving** – Solve linear and quadratic equations symbolically.
+- 📊 **Piecewise Functions** – Evaluate and differentiate piecewise expressions with conditions.
 
 ---
 
@@ -29,7 +31,7 @@ Add the dependency to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  latex_math_evaluator: ^0.1.6-nightly
+  latex_math_evaluator: ^0.1.5
 ```
 
 ### Basic Evaluation
@@ -146,6 +148,7 @@ fastEvaluator.evaluate(r'\sum_{i=1}^{100} i');
 - [**Getting Started**](doc/getting_started.md)
 - [**LaTeX Commands Reference**](doc/latex_commands.md) – Complete list of supported LaTeX notation.
 - [**Symbolic Algebra**](doc/symbolic_algebra.md) – Simplification and expansion rules.
+- [**Piecewise Functions**](doc/features/piecewise.md) – Conditional expressions and domain-restricted functions.
 - [**Function Reference**](doc/functions/README.md) – Mathematical functions and their behavior.
 - [**Extending the Library**](doc/extensions.md) – How to add custom functions.
 - [**Performance Guide**](doc/performance/caching.md) – Tuning the cache and memoization.

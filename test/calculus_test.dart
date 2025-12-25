@@ -138,4 +138,32 @@ void main() {
           closeTo(1.0, 1e-2)); // Numeric integration with large bounds
     });
   });
+
+  group('Limit at Infinity (Known Limitation)', () {
+    test('limit at infinity evaluates at large numbers', () {
+      // Documents that lim_{x→∞} uses large finite values (1e2, 1e4, 1e6, 1e8)
+      // See KNOWN_ISSUES.md: "Infinity Approximation in Calculus Operations"
+      final expression = r'\lim_{x \to \infty} \frac{1}{x}';
+
+      final ast = Parser(Tokenizer(expression).tokenize()).parse();
+      final result = evaluator.evaluate(ast);
+
+      // Should approach 0, evaluated at x = 1e8 (the largest step)
+      // Result: 1/1e8 = 1e-8
+      expect(result, isA<NumericResult>());
+      expect((result as NumericResult).value, closeTo(0, 1e-7));
+    });
+
+    test('limit at infinity works for polynomial ratios', () {
+      // lim_{x→∞} (2x+1)/(x+3) = 2 (degrees equal, ratio of leading coefficients)
+      final expression = r'\lim_{x \to \infty} \frac{2x+1}{x+3}';
+
+      final ast = Parser(Tokenizer(expression).tokenize()).parse();
+      final result = evaluator.evaluate(ast);
+
+      expect(result, isA<NumericResult>());
+      // At x=1e8: (2*1e8+1)/(1e8+3) ≈ 2
+      expect((result as NumericResult).value, closeTo(2.0, 0.01));
+    });
+  });
 }

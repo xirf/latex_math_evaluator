@@ -94,11 +94,20 @@ class CalculusEvaluator {
     );
   }
 
+  /// Evaluates limit as x approaches infinity using numerical approximation.
+  ///
+  /// Strategy: Evaluate the expression at increasingly large values and return
+  /// the last successful result. This works well for converging limits but may
+  /// be inaccurate for slowly converging or oscillating functions.
+  ///
+  /// Limitation: This is a numerical approximation, not symbolic analysis.
+  /// See KNOWN_ISSUES.md section "Infinity Approximation in Calculus Operations".
   dynamic _evaluateLimitAtInfinity(
     LimitExpr limit,
     Map<String, double> variables,
     bool positive,
   ) {
+    // Sample at increasingly large values: 100, 10000, 1000000, 100000000
     const steps = [1e2, 1e4, 1e6, 1e8];
     dynamic lastValue;
 
@@ -108,7 +117,7 @@ class CalculusEvaluator {
       try {
         lastValue = _evaluate(limit.body, vars);
       } catch (_) {
-        // Continue
+        // Continue to next step if evaluation fails
       }
     }
 
@@ -194,8 +203,10 @@ class CalculusEvaluator {
     }
 
     // Handle Improper Integrals (infinite bounds)
-    // Basic approximation: Replace infinity with large number
-    // For most functions decaying at infinity, +/- 100 is sufficient range
+    // Numerical approximation: Replace ±∞ with ±100.0
+    // This works well for functions that decay rapidly (e.g., e^(-x²), 1/(1+x²)).
+    // Caution: Slowly decaying or oscillating functions may be inaccurate.
+    // See KNOWN_ISSUES.md section "Infinity Approximation in Calculus Operations".
     const largeNumber = 100.0;
     if (lower == double.negativeInfinity) lower = -largeNumber;
     if (upper == double.infinity) upper = largeNumber;

@@ -167,7 +167,7 @@ void main() {
         // sqrt
         final sqrtC = c.sqrt();
         final sqrtSquared = sqrtC * sqrtC;
-        expect((sqrtSquared as Complex).real, closeTo(c.real, 1e-10));
+        expect((sqrtSquared).real, closeTo(c.real, 1e-10));
         expect(sqrtSquared.imaginary, closeTo(c.imaginary, 1e-10));
       });
     });
