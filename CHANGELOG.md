@@ -1,5 +1,36 @@
 # CHANGELOG
 
+## 0.1.6-nightly - 2025-12-25
+
+### Added
+
+- **Enhanced Complex Number Support**:
+  - Full support for complex transcendental functions: `sin`, `cos`, `tan`, `sinh`, `cosh`, `tanh`, `exp`, `ln`, `log`.
+  - Advanced `Complex` class methods: `pow()`, `sqrt()`, `fromPolar()`, `toPolar()`.
+  - Non-real results (like `sqrt(-1)` or `ln(-1)`) now return `ComplexResult` instead of throwing exceptions.
+  - `ln(0)` and `log(0)` now return complex representations of negative infinity.
+  - Euler's identity `e^{i\pi} = -1` verified and supported.
+  - Added 16+ comprehensive tests for complex function evaluation.
+- **Improved Error Messages & Diagnostics**:
+  - **Did-you-mean Suggestions**: Uses Levenshtein distance to suggest the correct function name when an unknown function is called (e.g., `\sinn` → "Did you mean 'sin'?").
+  - **Common Mistake Detection**: Automatic detection of frequent LaTeX syntax errors:
+    - Braceless fractions: `\frac12` → suggestion to use `\frac{1}{2}`.
+    - Missing backslashes: `sin(x)` → suggestion to use `\sin{x}`.
+    - Unmatched delimiters: Specific messages for missing or extra `}` and `)`.
+  - **Context-Aware Suggestions**: `ValidationResult` now provides more specific advice for division by zero, domain errors, and undefined variables.
+  - New internal `error_suggestions.dart` utility for improved error reporting.
+  - Added 15+ tests for error message suggestions and position markers.
+
+### Changed
+
+- **Function Registry**: Updated to support `dynamic` return types for handlers that can return either `double` or `Complex`.
+- **ComplexStrategy**: Now uses `Complex.pow()` for all power operations, ensuring consistent handling of complex exponents.
+
+### Improved
+
+- **Floating-Point Precision**: Improved accuracy for complex power operations (e.g., `i^2` now returns exactly `-1`).
+- **Documentation**: New [doc/features/complex.md](doc/features/complex.md) and updated validation documentation.
+
 ## 0.1.5 - 2025-12-25
 
 ### Added
