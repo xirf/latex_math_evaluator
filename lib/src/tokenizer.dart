@@ -24,7 +24,7 @@ class Tokenizer {
       throw TokenizerException(
         'Input exceeds maximum allowed length: ${_source.length} (max $maxInputLength)',
         position: 0,
-        expression: _source.substring(0, math.min(_source.length, 100)) + '...',
+        expression: '${_source.substring(0, math.min(_source.length, 100))}...',
         suggestion:
             'Reduce the size of your LaTeX expression to under $maxInputLength characters',
       );

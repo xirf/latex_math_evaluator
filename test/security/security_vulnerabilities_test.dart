@@ -21,7 +21,7 @@ void main() {
       // CVE: Recursive descent parser without depth limit
       // Attacker can craft deeply nested expressions to exhaust stack
       final depth = 10000;
-      final nested = '(' * depth + '1' + ')' * depth;
+      final nested = '${'(' * depth}1${')' * depth}';
 
       expect(
         () => evaluator.evaluate(nested),
@@ -35,7 +35,7 @@ void main() {
       // CVE: Parser recursion vulnerability
       var expr = '1';
       for (var i = 0; i < 1000; i++) {
-        expr = r'\frac{' + expr + '}{2}';
+        expr = r'\frac{' '$expr' '}{2}';
       }
 
       expect(
@@ -273,7 +273,7 @@ void main() {
   group('Parser Bomb - Exponential Complexity', () {
     test('expression with many implicit multiplications should not hang', () {
       // CVE: Implicit multiplication parsing complexity
-      final expr = 'x' + 'y' * 1000;
+      final expr = 'x${'y' * 1000}';
 
       expect(
         () => evaluator.evaluate(expr, {'x': 1.0, 'y': 1.0}),
@@ -327,7 +327,7 @@ void main() {
       // Call fibonacci with increasing values
       for (var i = 0; i < 1000; i++) {
         try {
-          evaluator.evaluate(r'\fibonacci{' + '$i' + '}');
+          evaluator.evaluate(r'\fibonacci{' '$i}');
         } catch (_) {
           // Expected for large values
         }
@@ -340,7 +340,7 @@ void main() {
     test('factorial cache should not grow indefinitely', () {
       // CVE: Factorial cache is fixed at 171, verify it stays bounded
       for (var i = 0; i < 170; i++) {
-        evaluator.evaluate(r'\factorial{' + '$i' + '}');
+        evaluator.evaluate(r'\factorial{' '$i}');
       }
 
       expect(true, isTrue,
@@ -351,7 +351,7 @@ void main() {
   group('Regex DoS (ReDoS)', () {
     test('number parsing should not be vulnerable to ReDoS', () {
       // CVE: If regex is used for number parsing
-      final maliciousNumber = '1' + '0' * 100000 + '.';
+      final maliciousNumber = '1${'0' * 100000}.';
 
       expect(
         () => evaluator.evaluate(maliciousNumber),

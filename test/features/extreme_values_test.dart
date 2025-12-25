@@ -23,19 +23,16 @@ void main() {
       final result = evaluator.evaluate('10^{100} + 2 * 10^{100}');
       expect(result.asNumeric(), closeTo(3e100, 1e90));
     });
-    ;
 
     test('multiplication with very large numbers', () {
       final result = evaluator.evaluate('10^{50} * 10^{50}');
       expect(result.asNumeric(), closeTo(1e100, 1e90));
     });
-    ;
 
     test('large number subtraction', () {
       final result = evaluator.evaluate('10^{100} - 9 * 10^{99}');
       expect(result.asNumeric(), closeTo(1e99, 1e89));
     });
-    ;
 
     test('powers of large numbers', () {
       final result = evaluator.evaluate('10^{100}');
@@ -46,7 +43,6 @@ void main() {
       final result = evaluator.evaluate('(10^{50})^2');
       expect(result.asNumeric(), closeTo(1e100, 1e90));
     });
-    ;
   });
 
   group('Very Small Numbers', () {
@@ -121,7 +117,6 @@ void main() {
         throwsA(isA<EvaluatorException>()),
       );
     });
-    ;
 
     test('negative division by zero throws exception', () {
       expect(
@@ -129,7 +124,6 @@ void main() {
         throwsA(isA<EvaluatorException>()),
       );
     });
-    ;
 
     test('infinity in arithmetic', () {
       final result = evaluator.evaluate(r'\infty + 1');

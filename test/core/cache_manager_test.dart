@@ -1,7 +1,5 @@
 import 'package:test/test.dart';
 import 'package:latex_math_evaluator/latex_math_evaluator.dart';
-import 'package:latex_math_evaluator/src/cache/cache_config.dart';
-import 'package:latex_math_evaluator/src/cache/cache_manager.dart';
 
 void main() {
   group('CacheConfig', () {
