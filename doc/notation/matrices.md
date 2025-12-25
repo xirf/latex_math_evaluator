@@ -77,6 +77,15 @@ The library calculates matrix determinants using optimized algorithms:
 
 **Performance**: For large matrices (10x10), determinant calculation typically takes 0.04-0.07 milliseconds.
 
+### Trace
+
+Calculates the trace of a matrix (sum of diagonal elements).
+
+```latex
+\trace{\begin{matrix} 1 & 2 \\ 3 & 4 \end{matrix}}  % Returns 5.0 (1 + 4)
+\tr{A}  % Alias
+```
+
 ### Transpose
 
 Matrix transpose is supported using the `^T` notation:

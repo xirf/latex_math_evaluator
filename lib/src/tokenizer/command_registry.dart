@@ -22,6 +22,7 @@ class LatexCommandRegistry {
     _registerMatrixCommands();
     _registerLogicAndComparison();
     _registerSpecialCommands();
+    _registerFontCommands();
   }
 
   /// Registers all standard mathematical functions.
@@ -100,27 +101,68 @@ class LatexCommandRegistry {
   }
 
   void _registerGreekLetters() {
+    // Mathematical constants
     _commands['pi'] = TokenType.constant;
     _commands['tau'] = TokenType.constant;
     _commands['phi'] = TokenType.constant;
-    _commands['gamma'] = TokenType.variable;
     _commands['Omega'] = TokenType.constant;
-    _commands['delta'] = TokenType.variable;
-    _commands['theta'] = TokenType.variable;
+    _commands['hbar'] = TokenType.constant;
+
+    // Lowercase Greek letters (as variables)
     _commands['alpha'] = TokenType.variable;
     _commands['beta'] = TokenType.variable;
+    _commands['gamma'] = TokenType.variable;
+    _commands['delta'] = TokenType.variable;
     _commands['epsilon'] = TokenType.variable;
-    _commands['lambda'] = TokenType.variable;
-    _commands['mu'] = TokenType.variable;
-    _commands['sigma'] = TokenType.variable;
-    _commands['rho'] = TokenType.variable;
-    _commands['omega'] = TokenType.variable;
     _commands['zeta'] = TokenType.variable;
     _commands['eta'] = TokenType.variable;
+    _commands['theta'] = TokenType.variable;
+    _commands['iota'] = TokenType.variable;
     _commands['kappa'] = TokenType.variable;
+    _commands['lambda'] = TokenType.variable;
+    _commands['mu'] = TokenType.variable;
+    _commands['nu'] = TokenType.variable;
+    _commands['xi'] = TokenType.variable;
+    _commands['omicron'] = TokenType.variable;
+    _commands['rho'] = TokenType.variable;
+    _commands['sigma'] = TokenType.variable;
+    _commands['upsilon'] = TokenType.variable;
     _commands['chi'] = TokenType.variable;
     _commands['psi'] = TokenType.variable;
-    _commands['hbar'] = TokenType.constant;
+    _commands['omega'] = TokenType.variable;
+
+    // Uppercase Greek letters
+    _commands['Alpha'] = TokenType.variable;
+    _commands['Beta'] = TokenType.variable;
+    _commands['Gamma'] = TokenType.variable;
+    _commands['Delta'] = TokenType.variable;
+    _commands['Epsilon'] = TokenType.variable;
+    _commands['Zeta'] = TokenType.variable;
+    _commands['Eta'] = TokenType.variable;
+    _commands['Theta'] = TokenType.variable;
+    _commands['Iota'] = TokenType.variable;
+    _commands['Kappa'] = TokenType.variable;
+    _commands['Lambda'] = TokenType.variable;
+    _commands['Mu'] = TokenType.variable;
+    _commands['Nu'] = TokenType.variable;
+    _commands['Xi'] = TokenType.variable;
+    _commands['Omicron'] = TokenType.variable;
+    _commands['Pi'] = TokenType.variable;
+    _commands['Rho'] = TokenType.variable;
+    _commands['Sigma'] = TokenType.variable;
+    _commands['Tau'] = TokenType.variable;
+    _commands['Upsilon'] = TokenType.variable;
+    _commands['Phi'] = TokenType.variable;
+    _commands['Chi'] = TokenType.variable;
+    _commands['Psi'] = TokenType.variable;
+
+    // Variant Greek letters
+    _commands['varepsilon'] = TokenType.variable;
+    _commands['varphi'] = TokenType.variable;
+    _commands['varrho'] = TokenType.variable;
+    _commands['vartheta'] = TokenType.variable;
+    _commands['varpi'] = TokenType.variable;
+    _commands['varsigma'] = TokenType.variable;
   }
 
   /// Registers calculus notation commands.
@@ -177,6 +219,20 @@ class LatexCommandRegistry {
 
     // Derivative notation
     _commands['d'] = TokenType.variable;
+  }
+
+  /// Registers font styling commands.
+  void _registerFontCommands() {
+    _commands['mathbf'] = TokenType.fontCommand;
+    _commands['mathcal'] = TokenType.fontCommand;
+    _commands['mathrm'] = TokenType.fontCommand;
+    _commands['mathit'] = TokenType.fontCommand;
+    _commands['mathsf'] = TokenType.fontCommand;
+    _commands['mathtt'] = TokenType.fontCommand;
+    _commands['textbf'] = TokenType.fontCommand;
+    _commands['textit'] = TokenType.fontCommand;
+    _commands['textrm'] = TokenType.fontCommand;
+    _commands['boldsymbol'] = TokenType.fontCommand;
   }
 
   /// Gets the token type for a given LaTeX command.

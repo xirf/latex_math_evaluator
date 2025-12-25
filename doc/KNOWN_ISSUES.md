@@ -27,7 +27,7 @@ These are deliberate design choices that define the library's scope and philosop
 
 **Rationale:** Full LaTeX compatibility would require implementing a complete TeX parser, which is out of scope. We support mathematical notation, not document formatting.
 
-**Current Coverage:** See documentation for the complete list of supported commands.
+**Current Coverage:** See documentation for the complete list of [supported commands](./latex_commands.md).
 
 **Future Work:** See [ROADMAP.md](../ROADMAP.md) for details on planned LaTeX command support.
 
@@ -80,7 +80,7 @@ All calculations use Dart's `double` type (IEEE 754 64-bit binary floating-point
 
 **Rationale:** Prevents stack overflow, but creates a hard semantic ceiling on expression complexity.
 
-**Impact:** Expressions exceeding this depth will throw a `RecursionDepthException`, even if they are mathematically valid.
+**Impact:** Expressions exceeding this depth will throw a `ParserException` (during parsing) or `EvaluatorException` (during differentiation/integration), even if they are mathematically valid.
 
 ### 4. Performance Characteristics
 
@@ -173,10 +173,10 @@ All calculations use Dart's `double` type (IEEE 754 64-bit binary floating-point
 
 **Current Exception Types:**
 
-- `TokenizerException`: Lexical errors
-- `ParserException`: Syntax errors
-- `EvaluatorException`: Runtime errors (division by zero, domain errors, etc.)
-- `RecursionDepthException`: Recursion limit exceeded
+- `LatexMathException`: Sealed base class for all library exceptions
+- `TokenizerException`: Lexical errors during tokenization
+- `ParserException`: Syntax errors during parsing
+- `EvaluatorException`: Runtime errors (division by zero, domain errors, undefined variables, etc.)
 
 ### Parser Behavior Versioning
 

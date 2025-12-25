@@ -124,6 +124,9 @@ enum TokenType {
   /// Ignored command (e.g., `\left`, `\right`, `\big`).
   ignored,
 
+  /// Font command (e.g., `\mathbf`, `\mathcal`, `\mathrm`).
+  fontCommand,
+
   /// End of input.
   eof,
 }

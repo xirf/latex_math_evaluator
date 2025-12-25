@@ -11,6 +11,13 @@
   - `ln(0)` and `log(0)` now return complex representations of negative infinity.
   - Euler's identity `e^{i\pi} = -1` verified and supported.
   - Added 16+ comprehensive tests for complex function evaluation.
+- **Extended LaTeX Notation Support**:
+  - **Uppercase Greek Letters**: `\Alpha` through `\Psi` (all standard uppercase Greek letters).
+  - **Variant Greek Letters**: `\varepsilon`, `\varphi`, `\varrho`, `\vartheta`, `\varpi`, `\varsigma`.
+  - **Missing Lowercase Greek**: Added `\iota`, `\nu`, `\xi`, `\omicron`, `\upsilon`.
+  - **Font Commands**: `\mathbf`, `\mathcal`, `\mathrm`, `\mathit`, `\mathsf`, `\mathtt`, `\textbf`, `\boldsymbol`.
+  - Font commands preserve content for LaTeX round-trip (e.g., `\mathbf{E}` → `Variable("mathbf:E")`).
+  - New comprehensive documentation: `doc/latex_commands.md`.
 - **Improved Error Messages & Diagnostics**:
   - **Did-you-mean Suggestions**: Uses Levenshtein distance to suggest the correct function name when an unknown function is called (e.g., `\sinn` → "Did you mean 'sin'?").
   - **Common Mistake Detection**: Automatic detection of frequent LaTeX syntax errors:
@@ -29,7 +36,8 @@
 ### Improved
 
 - **Floating-Point Precision**: Improved accuracy for complex power operations (e.g., `i^2` now returns exactly `-1`).
-- **Documentation**: New [doc/features/complex.md](doc/features/complex.md) and updated validation documentation.
+- **Implicit Multiplication**: Extended to support `\nabla`, `\partial`, `\iint`, `\iiint`, and font commands for expressions like `\alpha \nabla^2 u`.
+- **Documentation**: New [doc/features/complex.md](doc/features/complex.md), [doc/latex_commands.md](doc/latex_commands.md), and updated validation documentation.
 
 ## 0.1.5 - 2025-12-25
 

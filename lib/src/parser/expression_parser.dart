@@ -144,9 +144,14 @@ mixin ExpressionParserMixin on BaseParser {
         check(TokenType.text) ||
         check(TokenType.infty) ||
         check(TokenType.int) ||
+        check(TokenType.iint) ||
+        check(TokenType.iiint) ||
         check(TokenType.binom) ||
         check(TokenType.begin) ||
-        check(TokenType.pipe);
+        check(TokenType.pipe) ||
+        check(TokenType.nabla) ||
+        check(TokenType.partial) ||
+        check(TokenType.fontCommand);
   }
 
   @override

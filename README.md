@@ -1,6 +1,6 @@
 # LaTeX Math Evaluator 🧮
 
-[![Tests](https://img.shields.io/badge/tests-1168%20passed-brightgreen)](https://github.com/xirf/latex_math_evaluator)
+[![Tests](https://img.shields.io/badge/tests-1193%20passed-brightgreen)](https://github.com/xirf/latex_math_evaluator)
 [![Dart](https://img.shields.io/badge/dart-%3E%3D3.0.0-blue)](https://github.com/xirf/latex_math_evaluator)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Pub Version](https://img.shields.io/pub/v/latex_math_evaluator)](https://pub.dev/packages/latex_math_evaluator)
@@ -144,8 +144,9 @@ fastEvaluator.evaluate(r'\sum_{i=1}^{100} i');
 ## 📖 Documentation & Resources
 
 - [**Getting Started**](doc/getting_started.md)
+- [**LaTeX Commands Reference**](doc/latex_commands.md) – Complete list of supported LaTeX notation.
 - [**Symbolic Algebra**](doc/symbolic_algebra.md) – Simplification and expansion rules.
-- [**Function Reference**](doc/functions/README.md) – List of all supported LaTeX commands.
+- [**Function Reference**](doc/functions/README.md) – Mathematical functions and their behavior.
 - [**Extending the Library**](doc/extensions.md) – How to add custom functions.
 - [**Performance Guide**](doc/performance/caching.md) – Tuning the cache and memoization.
 

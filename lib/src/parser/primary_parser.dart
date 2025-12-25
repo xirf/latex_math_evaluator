@@ -83,6 +83,15 @@ mixin PrimaryParserMixin on BaseParser {
       return Variable(text);
     }
 
+    // Handle font commands like \mathbf{E}, \mathcal{F}
+    final fontToken = matchToken(TokenType.fontCommand);
+    if (fontToken != null) {
+      final content = parseLatexArgument();
+      registerNode();
+      // Store font style as prefix for LaTeX round-trip
+      return Variable('${fontToken.value}:$content');
+    }
+
     if (match1(TokenType.begin)) {
       return parseMatrix();
     }
