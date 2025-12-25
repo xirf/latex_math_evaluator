@@ -1,27 +1,37 @@
-/// Trigonometric function handlers.
+/// Trigonometric function handlers with complex number support.
 library;
 
 import 'dart:math' as math;
 
 import '../ast.dart';
+import '../complex.dart';
 import '../exceptions.dart';
 
-/// Sine: \sin{x}
-double handleSin(FunctionCall func, Map<String, double> vars,
-    double Function(Expression) evaluate) {
-  return math.sin(evaluate(func.argument));
+/// Sine: \sin{x} - supports both real and complex arguments
+dynamic handleSin(FunctionCall func, Map<String, double> vars,
+    dynamic Function(Expression) evaluate) {
+  final arg = evaluate(func.argument);
+  if (arg is Complex) return arg.sin();
+  if (arg is num) return math.sin(arg.toDouble());
+  throw EvaluatorException('sin requires a numeric or complex argument');
 }
 
-/// Cosine: \cos{x}
-double handleCos(FunctionCall func, Map<String, double> vars,
-    double Function(Expression) evaluate) {
-  return math.cos(evaluate(func.argument));
+/// Cosine: \cos{x} - supports both real and complex arguments
+dynamic handleCos(FunctionCall func, Map<String, double> vars,
+    dynamic Function(Expression) evaluate) {
+  final arg = evaluate(func.argument);
+  if (arg is Complex) return arg.cos();
+  if (arg is num) return math.cos(arg.toDouble());
+  throw EvaluatorException('cos requires a numeric or complex argument');
 }
 
-/// Tangent: \tan{x}
-double handleTan(FunctionCall func, Map<String, double> vars,
-    double Function(Expression) evaluate) {
-  return math.tan(evaluate(func.argument));
+/// Tangent: \tan{x} - supports both real and complex arguments
+dynamic handleTan(FunctionCall func, Map<String, double> vars,
+    dynamic Function(Expression) evaluate) {
+  final arg = evaluate(func.argument);
+  if (arg is Complex) return arg.tan();
+  if (arg is num) return math.tan(arg.toDouble());
+  throw EvaluatorException('tan requires a numeric or complex argument');
 }
 
 /// Arcsine: \asin{x}

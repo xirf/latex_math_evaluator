@@ -98,4 +98,118 @@ class Complex {
 
   @override
   int get hashCode => Object.hash(real, imaginary);
+
+  // ============================================================
+  // Complex Mathematical Operations
+  // ============================================================
+
+  /// Creates a complex number from polar coordinates.
+  ///
+  /// [r] is the modulus (distance from origin).
+  /// [theta] is the argument (angle in radians).
+  factory Complex.fromPolar(double r, double theta) =>
+      Complex(r * math.cos(theta), r * math.sin(theta));
+
+  /// Returns the complex exponential e^z.
+  ///
+  /// e^(a+bi) = e^a * (cos(b) + i*sin(b))
+  Complex exp() {
+    final expReal = math.exp(real);
+    return Complex(
+        expReal * math.cos(imaginary), expReal * math.sin(imaginary));
+  }
+
+  /// Returns the principal value of the natural logarithm ln(z).
+  ///
+  /// ln(z) = ln|z| + i*arg(z)
+  Complex log() {
+    return Complex(math.log(abs), arg);
+  }
+
+  /// Returns z raised to the power [exponent].
+  ///
+  /// z^w = exp(w * ln(z))
+  Complex pow(Object exponent) {
+    if (exponent is num) {
+      // Optimization for real exponents
+      if (real == 0 && imaginary == 0) {
+        return exponent == 0 ? Complex(1.0) : Complex(0.0);
+      }
+      final r = math.pow(abs, exponent.toDouble());
+      final theta = arg * exponent.toDouble();
+      return Complex(r * math.cos(theta), r * math.sin(theta));
+    } else if (exponent is Complex) {
+      if (real == 0 && imaginary == 0) {
+        return exponent.real == 0 && exponent.imaginary == 0
+            ? Complex(1.0)
+            : Complex(0.0);
+      }
+      // z^w = exp(w * ln(z))
+      return (exponent * log()).exp();
+    }
+    throw ArgumentError(
+        'Cannot raise Complex to power of ${exponent.runtimeType}');
+  }
+
+  /// Returns the principal square root of this complex number.
+  Complex sqrt() => pow(0.5);
+
+  /// Returns the complex sine of this number.
+  ///
+  /// sin(a+bi) = sin(a)cosh(b) + i*cos(a)sinh(b)
+  Complex sin() {
+    return Complex(
+      math.sin(real) * _cosh(imaginary),
+      math.cos(real) * _sinh(imaginary),
+    );
+  }
+
+  /// Returns the complex cosine of this number.
+  ///
+  /// cos(a+bi) = cos(a)cosh(b) - i*sin(a)sinh(b)
+  Complex cos() {
+    return Complex(
+      math.cos(real) * _cosh(imaginary),
+      -math.sin(real) * _sinh(imaginary),
+    );
+  }
+
+  /// Returns the complex tangent of this number.
+  ///
+  /// tan(z) = sin(z) / cos(z)
+  Complex tan() => sin() / cos();
+
+  /// Returns the complex hyperbolic sine.
+  ///
+  /// sinh(z) = (e^z - e^(-z)) / 2
+  Complex sinh() {
+    return Complex(
+      _sinh(real) * math.cos(imaginary),
+      _cosh(real) * math.sin(imaginary),
+    );
+  }
+
+  /// Returns the complex hyperbolic cosine.
+  ///
+  /// cosh(z) = (e^z + e^(-z)) / 2
+  Complex cosh() {
+    return Complex(
+      _cosh(real) * math.cos(imaginary),
+      _sinh(real) * math.sin(imaginary),
+    );
+  }
+
+  /// Returns the complex hyperbolic tangent.
+  ///
+  /// tanh(z) = sinh(z) / cosh(z)
+  Complex tanh() => sinh() / cosh();
+
+  /// Returns polar form string representation: r∠θ
+  String toPolar() {
+    return '${abs.toStringAsFixed(4)}∠${arg.toStringAsFixed(4)}';
+  }
+
+  // Helper functions for hyperbolic operations
+  static double _sinh(double x) => (math.exp(x) - math.exp(-x)) / 2;
+  static double _cosh(double x) => (math.exp(x) + math.exp(-x)) / 2;
 }

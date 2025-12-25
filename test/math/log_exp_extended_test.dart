@@ -1,4 +1,5 @@
 import 'package:latex_math_evaluator/latex_math_evaluator.dart';
+import 'package:latex_math_evaluator/src/complex.dart';
 import 'package:test/test.dart';
 import 'dart:math' as math;
 
@@ -20,18 +21,21 @@ void main() {
       expect(result.asNumeric(), closeTo(1, 1e-10));
     });
 
-    test('ln(0) throws exception', () {
-      expect(
-        () => evaluator.evaluate(r'\ln(0)'),
-        throwsA(isA<EvaluatorException>()),
-      );
+    test('ln(0) returns negative infinity', () {
+      final result = evaluator.evaluate(r'\ln(0)');
+      // ln(0) = -infinity (complex log of 0 has real part = -infinity)
+      expect(result.isComplex, isTrue);
+      final c = (result as ComplexResult).value;
+      expect(c.real.isInfinite && c.real < 0, isTrue);
     });
 
-    test('ln(negative) throws exception', () {
-      expect(
-        () => evaluator.evaluate(r'\ln(-1)'),
-        throwsA(isA<EvaluatorException>()),
-      );
+    test('ln(negative) returns complex', () {
+      final result = evaluator.evaluate(r'\ln(-1)');
+      expect(result, isA<ComplexResult>());
+      final c = (result as ComplexResult).value;
+      // ln(-1) = i*π
+      expect(c.real, closeTo(0, 1e-10));
+      expect(c.imaginary, closeTo(math.pi, 1e-10));
     });
 
     test('ln(very large) produces finite result', () {

@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:latex_math_evaluator/latex_math_evaluator.dart';
+import 'package:latex_math_evaluator/src/complex.dart';
 import 'dart:math' as math;
 
 void main() {
@@ -75,14 +76,27 @@ void main() {
         expect(eval(r'\log_{3}{9}'), closeTo(2.0, 1e-10));
       });
 
-      test('throws on ln domain error', () {
-        expect(() => eval(r'\ln{0}'), throwsA(isA<EvaluatorException>()));
-        expect(() => eval(r'\ln{-1}'), throwsA(isA<EvaluatorException>()));
+      test('ln of zero returns negative infinity complex', () {
+        final result = evaluator.evaluate(parse(r'\ln{0}'), {});
+        expect(result.isComplex, isTrue);
+        final c = (result as ComplexResult).value;
+        expect(c.real.isInfinite && c.real < 0, isTrue);
       });
 
-      test('throws on log domain error', () {
-        expect(() => eval(r'\log{0}'), throwsA(isA<EvaluatorException>()));
-        expect(() => eval(r'\log{-1}'), throwsA(isA<EvaluatorException>()));
+      test('ln of negative returns complex', () {
+        final result = evaluator.evaluate(parse(r'\ln{-1}'), {});
+        expect(result, isA<ComplexResult>());
+        final c = (result as ComplexResult).value;
+        expect(c.imaginary, closeTo(math.pi, 1e-10));
+      });
+
+      test('log of zero/negative returns complex', () {
+        // log(0) returns -infinity
+        final result0 = evaluator.evaluate(parse(r'\log{0}'), {});
+        expect(result0.isComplex, isTrue);
+        // log(-1) returns complex
+        final result1 = evaluator.evaluate(parse(r'\log{-1}'), {});
+        expect(result1, isA<ComplexResult>());
       });
 
       test('throws on invalid log base', () {
@@ -100,8 +114,11 @@ void main() {
         expect(eval(r'\sqrt{2}'), closeTo(math.sqrt(2), 1e-10));
       });
 
-      test('throws on sqrt domain error', () {
-        expect(() => eval(r'\sqrt{-1}'), throwsA(isA<EvaluatorException>()));
+      test('sqrt of negative returns complex', () {
+        final result = evaluator.evaluate(parse(r'\sqrt{-1}'), {});
+        expect(result, isA<ComplexResult>());
+        final c = (result as ComplexResult).value;
+        expect(c.imaginary, closeTo(1.0, 1e-10));
       });
     });
 

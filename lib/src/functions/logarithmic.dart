@@ -1,34 +1,61 @@
-/// Logarithmic function handlers.
+/// Logarithmic function handlers with complex number support.
 library;
 
 import 'dart:math' as math;
 
 import '../ast.dart';
+import '../complex.dart';
 import '../exceptions.dart';
 
-/// Natural logarithm: \ln{x}
-double handleLn(FunctionCall func, Map<String, double> vars,
-    double Function(Expression) evaluate) {
+/// Natural logarithm: \ln{x} - supports complex arguments
+dynamic handleLn(FunctionCall func, Map<String, double> vars,
+    dynamic Function(Expression) evaluate) {
   final arg = evaluate(func.argument);
-  if (arg <= 0) {
-    throw EvaluatorException('Logarithm of non-positive number');
+  if (arg is Complex) return arg.log();
+  if (arg is num) {
+    if (arg <= 0) {
+      // Return complex result for non-positive real numbers
+      return Complex(arg.toDouble()).log();
+    }
+    return math.log(arg.toDouble());
   }
-  return math.log(arg);
+  throw EvaluatorException('ln requires a numeric or complex argument');
 }
 
-/// Logarithm: \log{x} or \log_{base}{x}
-double handleLog(FunctionCall func, Map<String, double> vars,
-    double Function(Expression) evaluate) {
+/// Logarithm: \log{x} or \log_{base}{x} - supports complex arguments
+dynamic handleLog(FunctionCall func, Map<String, double> vars,
+    dynamic Function(Expression) evaluate) {
   final arg = evaluate(func.argument);
-  if (arg <= 0) {
-    throw EvaluatorException('Logarithm of non-positive number');
-  }
+
   if (func.base != null) {
     final base = evaluate(func.base!);
-    if (base <= 0 || base == 1) {
+    if (base is! num || base <= 0 || base == 1) {
       throw EvaluatorException('Invalid logarithm base');
     }
-    return math.log(arg) / math.log(base);
+    final logBase = math.log(base.toDouble());
+
+    if (arg is Complex) {
+      final logArg = arg.log();
+      return logArg / logBase;
+    }
+    if (arg is num) {
+      if (arg <= 0) {
+        return Complex(arg.toDouble()).log() / logBase;
+      }
+      return math.log(arg.toDouble()) / logBase;
+    }
+    throw EvaluatorException('log requires a numeric or complex argument');
   }
-  return math.log(arg) / math.ln10;
+
+  // log base 10
+  if (arg is Complex) {
+    return arg.log() / math.ln10;
+  }
+  if (arg is num) {
+    if (arg <= 0) {
+      return Complex(arg.toDouble()).log() / math.ln10;
+    }
+    return math.log(arg.toDouble()) / math.ln10;
+  }
+  throw EvaluatorException('log requires a numeric or complex argument');
 }

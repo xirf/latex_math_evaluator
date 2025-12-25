@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:latex_math_evaluator/latex_math_evaluator.dart';
+import 'package:latex_math_evaluator/src/complex.dart';
 
 void main() {
   group('Evaluator', () {
@@ -125,18 +126,18 @@ void main() {
         expect(eval(r'\log_{2}{16}'), closeTo(4.0, 0.001));
       });
 
-      test('throws on log of zero', () {
-        expect(
-          () => eval(r'\log{0}'),
-          throwsA(isA<EvaluatorException>()),
-        );
+      test('log of zero returns negative infinity', () {
+        final result = evaluator.evaluate(parse(r'\log{0}'), {});
+        expect(result.isComplex, isTrue);
+        final c = (result as ComplexResult).value;
+        expect(c.real.isInfinite && c.real < 0, isTrue);
       });
 
-      test('throws on log of negative', () {
-        expect(
-          () => eval(r'\ln{-1}'),
-          throwsA(isA<EvaluatorException>()),
-        );
+      test('ln of negative returns complex', () {
+        final result = evaluator.evaluate(parse(r'\ln{-1}'), {});
+        expect(result, isA<ComplexResult>());
+        final c = (result as ComplexResult).value;
+        expect(c.imaginary, closeTo(3.14159, 0.001));
       });
     });
 
@@ -252,11 +253,11 @@ void main() {
         expect(eval(r'||x||', {'x': -5}), closeTo(5.0, 0.001));
       });
 
-      test('throws on sqrt of negative', () {
-        expect(
-          () => eval(r'\sqrt{-1}'),
-          throwsA(isA<EvaluatorException>()),
-        );
+      test('sqrt of negative returns complex', () {
+        final result = evaluator.evaluate(parse(r'\sqrt{-1}'), {});
+        expect(result, isA<ComplexResult>());
+        final c = (result as ComplexResult).value;
+        expect(c.imaginary, closeTo(1.0, 0.001));
       });
     });
 

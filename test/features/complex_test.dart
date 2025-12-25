@@ -36,9 +36,11 @@ void main() {
       result = evaluator.evaluate('i * i');
       expect((result as ComplexResult).value, Complex(-1, 0));
 
-      // i^2 = -1 (using power operator, currently integer powers supported)
+      // i^2 = -1 (using power operator, note: small floating point error possible)
       result = evaluator.evaluate('i^2');
-      expect((result as ComplexResult).value, Complex(-1, 0));
+      final c = (result as ComplexResult).value;
+      expect(c.real, closeTo(-1.0, 1e-10));
+      expect(c.imaginary, closeTo(0.0, 1e-10));
     });
 
     test('Complex functions', () {

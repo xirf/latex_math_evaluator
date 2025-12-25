@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:latex_math_evaluator/latex_math_evaluator.dart';
+import 'package:latex_math_evaluator/src/complex.dart';
 
 void main() {
   group('Square Root with Optional Parameter', () {
@@ -42,11 +43,12 @@ void main() {
         expect(result.asNumeric(), closeTo(3.0, 1e-10));
       });
 
-      test('throws on \\sqrt[4]{-16} (even root of negative)', () {
-        expect(
-          () => evaluator.evaluate(r'\sqrt[4]{-16}'),
-          throwsA(isA<EvaluatorException>()),
-        );
+      test('returns complex for \\sqrt[4]{-16} (even root of negative)', () {
+        final result = evaluator.evaluate(r'\sqrt[4]{-16}');
+        expect(result, isA<ComplexResult>());
+        final c = (result as ComplexResult).value;
+        // 4th root of -16 = 2*(cos(π/4) + i*sin(π/4)) ≈ 1.41 + 1.41i
+        expect(c.abs, closeTo(2.0, 1e-10));
       });
     });
 
@@ -110,11 +112,11 @@ void main() {
     });
 
     group('Error cases', () {
-      test('throws on \\sqrt[2]{-4} (even root of negative)', () {
-        expect(
-          () => evaluator.evaluate(r'\sqrt[2]{-4}'),
-          throwsA(isA<EvaluatorException>()),
-        );
+      test('returns complex for \\sqrt[2]{-4} (even root of negative)', () {
+        final result = evaluator.evaluate(r'\sqrt[2]{-4}');
+        expect(result, isA<ComplexResult>());
+        final c = (result as ComplexResult).value;
+        expect(c.imaginary, closeTo(2.0, 1e-10));
       });
 
       test('throws on \\sqrt[0]{8} (0th root)', () {
@@ -124,11 +126,11 @@ void main() {
         );
       });
 
-      test('throws on \\sqrt[6]{-64} (even root of negative)', () {
-        expect(
-          () => evaluator.evaluate(r'\sqrt[6]{-64}'),
-          throwsA(isA<EvaluatorException>()),
-        );
+      test('returns complex for \\sqrt[6]{-64} (even root of negative)', () {
+        final result = evaluator.evaluate(r'\sqrt[6]{-64}');
+        expect(result, isA<ComplexResult>());
+        final c = (result as ComplexResult).value;
+        expect(c.abs, closeTo(2.0, 1e-10));
       });
     });
 
@@ -148,11 +150,11 @@ void main() {
         expect(result.asNumeric(), closeTo(3.0, 1e-10));
       });
 
-      test('throws on \\sqrt{-1} (negative square root)', () {
-        expect(
-          () => evaluator.evaluate(r'\sqrt{-1}'),
-          throwsA(isA<EvaluatorException>()),
-        );
+      test('returns complex for \\sqrt{-1} (imaginary unit)', () {
+        final result = evaluator.evaluate(r'\sqrt{-1}');
+        expect(result, isA<ComplexResult>());
+        final c = (result as ComplexResult).value;
+        expect(c.imaginary, closeTo(1.0, 1e-10));
       });
     });
   });

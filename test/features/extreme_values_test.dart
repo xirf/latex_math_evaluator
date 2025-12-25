@@ -1,4 +1,5 @@
 import 'package:latex_math_evaluator/latex_math_evaluator.dart';
+import 'package:latex_math_evaluator/src/complex.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -164,18 +165,20 @@ void main() {
       expect(result.asNumeric().isNaN, isTrue);
     });
 
-    test('sqrt of negative throws exception', () {
-      expect(
-        () => evaluator.evaluate(r'\sqrt{-1}'),
-        throwsA(isA<EvaluatorException>()),
-      );
+    test('sqrt of negative returns complex', () {
+      final result = evaluator.evaluate(r'\sqrt{-1}');
+      expect(result, isA<ComplexResult>());
+      final c = (result as ComplexResult).value;
+      expect(c.imaginary, closeTo(1.0, 1e-10));
     });
 
-    test('log of negative throws exception', () {
-      expect(
-        () => evaluator.evaluate(r'\ln(-1)'),
-        throwsA(isA<EvaluatorException>()),
-      );
+    test('log of negative returns complex', () {
+      final result = evaluator.evaluate(r'\ln(-1)');
+      expect(result, isA<ComplexResult>());
+      final c = (result as ComplexResult).value;
+      // ln(-1) = i*pi
+      expect(c.real, closeTo(0.0, 1e-10));
+      expect(c.imaginary, closeTo(3.14159265, 1e-5));
     });
   });
 

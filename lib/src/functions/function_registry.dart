@@ -59,29 +59,29 @@ class FunctionRegistry {
               }));
     }
 
-    // Logarithmic
-    reg('ln', log.handleLn);
-    reg('log', log.handleLog);
+    // Logarithmic (dynamic - support complex)
+    register('ln', log.handleLn);
+    register('log', log.handleLog);
 
-    // Trigonometric
-    reg('sin', trig.handleSin);
-    reg('cos', trig.handleCos);
-    reg('tan', trig.handleTan);
+    // Trigonometric (dynamic - sin/cos/tan support complex)
+    register('sin', trig.handleSin);
+    register('cos', trig.handleCos);
+    register('tan', trig.handleTan);
     reg('asin', trig.handleAsin);
     reg('acos', trig.handleAcos);
     reg('atan', trig.handleAtan);
 
-    // Hyperbolic
-    reg('sinh', hyper.handleSinh);
-    reg('cosh', hyper.handleCosh);
-    reg('tanh', hyper.handleTanh);
+    // Hyperbolic (dynamic - sinh/cosh/tanh support complex)
+    register('sinh', hyper.handleSinh);
+    register('cosh', hyper.handleCosh);
+    register('tanh', hyper.handleTanh);
     reg('asinh', hyper.handleAsinh);
     reg('acosh', hyper.handleAcosh);
     reg('atanh', hyper.handleAtanh);
 
-    // Power / Root
-    reg('sqrt', pow.handleSqrt);
-    reg('exp', pow.handleExp);
+    // Power / Root (dynamic - support complex)
+    register('sqrt', pow.handleSqrt);
+    register('exp', pow.handleExp);
 
     // Rounding
     reg('ceil', round.handleCeil);
@@ -122,6 +122,9 @@ class FunctionRegistry {
   bool hasFunction(String name) => _handlers.containsKey(name);
 
   /// Evaluates a function call.
+  ///
+  /// Throws [EvaluatorException] if the function is not registered,
+  /// with a did-you-mean suggestion if a similar function exists.
   dynamic evaluate(
     FunctionCall func,
     Map<String, double> variables,
@@ -129,8 +132,53 @@ class FunctionRegistry {
   ) {
     final handler = _handlers[func.name];
     if (handler == null) {
-      throw EvaluatorException('Unknown function: ${func.name}');
+      // Try to find a similar function name for did-you-mean suggestion
+      final similar = _findSimilarFunction(func.name);
+      throw EvaluatorException(
+        'Unknown function: ${func.name}',
+        suggestion: similar != null
+            ? 'Did you mean "$similar"?'
+            : 'Check that the function name is spelled correctly',
+      );
     }
     return handler(func, variables, evaluator);
+  }
+
+  /// Finds a similar function name using Levenshtein distance.
+  String? _findSimilarFunction(String unknown) {
+    final lower = unknown.toLowerCase();
+    String? best;
+    int bestDist = 3; // Max distance threshold
+
+    for (final name in _handlers.keys) {
+      final dist = _levenshtein(lower, name.toLowerCase());
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = name;
+      }
+    }
+    return best;
+  }
+
+  /// Simple Levenshtein distance calculation.
+  static int _levenshtein(String a, String b) {
+    if (a == b) return 0;
+    if (a.isEmpty) return b.length;
+    if (b.isEmpty) return a.length;
+
+    final dp = List.generate(a.length + 1, (_) => List.filled(b.length + 1, 0));
+    for (int i = 0; i <= a.length; i++) dp[i][0] = i;
+    for (int j = 0; j <= b.length; j++) dp[0][j] = j;
+
+    for (int i = 1; i <= a.length; i++) {
+      for (int j = 1; j <= b.length; j++) {
+        dp[i][j] = [
+          dp[i - 1][j] + 1,
+          dp[i][j - 1] + 1,
+          dp[i - 1][j - 1] + (a[i - 1] == b[j - 1] ? 0 : 1),
+        ].reduce((a, b) => a < b ? a : b);
+      }
+    }
+    return dp[a.length][b.length];
   }
 }
