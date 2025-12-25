@@ -41,6 +41,10 @@
 - **LatexMathEvaluator**: Now accepts `CacheConfig` for advanced cache configuration (backwards compatible)
 - **Evaluator**: Updated to support `CacheManager` for sub-expression caching
 
+### Fixed
+
+- **Parsing/Evaluation**: Fixed an edge case where expressions with a leading unary minus followed by a parenthesized base and a braced exponent (e.g. `-(x-1)^{2}+4`) could fail to evaluate; added tests to cover parsing, numeric evaluation, and differentiation for this pattern.
+
 ## 0.1.4 - 2025-12-22
 
 ### Added
