@@ -212,12 +212,38 @@ To check for undefined variables, you need to evaluate with an empty variable ma
 
 The validator provides helpful suggestions for common errors:
 
-| Error Type                      | Suggestion                                 |
-| ------------------------------- | ------------------------------------------ |
-| Unclosed braces (`\sin{`)       | "Check syntax near this position"          |
-| Unknown command (`\unknown{5}`) | "Verify the LaTeX command is supported"    |
-| Unexpected end                  | "Check for unclosed braces or parentheses" |
-| Undefined variable (evaluation) | "Provide a value for this variable"        |
+| Error Type                     | Suggestion                                                        |
+| ------------------------------ | ----------------------------------------------------------------- |
+| Unclosed braces (`\sin{`)      | "Missing closing brace } - check for unmatched {"                 |
+| Unclosed parentheses           | "Missing closing parenthesis ) - check for unmatched ("           |
+| Unknown function (`\sinn{5}`)  | "Did you mean 'sin'?" (did-you-mean suggestion)                   |
+| Unknown command                | "Check that the function name is spelled correctly"               |
+| Undefined variable             | "Provide a value for 'x' in the variables map"                    |
+| Division by zero               | "Ensure the denominator is not zero"                              |
+| Domain error (log, asin, etc.) | "Input value is outside the valid domain for this function"       |
+| Invalid log base               | "Logarithm base must be positive and not equal to 1"              |
+| Missing expression             | "Check for missing operands or invalid syntax near this position" |
+| `\frac12` syntax               | "Use \\frac{numerator}{denominator} with braces, not \\frac12"    |
+
+#### Did-You-Mean Suggestions
+
+When an unknown function is called, the library uses Levenshtein distance to suggest similar function names:
+
+```dart
+try {
+  evaluator.evaluate(r'\sinn{x}');
+} on EvaluatorException catch (e) {
+  print(e.suggestion); // "Did you mean 'sin'?"
+}
+```
+
+#### Common Mistake Detection
+
+The library can detect common LaTeX syntax mistakes:
+
+- **Missing braces**: `\frac12` should be `\frac{1}{2}`
+- **Missing backslash**: `sin(x)` should be `\sin{x}`
+- **Unmatched delimiters**: Missing `}` or `)` are detected with counts
 
 ## Performance Considerations
 

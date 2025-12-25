@@ -1,6 +1,6 @@
 # LaTeX Math Evaluator 🧮
 
-[![Tests](https://img.shields.io/badge/tests-781%20passed-brightgreen)](https://github.com/xirf/latex_math_evaluator)
+[![Tests](https://img.shields.io/badge/tests-1168%20passed-brightgreen)](https://github.com/xirf/latex_math_evaluator)
 [![Dart](https://img.shields.io/badge/dart-%3E%3D3.0.0-blue)](https://github.com/xirf/latex_math_evaluator)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Pub Version](https://img.shields.io/pub/v/latex_math_evaluator)](https://pub.dev/packages/latex_math_evaluator)
@@ -29,7 +29,7 @@ Add the dependency to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  latex_math_evaluator: ^0.1.3
+  latex_math_evaluator: ^0.1.6-nightly
 ```
 
 ### Basic Evaluation
@@ -69,29 +69,45 @@ final piecewise = evaluator.differentiate(r'|\sin{x}|, -3 < x < 3', 'x');
 print(evaluator.evaluateParsed(piecewise, {'x': 1})); // cos(1)
 ```
 
-### 2. Complex & Multi-Dimensional Math 🏗️
+### 2. Complex Numbers & Multi-Dimensional Math 🏗️
 
 Handle matrices, vectors, and complex numbers as first-class citizens.
 
 ```dart
+// Euler's identity: e^(iπ) = -1
+final euler = evaluator.evaluate(r'e^{i*\pi}');
+print(euler.asComplex().real); // -1.0
+
+// Complex trigonometry: sin(1+2i)
+final sinComplex = evaluator.evaluate(r'\sin(1 + 2*i)');
+print(sinComplex.asComplex()); // Complex(3.1658, 1.9596)
+
+// Square root of negative numbers returns complex
+final sqrtNeg = evaluator.evaluate(r'\sqrt{-4}');
+print(sqrtNeg.asComplex()); // Complex(0, 2) = 2i
+
 // Matrix multiplication and power
 final matrixResult = evaluator.evaluate(r'''
   \begin{pmatrix} 0.8 & 0.1 \\ 0.2 & 0.7 \end{pmatrix} ^ 2
 ''');
-
-// Complex numbers (i or j notation)
-final complexResult = evaluator.evaluate(r'(1 + 2i) \cdot (3 - 4i)');
 ```
 
 ### 3. High-Fidelity Diagnostics 🔍
 
-Get precise feedback when parsing fails, including the exact position and helpful suggestions.
+Get precise feedback when parsing fails, with did-you-mean suggestions and common mistake detection.
 
 ```dart
 final validation = evaluator.validate(r'\frac{1{2}');
 if (!validation.isValid) {
   print('Error at ${validation.position}: ${validation.errorMessage}');
-  // Output: Error at 10: Expected '}' after numerator
+  print('Suggestion: ${validation.suggestion}');
+}
+
+// Did-you-mean for unknown functions
+try {
+  evaluator.evaluate(r'\sinn{x}');
+} on EvaluatorException catch (e) {
+  print(e.suggestion); // "Did you mean 'sin'?"
 }
 ```
 

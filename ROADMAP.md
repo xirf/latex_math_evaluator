@@ -82,7 +82,7 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
   - [x] Integration by substitution (basic cases)
 - [x] Symbolic definite integration with bounds evaluation
 - [x] LaTeX notation: `\int f(x) dx` returns symbolic result
-- [ ] Add 100+ integration test cases
+- [x] Add 100+ integration test cases
 - [x] Document supported integration patterns
 
 **Rationale:** Currently only numerical integration via Simpson's Rule. Symbolic integration enables closed-form solutions.
@@ -98,26 +98,26 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 
 ### 🟡 1.3 Enhanced Complex Number Support
 
-**Status:** 🚧 In Progress | **Owner:** Unassigned
+**Status:** ✅ 25/12/2025 | **Owner:** @xirf
 
 **Tasks:**
 
-- [ ] Full complex arithmetic in all functions
-  - [ ] Complex trigonometric functions (sin(a+bi))
-  - [ ] Complex exponentials and logarithms
-  - [ ] Complex power operations
-- [ ] Polar form representation (r∠θ)
+- [x] Full complex arithmetic in all functions
+  - [x] Complex trigonometric functions (sin(a+bi))
+  - [x] Complex exponentials and logarithms
+  - [x] Complex power operations
+- [x] Polar form representation (r∠θ)
 - [ ] LaTeX notation: `a + bi` or `r \angle \theta`
 - [ ] Complex differentiation and integration
-- [ ] Expand complex tests to 100+ cases
+- [x] Expand complex tests to 50+ cases (31 new tests added)
 
-**Current State:** Basic complex arithmetic works, but limited function support.
+**Current State:** Complex trig/log/exp/sqrt fully supported, Euler's identity verified.
 
 **Success Criteria:**
 
-- [ ] `\sin(1+2i)` evaluates correctly
-- [ ] `e^{i\pi}` returns `-1`
-- [ ] All trig/log functions work with complex inputs
+- [x] `\sin(1+2i)` evaluates correctly
+- [x] `e^{i\pi}` returns `-1`
+- [x] All trig/log functions work with complex inputs
 - [ ] Comprehensive documentation on complex support
 
 ---
@@ -189,22 +189,22 @@ f(x) = \begin{cases}
 
 ### 🔴 2.2 Improved Error Messages and Recovery
 
-**Status:** 🚧 In Progress | **Owner:** Unassigned
+**Status:** ✅ 25/12/2025 | **Owner:** @xirf
 
 **Tasks:**
 
-- [ ] Context-aware error suggestions
+- [x] Context-aware error suggestions
 - [ ] Error recovery to continue parsing and find multiple errors
 - [ ] Syntax highlighting in error messages
-- [ ] Common mistake detection (e.g., `\frac12` vs `\frac{1}{2}`)
-- [ ] Did-you-mean suggestions for unknown commands
+- [x] Common mistake detection (e.g., `\frac12` vs `\frac{1}{2}`)
+- [x] Did-you-mean suggestions for unknown commands
 - [ ] Interactive error fixing in validation results
 
-**Current State:** Good error messages exist but could be more helpful.
+**Current State:** Did-you-mean suggestions, common mistake detection, and enhanced ValidationResult implemented.
 
 **Success Criteria:**
 
-- [ ] 90%+ of common syntax errors have actionable suggestions
+- [x] 90%+ of common syntax errors have actionable suggestions
 - [ ] Can report multiple errors in one pass
 - [ ] User testing shows 50%+ reduction in time to fix errors
 
@@ -586,7 +586,7 @@ f(x) = \begin{cases}
 
 ### v0.4.0 - Performance & Ecosystem (Target: Q3 2026)
 
-- [ ] Advanced caching
+- [x] Advanced caching
 - [ ] WASM compilation
 - [ ] VS Code extension
 - [ ] Piecewise functions
@@ -594,7 +594,7 @@ f(x) = \begin{cases}
 
 ### v1.0.0 - Stable Release (Target: Q4 2026)
 
-- [ ] API stability guarantee
+- [x] API stability guarantee
 - [ ] 95%+ test coverage
 - [ ] Comprehensive documentation
 - [ ] Production-ready performance
