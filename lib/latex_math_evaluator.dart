@@ -72,6 +72,7 @@ export 'src/parser.dart';
 export 'src/token.dart';
 export 'src/tokenizer.dart';
 export 'src/symbolic.dart';
+export 'src/cache/cache.dart';
 
 import 'src/ast.dart';
 import 'src/evaluator.dart';
@@ -80,18 +81,44 @@ import 'src/extensions.dart';
 import 'src/matrix.dart';
 import 'src/parser.dart';
 import 'src/tokenizer.dart';
-import 'src/cache/lru_cache.dart';
+import 'src/cache/cache_config.dart';
+import 'src/cache/cache_manager.dart';
+import 'src/cache/cache_statistics.dart';
 
 /// A convenience class that combines tokenizing, parsing, and evaluation.
+///
+/// Supports multi-layer caching for optimal performance:
+/// - L1: Parsed expression cache (String → AST)
+/// - L2: Evaluation result cache (AST + Variables → Result)
+/// - L3: Differentiation result cache (AST + Variable → Derivative)
+///
+/// Example with advanced caching:
+/// ```dart
+/// // High-performance configuration for graphing
+/// final evaluator = LatexMathEvaluator(
+///   cacheConfig: CacheConfig.highPerformance,
+/// );
+///
+/// // With statistics for monitoring
+/// final evaluatorWithStats = LatexMathEvaluator(
+///   cacheConfig: CacheConfig.withStatistics,
+/// );
+/// // After some evaluations...
+/// print(evaluatorWithStats.cacheStatistics);
+/// ```
 class LatexMathEvaluator {
   final ExtensionRegistry? _extensions;
   final bool allowImplicitMultiplication;
   late final Evaluator _evaluator;
-  final LruCache<String, Expression>? _parsedExpressionCache;
+  late final CacheManager _cacheManager;
+
+  /// The cache configuration for this evaluator.
+  final CacheConfig cacheConfig;
 
   /// Maximum number of parsed expressions kept in the LRU cache.
   ///
   /// Set to 0 to disable caching.
+  /// @deprecated Use [cacheConfig] instead for more control.
   final int parsedExpressionCacheSize;
 
   /// Creates an evaluator with optional extension registry.
@@ -99,22 +126,74 @@ class LatexMathEvaluator {
   /// [extensions]: Optional [ExtensionRegistry] instance for custom commands.
   /// [allowImplicitMultiplication]: When true (default), adjacent tokens are
   /// interpreted as multiplication (e.g. `xy` -> `x * y`).
+  /// [cacheConfig]: Advanced cache configuration. If provided, this takes
+  /// precedence over [parsedExpressionCacheSize].
   /// [parsedExpressionCacheSize]: Size of the internal parsed-expression LRU
   /// cache. Set to 0 to disable caching. Defaults to 128.
-  LatexMathEvaluator(
-      {ExtensionRegistry? extensions,
-      this.allowImplicitMultiplication = true,
-      this.parsedExpressionCacheSize = 128})
-      : _extensions = extensions,
-        _parsedExpressionCache = (parsedExpressionCacheSize <= 0)
-            ? null
-            : LruCache<String, Expression>(maxSize: parsedExpressionCacheSize) {
-    _evaluator = Evaluator(extensions: _extensions);
+  /// @deprecated Use [cacheConfig] instead for more control.
+  LatexMathEvaluator({
+    ExtensionRegistry? extensions,
+    this.allowImplicitMultiplication = true,
+    CacheConfig? cacheConfig,
+    this.parsedExpressionCacheSize = 128,
+  })  : _extensions = extensions,
+        cacheConfig = cacheConfig ??
+            CacheConfig(parsedExpressionCacheSize: parsedExpressionCacheSize) {
+    _cacheManager = CacheManager(this.cacheConfig);
+    _evaluator = Evaluator(
+      extensions: _extensions,
+      cacheManager: _cacheManager,
+    );
   }
+
+  /// Gets cache statistics for all layers.
+  ///
+  /// Only available when [CacheConfig.collectStatistics] is true.
+  ///
+  /// Example:
+  /// ```dart
+  /// final evaluator = LatexMathEvaluator(
+  ///   cacheConfig: CacheConfig.withStatistics,
+  /// );
+  ///
+  /// // Perform many evaluations...
+  /// for (var i = 0; i < 1000; i++) {
+  ///   evaluator.evaluate('x^2 + 1', {'x': i.toDouble()});
+  /// }
+  ///
+  /// final stats = evaluator.cacheStatistics;
+  /// print('Hit rate: ${(stats.overallHitRate * 100).toStringAsFixed(1)}%');
+  /// print('Parsed expression hits: ${stats.parsedExpressions.hits}');
+  /// print('Evaluation result hits: ${stats.evaluationResults.hits}');
+  /// ```
+  MultiLayerCacheStatistics get cacheStatistics => _cacheManager.statistics;
 
   /// Clears the internal parsed-expression cache.
   void clearParsedExpressionCache() {
-    _parsedExpressionCache?.clear();
+    _cacheManager.clearLayer(CacheLayer.parsedExpressions);
+  }
+
+  /// Clears all caches (parsed expressions, evaluation results, etc.).
+  void clearAllCaches() {
+    _cacheManager.clear();
+  }
+
+  /// Warms up the cache with common expressions.
+  ///
+  /// Use this to preload frequently-used expressions before heavy computation.
+  ///
+  /// Example:
+  /// ```dart
+  /// final evaluator = LatexMathEvaluator();
+  /// evaluator.warmUpCache([
+  ///   'x^2',
+  ///   'sin(x)',
+  ///   'cos(x)',
+  ///   'e^x',
+  /// ]);
+  /// ```
+  void warmUpCache(List<String> expressions) {
+    _cacheManager.warmUp(expressions, _parseInternal);
   }
 
   /// Parses a LaTeX math expression into an AST without evaluating.
@@ -137,15 +216,20 @@ class LatexMathEvaluator {
   /// final result3 = evaluator.evaluateParsed(equation, {'x': 3}); // 16.0
   /// ```
   Expression parse(String expression) {
-    final cached = _parsedExpressionCache?.get(expression);
+    final cached = _cacheManager.getParsedExpression(expression);
     if (cached != null) return cached;
+    final ast = _parseInternal(expression);
+    _cacheManager.putParsedExpression(expression, ast);
+    return ast;
+  }
+
+  /// Internal parse without caching.
+  Expression _parseInternal(String expression) {
     final tokens = Tokenizer(expression,
             extensions: _extensions,
             allowImplicitMultiplication: allowImplicitMultiplication)
         .tokenize();
-    final ast = Parser(tokens, expression).parse();
-    _parsedExpressionCache?.put(expression, ast);
-    return ast;
+    return Parser(tokens, expression).parse();
   }
 
   /// Evaluates a pre-parsed expression with variable bindings.
@@ -165,7 +249,13 @@ class LatexMathEvaluator {
   /// ```
   EvaluationResult evaluateParsed(Expression ast,
       [Map<String, double> variables = const {}]) {
-    return _evaluator.evaluate(ast, variables);
+    // Check evaluation cache
+    final cached = _cacheManager.getEvaluationResult(ast, variables);
+    if (cached != null) return cached;
+
+    final result = _evaluator.evaluate(ast, variables);
+    _cacheManager.putEvaluationResult(ast, variables, result);
+    return result;
   }
 
   /// Parses and evaluates a LaTeX math expression.
@@ -194,7 +284,7 @@ class LatexMathEvaluator {
   EvaluationResult evaluate(String expression,
       [Map<String, double> variables = const {}]) {
     final ast = parse(expression);
-    return _evaluator.evaluate(ast, variables);
+    return evaluateParsed(ast, variables);
   }
 
   /// Evaluates a LaTeX expression and returns a numeric result.
@@ -323,7 +413,13 @@ class LatexMathEvaluator {
   /// expression representing the derivative. The result is not evaluated
   /// numerically unless you later call [evaluateParsed] on it.
   ///
-  /// [expression] is the parsed expression AST or can be a string that will be parsed.
+  /// Results are cached for performance when computing the same derivative
+  /// multiple times.
+  ///
+  /// [expression] can be either:
+  /// - A parsed [Expression] AST (from [parse])
+  /// - A LaTeX string that will be automatically parsed
+  ///
   /// [variable] is the variable to differentiate with respect to (e.g., 'x').
   /// [order] is the order of differentiation (default is 1 for first derivative).
   ///
@@ -333,27 +429,42 @@ class LatexMathEvaluator {
   /// ```dart
   /// final evaluator = LatexMathEvaluator();
   ///
-  /// // Parse expression
+  /// // Option 1: Parse then differentiate
   /// final expr = evaluator.parse('x^{2}');
-  ///
-  /// // First derivative: d/dx(x^2) = 2x
   /// final derivative = evaluator.differentiate(expr, 'x');
+  ///
+  /// // Option 2: Direct string (more convenient)
+  /// final derivative2 = evaluator.differentiate('x^{2}', 'x');
   ///
   /// // Evaluate at x = 3
   /// final result = evaluator.evaluateParsed(derivative, {'x': 3});
   /// print(result.asNumeric()); // 6.0
   ///
   /// // Second derivative: d²/dx²(x^3) = 6x
-  /// final expr2 = evaluator.parse('x^{3}');
-  /// final secondDerivative = evaluator.differentiate(expr2, 'x', order: 2);
+  /// final secondDerivative = evaluator.differentiate('x^{3}', 'x', order: 2);
+  ///
+  /// // Works with piecewise functions too
+  /// final piecewise = evaluator.differentiate(r'|\sin{x}|, -3 < x < 3', 'x');
   /// ```
-  Expression differentiate(Expression expression, String variable,
+  Expression differentiate(dynamic expression, String variable,
       {int order = 1}) {
-    return _evaluator.differentiationEvaluator.differentiate(
-      expression,
+    // Parse string expressions automatically
+    final expr =
+        expression is String ? parse(expression) : expression as Expression;
+
+    // Check differentiation cache
+    final cached =
+        _cacheManager.getDifferentiationResult(expr, variable, order);
+    if (cached != null) return cached;
+
+    final derivative = _evaluator.differentiationEvaluator.differentiate(
+      expr,
       variable,
       order: order,
     );
+
+    _cacheManager.putDifferentiationResult(expr, variable, order, derivative);
+    return derivative;
   }
 
   /// Computes the symbolic antiderivative of an expression (indefinite integral).
@@ -361,7 +472,10 @@ class LatexMathEvaluator {
   /// This method performs symbolic integration rules and returns an expression
   /// representing the integral. Note that the "+ C" constant is not explicitly added.
   ///
-  /// [expression] is the parsed expression AST.
+  /// [expression] can be either:
+  /// - A parsed [Expression] AST (from [parse])
+  /// - A LaTeX string that will be automatically parsed
+  ///
   /// [variable] is the variable to integrate with respect to (e.g., 'x').
   ///
   /// Returns the symbolic integral as an [Expression] AST node.
@@ -370,13 +484,22 @@ class LatexMathEvaluator {
   /// Example:
   /// ```dart
   /// final evaluator = LatexMathEvaluator();
+  ///
+  /// // Option 1: Parse then integrate
   /// final expr = evaluator.parse('x^2');
   /// final integral = evaluator.integrate(expr, 'x'); // x^3 / 3
+  ///
+  /// // Option 2: Direct string (more convenient)
+  /// final integral2 = evaluator.integrate('x^2', 'x');
   /// ```
-  Expression integrate(Expression expression, String variable) {
-    if (expression is IntegralExpr) {
-      return _evaluator.integrationEvaluator.integrateIntegralExpr(expression);
+  Expression integrate(dynamic expression, String variable) {
+    // Parse string expressions automatically
+    final expr =
+        expression is String ? parse(expression) : expression as Expression;
+
+    if (expr is IntegralExpr) {
+      return _evaluator.integrationEvaluator.integrateIntegralExpr(expr);
     }
-    return _evaluator.integrationEvaluator.integrate(expression, variable);
+    return _evaluator.integrationEvaluator.integrate(expr, variable);
   }
 }

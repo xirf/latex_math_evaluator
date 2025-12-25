@@ -13,7 +13,7 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 
 ---
 
-## 📊 Current State (v0.1.4-nightly)
+## 📊 Current State (v0.1.5-nightly)
 
 ### ✅ Implemented Features
 
@@ -236,25 +236,25 @@ f(x) = \begin{cases}
 
 ### 🟡 3.1 Advanced Caching Strategies
 
-**Status:** 🚧 In Progress | **Owner:** Unassigned
+**Status:** ✅ 23/12/2025 | **Owner:** @xirf
 
 **Tasks:**
 
-- [ ] Persistent cache with disk storage option (for long-running apps)
-- [ ] Hierarchical caching (sub-expression results)
-- [ ] Cache invalidation strategies
-- [ ] Differentiation result caching
-- [ ] Benchmark cache hit rates and performance gains
-- [ ] Cache size limits and eviction policies
-- [ ] Document caching best practices
+- [ ] Persistent cache with disk storage option (for long-running apps) - ⛔ Overengineer
+- [x] Hierarchical caching (sub-expression results) - CacheManager with 4-layer architecture
+- [x] Cache invalidation strategies - TTL-based and manual layer clearing
+- [x] Differentiation result caching - L3 cache in CacheManager
+- [x] Benchmark cache hit rates and performance gains - CacheStatistics class
+- [x] Cache size limits and eviction policies - LRU and LFU support
+- [x] Document caching best practices - Updated doc/performance/caching.md
 
-**Current State:** Basic LRU cache for parsed expressions exists.
+**Current State:** Multi-layer cache system with LRU/LFU support, statistics, and TTL.
 
 **Success Criteria:**
 
-- [ ] At least 10x speedup on repeated evaluations (benchmarked)
-- [ ] Cache memory usage configurable and monitored
-- [ ] Performance documentation with benchmarks
+- [x] At least 10x speedup on repeated evaluations (benchmarked)
+- [x] Cache memory usage configurable and monitored
+- [x] Performance documentation with benchmarks
 
 ---
 

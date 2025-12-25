@@ -85,6 +85,7 @@ class LatexCommandRegistry {
     _commands['lcm'] = TokenType.function;
     _commands['fibonacci'] = TokenType.function;
     _commands['sgn'] = TokenType.function;
+    _commands['sign'] = TokenType.function;
     _commands['factorial'] = TokenType.function;
 
     // Complex number functions

@@ -22,13 +22,13 @@ import 'package:latex_math_evaluator/latex_math_evaluator.dart';
 
 void main() {
   final evaluator = LatexMathEvaluator();
-  
+
   // Simple expression
   print(evaluator.evaluate(r'2 + 3'));  // 5.0
-  
+
   // With variables
   print(evaluator.evaluate(r'x^{2}', {'x': 4}));  // 16.0
-  
+
   // LaTeX operators
   print(evaluator.evaluate(r'6 \div 2'));  // 3.0
   print(evaluator.evaluate(r'3 \times 4'));  // 12.0
@@ -79,11 +79,18 @@ The evaluator supports an LRU cache to reuse parsed ASTs for repeated evaluation
 **Configure cache size**:
 
 ```dart
-// Enable caching (default 128 entries)
-final evaluator = LatexMathEvaluator(parsedExpressionCacheSize: 256);
+// Enable advanced caching configuration
+final evaluator = LatexMathEvaluator(
+  cacheConfig: CacheConfig(
+    parsedExpressionCacheSize: 256,
+    evaluationResultCacheSize: 512,
+  )
+);
 
-// Disable caching
-final noCache = LatexMathEvaluator(parsedExpressionCacheSize: 0);
+// High performance preset for graphing
+final graphing = LatexMathEvaluator(
+  cacheConfig: CacheConfig.highPerformance,
+);
 ```
 
 **Cache management**:

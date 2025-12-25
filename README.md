@@ -19,7 +19,7 @@ A Flutter/Dart library designed for parsing and evaluating complex mathematical 
 - 🛡️ **Type-Safe Results** – Robust handling of Real, Complex, Matrix, and Vector types via Dart 3 sealed classes.
 - 🚩 **Domain Awareness** – Uses an Assumptions System (e.g., $x > 0$) to ensure mathematically sound transformations.
 - 🔧 **Extensible Architecture** – Easily add custom LaTeX commands and evaluation logic.
-- 🧩 **Implicit/Explicit Logic** – Natural parsing of $2\pi r$ or $\sin 2x$—no need to type every *. easy to switch between implicit and explicit logic.
+- 🧩 **Implicit/Explicit Logic** – Natural parsing of $2\pi r$ or $\sin 2x$—no need to type every \*. easy to switch between implicit and explicit logic.
 
 ---
 
@@ -40,7 +40,7 @@ import 'package:latex_math_evaluator/latex_math_evaluator.dart';
 final evaluator = LatexMathEvaluator();
 
 // 1. Simple numeric result
-final result = evaluator.evaluateNumeric(r'\frac{\sqrt{16}}{2} + \sin{\pi}'); 
+final result = evaluator.evaluateNumeric(r'\frac{\sqrt{16}}{2} + \sin{\pi}');
 print(result); // 2.0
 
 // 2. Evaluation with variables
@@ -54,19 +54,23 @@ print(hypotenuse); // 5.0
 ## 🛠️ Core Features
 
 ### 1. Symbolic Calculus & Differentiation 📐
+
 Unlike libraries that use numeric approximations, `latex_math_evaluator` can compute exact symbolic derivatives.
 
 ```dart
-final expr = evaluator.parse(r'x^3 + \sin{x}');
-
-// Compute symbolic derivative: 3x^2 + cos(x)
-final derivative = evaluator.differentiate(expr, 'x');
+// Differentiate an expression
+final derivative = evaluator.differentiate(r'x^3 + \sin{x}', 'x');
 
 // Evaluate at x = 0
 print(evaluator.evaluateParsed(derivative, {'x': 0})); // 1.0 (cos(0))
+
+// Works with piecewise functions too!
+final piecewise = evaluator.differentiate(r'|\sin{x}|, -3 < x < 3', 'x');
+print(evaluator.evaluateParsed(piecewise, {'x': 1})); // cos(1)
 ```
 
 ### 2. Complex & Multi-Dimensional Math 🏗️
+
 Handle matrices, vectors, and complex numbers as first-class citizens.
 
 ```dart
@@ -80,6 +84,7 @@ final complexResult = evaluator.evaluate(r'(1 + 2i) \cdot (3 - 4i)');
 ```
 
 ### 3. High-Fidelity Diagnostics 🔍
+
 Get precise feedback when parsing fails, including the exact position and helpful suggestions.
 
 ```dart
@@ -91,14 +96,20 @@ if (!validation.isValid) {
 ```
 
 ### 4. Performance & Caching ⚡
+
 For applications requiring frequent evaluations (like graphing or simulations), use the built-in LRU cache.
 
 ```dart
-// Configure a 512-entry cache for parsed ASTs
-final fastEvaluator = LatexMathEvaluator(parsedExpressionCacheSize: 512);
+// Configure a 512-entry cache for parsed ASTs with LFU eviction policy
+final fastEvaluator = LatexMathEvaluator(
+  cacheConfig: CacheConfig(
+    parsedExpressionCacheSize: 512,
+    evictionPolicy: EvictionPolicy.lfu,
+  ),
+);
 
 // Subsequent calls with the same string are near-instant
-fastEvaluator.evaluate(r'\sum_{i=1}^{100} i'); 
+fastEvaluator.evaluate(r'\sum_{i=1}^{100} i');
 ```
 
 ---
@@ -134,6 +145,3 @@ We welcome contributions of all kinds! Whether it's reporting a bug, improving d
 ## 📄 License
 
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
-
----
-Built with ❤️ for the scientific community.

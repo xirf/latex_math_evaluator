@@ -1,57 +1,168 @@
 # Caching and Performance
 
-This page explains the small LRU cache for parsed expressions and other memoized functions.
+This page explains the caching system for parsed expressions, evaluation results, and other cached computations.
 
-## Parsed Expression LRU Cache
+## Multi-Layer Cache Architecture
 
-- **What**: LRU cache stores parsed ASTs keyed by the expression string.
-- **Why**: Re-parsing is some CPU/memory overhead; when the same expression is evaluated repeatedly with different variables, reusing the AST reduces cost.
-- **How to configure**:
+The evaluator uses a 4-layer caching system for optimal performance:
+
+| Layer | Name               | Key                    | Value          | Use Case                             |
+| ----- | ------------------ | ---------------------- | -------------- | ------------------------------------ |
+| L1    | Parsed Expressions | LaTeX string           | AST            | Avoid re-parsing same expressions    |
+| L2    | Evaluation Results | AST + Variables        | Result         | Avoid re-evaluating with same inputs |
+| L3    | Differentiation    | AST + Variable + Order | Derivative AST | Cache symbolic derivatives           |
+| L4    | Sub-expressions    | Expression hash        | Numeric result | Cache shared sub-computations        |
+
+## Cache Configuration
+
+### Default Configuration
 
 ```dart
-// Create evaluator with a cache of up to 256 parsed expressions
-final evaluator = LatexMathEvaluator(parsedExpressionCacheSize: 256);
-
-// Disable cache entirely
-final noCache = LatexMathEvaluator(parsedExpressionCacheSize: 0);
+// Default: reasonable cache sizes, LRU eviction, no statistics
+final evaluator = LatexMathEvaluator();
 ```
 
-- **Important**: If you add custom commands or extension tokenizers at runtime, clear the cache using `clearParsedExpressionCache()` to avoid stale parses.
-
-## Memoized Math Functions
-
-Several functions that can be expensive when called repeatedly (like `\factorial{n}` or `\fibonacci{n}`) use in-memory memoization to speed up repeated evaluations.
-
-- `\factorial{n}` caches results up to n=170.
-- `\fibonacci{n}` caches computed values and will expand the cache as higher indices are requested; extremely large indexes may overflow a `double`.
-
-## Notes and Caveats
-
-- The cache is local to each `LatexMathEvaluator` instance.
-- The LRU implementation is minimal and avoids external dependencies; adjust cache size based on available memory and expected expression variety.
+### Custom Configuration
 
 ```dart
-// Example: using the cache and clearing on dynamic changes
-final evaluator = LatexMathEvaluator(parsedExpressionCacheSize: 1000);
-final parsed = evaluator.parse(r'\sin{x} + \cos{x}');
-final value = evaluator.evaluateParsed(parsed, {'x': 0});
-// After changing extensions at runtime that affect parsing
+final config = CacheConfig(
+  parsedExpressionCacheSize: 256,   // L1 size
+  evaluationResultCacheSize: 512,   // L2 size
+  differentiationCacheSize: 128,    // L3 size
+  subExpressionCacheSize: 1024,     // L4 size
+  evictionPolicy: EvictionPolicy.lru,
+  timeToLive: Duration(minutes: 30), // Optional TTL
+  collectStatistics: true,           // Enable stats
+);
+
+final evaluator = LatexMathEvaluator(cacheConfig: config);
+```
+
+### Preset Configurations
+
+```dart
+// Disable all caching
+final noCache = LatexMathEvaluator(cacheConfig: CacheConfig.disabled);
+
+// High-performance for graphing/animations
+final graphing = LatexMathEvaluator(cacheConfig: CacheConfig.highPerformance);
+
+// With statistics for debugging
+final withStats = LatexMathEvaluator(cacheConfig: CacheConfig.withStatistics);
+```
+
+## Eviction Policies
+
+### LRU (Least Recently Used)
+
+- Default policy
+- Evicts entries that haven't been accessed recently
+- Good for general-purpose caching
+
+### LFU (Least Frequently Used)
+
+- Evicts entries accessed least often
+- Better for hot-spot patterns where some expressions are used much more
+- Useful for computation-heavy expressions that are reused
+
+```dart
+final config = CacheConfig(
+  evictionPolicy: EvictionPolicy.lfu,
+);
+```
+
+## Cache Statistics
+
+Monitor cache performance for tuning:
+
+```dart
+final evaluator = LatexMathEvaluator(
+  cacheConfig: CacheConfig.withStatistics,
+);
+
+// Perform many evaluations...
+for (var i = 0; i < 1000; i++) {
+  evaluator.evaluate('x^2 + 2*x + 1', {'x': i.toDouble()});
+}
+
+final stats = evaluator.cacheStatistics;
+print('Overall hit rate: ${(stats.overallHitRate * 100).toStringAsFixed(1)}%');
+print('Parsed expression hits: ${stats.parsedExpressions.hits}');
+print('Evaluation result hits: ${stats.evaluationResults.hits}');
+
+// Layer-by-layer analysis
+print(stats.parsedExpressions);  // Hit/miss for parsing
+print(stats.evaluationResults);   // Hit/miss for evaluation
+print(stats.differentiation);     // Hit/miss for differentiation
+```
+
+## Cache Warming
+
+Preload frequently-used expressions:
+
+```dart
+final evaluator = LatexMathEvaluator();
+
+// Warm up cache with common expressions
+evaluator.warmUpCache([
+  'x^2',
+  'sin(x)',
+  'cos(x)',
+  'e^x',
+  'ln(x)',
+  'x^2 + y^2',
+]);
+
+// Subsequent evaluations will have L1 cache hits
+evaluator.evaluate('sin(x)', {'x': 0}); // Cache hit!
+```
+
+## Cache Invalidation
+
+### Clear Specific Layer
+
+```dart
+// Clear only parsed expression cache (when extensions change)
 evaluator.clearParsedExpressionCache();
 ```
 
-## Running the micro-benchmark
+### Clear All Caches
 
-A small script is provided under `benchmark/expression_cache_benchmark.dart`.
+```dart
+// Clear everything
+evaluator.clearAllCaches();
+```
 
-Run it with:
+### TTL-Based Invalidation
+
+```dart
+final config = CacheConfig(
+  timeToLive: Duration(minutes: 10), // Entries expire after 10 minutes
+);
+```
+
+## Memoized Math Functions
+
+Several functions use internal memoization independent of the cache system:
+
+- `\factorial{n}` caches results up to n=170
+- `\fibonacci{n}` caches computed values dynamically
+
+## Best Practices
+
+1. **For Graphing Applications**: Use `CacheConfig.highPerformance` with larger L2 cache
+2. **For One-Shot Calculations**: Default config or disabled cache
+3. **For Long-Running Apps**: Consider TTL to prevent memory growth
+4. **For Debugging Performance**: Enable statistics with `CacheConfig.withStatistics`
+5. **After Changing Extensions**: Call `clearParsedExpressionCache()` to avoid stale parses
+
+## Running the Benchmarks
 
 ```bash
 dart run benchmark/expression_cache_benchmark.dart
 ```
 
-It will print timings comparing cached vs non-cached evaluation, and an example of fibonacci memoization.
-
-Sample output (your times may vary):
+Sample output with caching enabled:
 
 ```
 Benchmark: repeated evaluate() calls (with and without parsed-expression caching)
@@ -61,10 +172,12 @@ With cache: 5 ms; avg 0.0025 ms/op
 Benchmark: parsed parse() + evaluateParsed (with cache) vs reparse on each evaluate
 evaluateParsed (no parse every time): 3 ms; avg 0.0015 ms/op
 evaluate (parse every time): 7 ms; avg 0.0035 ms/op
-
-Fibonacci memoization benchmark:
-Fibonacci benchmark (n=40):
-  Ran 5 iterations: 3 ms; avg 0.6000 ms/op
-Fibonacci benchmark (n=40):
-  Ran 100 iterations: 0 ms; avg 0.0000 ms/op
 ```
+
+## Performance Tips
+
+1. **Parse Once, Evaluate Many**: For expressions evaluated with different variables, use `parse()` + `evaluateParsed()`
+2. **Enable L2 Cache**: When evaluating the same expression with the same variables repeatedly
+3. **Use LFU for Hot Spots**: If some expressions are accessed much more than others
+4. **Monitor Hit Rates**: Use statistics to tune cache sizes for your use case
+5. **Tune Cache Sizes**: Larger caches = more memory but better hit rates

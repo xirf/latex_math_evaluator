@@ -6,11 +6,11 @@ The `LatexMathEvaluator` class is the primary interface for using the library. I
 
 ### Constructors
 
-*   `LatexMathEvaluator({ExtensionRegistry? extensions, bool allowImplicitMultiplication = true, int parsedExpressionCacheSize = 128})`
-    *   Creates a new evaluator instance.
-    *   `extensions`: Optional registry for custom commands and functions.
-    *   `allowImplicitMultiplication`: If true, `xy` is treated as `x * y`.
-    *   `parsedExpressionCacheSize`: Size of the LRU cache for parsed expressions. Set to 0 to disable.
+- `LatexMathEvaluator({ExtensionRegistry? extensions, bool allowImplicitMultiplication = true, CacheConfig? cacheConfig})`
+  - Creates a new evaluator instance.
+  - `extensions`: Optional registry for custom commands and functions.
+  - `allowImplicitMultiplication`: If true, `xy` is treated as `x * y`.
+  - `cacheConfig`: Advanced cache configuration (size, eviction policy, TTL).
 
 ### Methods
 
@@ -73,10 +73,18 @@ Returns `true` if the expression is syntactically valid, `false` otherwise.
 #### `differentiate`
 
 ```dart
-Expression differentiate(Expression expression, String variable, {int order = 1})
+Expression differentiate(dynamic expression, String variable, {int order = 1})
 ```
 
-Computes the symbolic derivative of an expression.
+Computes the symbolic derivative of an expression. `expression` can be a String or an AST Expression.
+
+#### `integrate`
+
+```dart
+Expression integrate(dynamic expression, String variable)
+```
+
+Computes the symbolic antiderivative (indefinite integral) of an expression. `expression` can be a String or an AST Expression.
 
 #### `clearParsedExpressionCache`
 
@@ -84,7 +92,15 @@ Computes the symbolic derivative of an expression.
 void clearParsedExpressionCache()
 ```
 
-Clears the internal AST cache.
+Clears the internal parsed expression (L1) cache.
+
+#### `clearAllCaches`
+
+```dart
+void clearAllCaches()
+```
+
+Clears all internal caches (L1-L4).
 
 ---
 
@@ -94,19 +110,19 @@ Sealed base class for all evaluation results. It enables type-safe handling of r
 
 ### Subclasses
 
-*   `NumericResult(double value)`: Wraps a `double`.
-*   `ComplexResult(Complex value)`: Wraps a `Complex` number.
-*   `MatrixResult(Matrix matrix)`: Wraps a `Matrix`.
-*   `VectorResult(Vector vector)`: Wraps a `Vector`.
+- `NumericResult(double value)`: Wraps a `double`.
+- `ComplexResult(Complex value)`: Wraps a `Complex` number.
+- `MatrixResult(Matrix matrix)`: Wraps a `Matrix`.
+- `VectorResult(Vector vector)`: Wraps a `Vector`.
 
 ### Common Methods
 
-*   `asNumeric()`: Returns `double` or throws if not numeric/real.
-*   `asComplex()`: Returns `Complex` or throws if not scalar/complex.
-*   `asMatrix()`: Returns `Matrix` or throws.
-*   `asVector()`: Returns `Vector` or throws.
-*   `isNaN`: Checks if the result contains any NaN values.
-*   `isNumeric`, `isComplex`, `isMatrix`, `isVector`: Type check properties.
+- `asNumeric()`: Returns `double` or throws if not numeric/real.
+- `asComplex()`: Returns `Complex` or throws if not scalar/complex.
+- `asMatrix()`: Returns `Matrix` or throws.
+- `asVector()`: Returns `Vector` or throws.
+- `isNaN`: Checks if the result contains any NaN values.
+- `isNumeric`, `isComplex`, `isMatrix`, `isVector`: Type check properties.
 
 ### Usage Example
 

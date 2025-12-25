@@ -181,15 +181,18 @@ mixin PrimaryParserMixin on BaseParser {
       i++;
       if (i < tokens.length && tokens[i].type == TokenType.lparen) {
         i++;
-        if (i < tokens.length && tokens[i].type != TokenType.number)
+        if (i < tokens.length && tokens[i].type != TokenType.number) {
           return false;
+        }
         i++;
-        if (i < tokens.length && tokens[i].type != TokenType.rparen)
+        if (i < tokens.length && tokens[i].type != TokenType.rparen) {
           return false;
+        }
         i++;
       } else {
-        if (i < tokens.length && tokens[i].type != TokenType.number)
+        if (i < tokens.length && tokens[i].type != TokenType.number) {
           return false;
+        }
         i++;
       }
     }
@@ -201,12 +204,14 @@ mixin PrimaryParserMixin on BaseParser {
 
     final dType = isPartial ? TokenType.partial : TokenType.variable;
     if (i >= tokens.length || tokens[i].type != dType) return false;
-    if (!isPartial && tokens[i].value != _d)
+    if (!isPartial && tokens[i].value != _d) {
       return false; // Ensure it's 'd' if not partial
+    }
     i++;
 
-    if (i >= tokens.length || tokens[i].type != TokenType.variable)
+    if (i >= tokens.length || tokens[i].type != TokenType.variable) {
       return false;
+    }
 
     return true;
   }
@@ -299,6 +304,7 @@ mixin PrimaryParserMixin on BaseParser {
   }
 
   /// Parses an integral with optional bounds \int_{lower}^{upper} body dx.
+  @override
   Expression parseIntegralExpr() {
     Expression? lower;
     Expression? upper;
