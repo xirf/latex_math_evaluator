@@ -36,47 +36,60 @@ The differentiation engine implements all standard calculus differentiation rule
 
 ### Trigonometric Functions
 
-| Function | Derivative |
-|----------|-----------|
-| sin(x) | cos(x) |
-| cos(x) | -sin(x) |
-| tan(x) | 1/cos²(x) |
-| cot(x) | -1/sin²(x) |
-| sec(x) | sec(x)·tan(x) |
-| csc(x) | -csc(x)·cot(x) |
+| Function | Derivative     |
+| -------- | -------------- |
+| sin(x)   | cos(x)         |
+| cos(x)   | -sin(x)        |
+| tan(x)   | 1/cos²(x)      |
+| cot(x)   | -1/sin²(x)     |
+| sec(x)   | sec(x)·tan(x)  |
+| csc(x)   | -csc(x)·cot(x) |
 
 ### Inverse Trigonometric Functions
 
-| Function | Derivative |
-|----------|-----------|
-| arcsin(x) | 1/√(1-x²) |
+| Function  | Derivative |
+| --------- | ---------- |
+| arcsin(x) | 1/√(1-x²)  |
 | arccos(x) | -1/√(1-x²) |
-| arctan(x) | 1/(1+x²) |
+| arctan(x) | 1/(1+x²)   |
 
 ### Hyperbolic Functions
 
 | Function | Derivative |
-|----------|-----------|
-| sinh(x) | cosh(x) |
-| cosh(x) | sinh(x) |
-| tanh(x) | 1/cosh²(x) |
+| -------- | ---------- |
+| sinh(x)  | cosh(x)    |
+| cosh(x)  | sinh(x)    |
+| tanh(x)  | 1/cosh²(x) |
 
 ### Exponential and Logarithmic Functions
 
-| Function | Derivative |
-|----------|-----------|
-| e^x | e^x |
-| a^x | a^x · ln(a) |
-| ln(x) | 1/x |
-| log(x) | 1/(x·ln(10)) |
-| log₂(x) | 1/(x·ln(2)) |
+| Function | Derivative   |
+| -------- | ------------ |
+| e^x      | e^x          |
+| a^x      | a^x · ln(a)  |
+| ln(x)    | 1/x          |
+| log(x)   | 1/(x·ln(10)) |
+| log₂(x)  | 1/(x·ln(2))  |
 
 ### Other Functions
 
-| Function | Derivative |
-|----------|-----------|
-| √x | 1/(2√x) |
-| \|x\| | sign(x) |
+| Function | Derivative    |
+| -------- | ------------- |
+| \sqrt{x} | 1/(2\sqrt{x}) |
+| \|x\|    | \sign(x)      |
+| \sign(x) | 0             |
+
+### Piecewise Functions
+
+The library supports differentiation of piecewise functions (conditional expressions). The derivative is computed for the expression part while preserving the condition.
+
+```latex
+\frac{d}{dx}(expression, condition)
+```
+
+**Rule**: `d/dx[f(x), condition] = d/dx[f(x)], condition`
+
+**Note**: At the boundary points of the condition (e.g., x=3 for x<3), the derivative evaluates to `NaN` (undefined/discontinuous).
 
 ## Examples
 
@@ -87,15 +100,15 @@ import 'package:latex_math_evaluator/latex_math_evaluator.dart';
 
 void main() {
   final evaluator = LatexMathEvaluator();
-  
+
   // Constant rule
   print(evaluator.evaluateNumeric(r'\frac{d}{dx}(5)'));
   // Output: 0.0
-  
+
   // Variable rule
   print(evaluator.evaluateNumeric(r'\frac{d}{dx}(x)', {'x': 3}));
   // Output: 1.0
-  
+
   // Power rule
   print(evaluator.evaluateNumeric(r'\frac{d}{dx}(x^{2})', {'x': 3}));
   // Output: 6.0  (2·3 = 6)
@@ -193,11 +206,14 @@ The `differentiate()` method allows you to obtain symbolic derivatives that can 
 ```dart
 final evaluator = LatexMathEvaluator();
 
-// Parse the original expression
+// Parse the original expression (optional)
 final expr = evaluator.parse(r'x^{2} + 3x + 1');
 
-// Get the symbolic derivative
+// Get the symbolic derivative using Expression object
 final derivative = evaluator.differentiate(expr, 'x');
+
+// OR pass the string directly (easier!)
+final derivative2 = evaluator.differentiate(r'x^{2} + 3x + 1', 'x');
 
 // The derivative can now be evaluated at multiple points
 print(evaluator.evaluateParsed(derivative, {'x': 0}).asNumeric());  // 3.0

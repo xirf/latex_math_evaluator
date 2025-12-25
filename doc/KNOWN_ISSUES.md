@@ -29,6 +29,8 @@ These are deliberate design choices that define the library's scope and philosop
 
 **Current Coverage:** See documentation for the complete list of supported commands.
 
+**Future Work:** See [ROADMAP.md](../ROADMAP.md) for details on planned LaTeX command support.
+
 ---
 
 ## Technical Limitations (Can't Fix Without Major Changes)
@@ -43,7 +45,7 @@ All calculations use Dart's `double` type (IEEE 754 64-bit binary floating-point
 
 **Specific Limitations:**
 
-- **Non-associativity:** `(a + b) + c ≠ a + (b + c)` in general, affecting symbolic simplification
+- **Non-associativity:** `(a + b) + c != a + (b + c)` in general, affecting symbolic simplification
 - **Precision loss:** ~15-17 decimal digits of precision; very large or small numbers lose accuracy
 - **Instability near discontinuities:** Functions like `tan(π/2)` or `1/x` near zero exhibit numerical instability
 - **Transcendental function errors:** Error bounds for `sin`, `cos`, `exp`, etc. are inherited from `dart:math` (typically < 1 ULP but not guaranteed)
@@ -68,7 +70,7 @@ All calculations use Dart's `double` type (IEEE 754 64-bit binary floating-point
 - **No advanced integration:** Only basic patterns; most integrals remain symbolic
 - **No equation solving:** Cannot solve `x^2 - 4 = 0` for `x`
 
-**Rationale:** Full computer algebra system (CAS) capabilities require sophisticated term rewriting engines and are out of scope for a lightweight evaluator.
+**Rationale:** Full computer algebra system (CAS) capabilities require sophisticated term rewriting engines, current implementation is not designed for that.
 
 ### 3. Recursion Depth Limit
 

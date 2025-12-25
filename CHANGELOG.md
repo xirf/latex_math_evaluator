@@ -16,12 +16,25 @@
   - TTL (Time-to-Live) support for automatic cache entry expiration
   - `warmUpCache()` method to preload frequently-used expressions
   - `clearAllCaches()` method to clear all cache layers at once
+- **Piecewise Function Differentiation**: Support for differentiating conditional expressions
+  - Can now differentiate functions like `|\sin{x}|, -3 < x < 3`
+  - Implementation: `d/dx[f(x), condition] = d/dx[f(x)], condition`
+  - 25 comprehensive tests in `test/features/piecewise_differentiation_test.dart`
+- **Sign Function**: Added `\sign{x}` as alias for `\sgn{x}`
+  - Registered in both tokenizer and function registry
+  - Automatically used in derivatives of absolute values: `d/dx[|f(x)|] = f'(x) * sign(f(x))`
+- **String-Based API**: Both `differentiate()` and `integrate()` now accept LaTeX strings directly
+  - New: `evaluator.differentiate('x^2', 'x')`
+  - Old API with `Expression` objects still works (backward compatible)
+  - Eliminates need for manual parsing in common cases
 
 ### Improved
 
 - **LRU Cache**: Enhanced with TTL support, statistics tracking, and `getOrPut()` atomic operation
 - **Cache Hit Rates**: Multi-layer caching provides significant speedup for repeated evaluations with same variables
 - **Differentiation Performance**: Repeated derivatives are now cached for better performance
+- **Developer Experience**: More intuitive API for calculus operations
+- **Documentation**: Updated README with new API examples and piecewise function support
 
 ### Changed
 
