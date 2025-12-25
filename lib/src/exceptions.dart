@@ -143,26 +143,76 @@ class ValidationResult {
         exceptionType = null;
 
   /// Creates a failed validation result from an exception.
-  factory ValidationResult.fromException(LatexMathException exception) {
-    String? suggestion;
+  ///
+  /// Analyzes the error message and provides context-aware suggestions.
+  factory ValidationResult.fromException(
+    LatexMathException exception, {
+    String? expression,
+  }) {
+    String? suggestion = exception.suggestion;
+    final expr = expression ?? exception.expression;
 
-    // Provide helpful suggestions based on common errors
-    final message = exception.message.toLowerCase();
-    if (message.contains('unexpected end')) {
-      suggestion = 'Check for unclosed braces or parentheses';
-    } else if (message.contains('unknown command') ||
-        message.contains('unknown latex')) {
-      suggestion = 'Verify the LaTeX command is supported';
-    } else if (message.contains('undefined variable')) {
-      suggestion = 'Provide a value for this variable in the variables map';
-    } else if (message.contains('division by zero')) {
-      suggestion = 'Ensure denominator is not zero';
-    } else if (message.contains('expected') && message.contains("'}'")) {
-      suggestion = 'Check for unclosed braces';
-    } else if (message.contains('expected') && message.contains("')'")) {
-      suggestion = 'Check for unclosed parentheses';
-    } else if (message.contains('expected')) {
-      suggestion = 'Check syntax near this position';
+    // If no suggestion from exception, generate one
+    if (suggestion == null) {
+      final message = exception.message.toLowerCase();
+
+      // Unknown function/command with did-you-mean
+      final unknownMatch = RegExp(r'unknown\s+(?:function|command):\s*(\w+)',
+              caseSensitive: false)
+          .firstMatch(exception.message);
+      if (unknownMatch != null) {
+        final unknown = unknownMatch.group(1)!;
+        // Try to find similar command (would need error_suggestions import)
+        suggestion =
+            'Verify that "$unknown" is a supported function or check spelling';
+      }
+
+      // Specific error patterns
+      else if (message.contains('unexpected end')) {
+        suggestion = 'Check for unclosed braces {} or parentheses ()';
+      } else if (message.contains('undefined variable')) {
+        final varMatch =
+            RegExp(r'undefined variable[:\s]+(\w+)', caseSensitive: false)
+                .firstMatch(exception.message);
+        if (varMatch != null) {
+          suggestion =
+              'Provide a value for "${varMatch.group(1)}" in the variables map';
+        } else {
+          suggestion = 'Provide a value for this variable in the variables map';
+        }
+      } else if (message.contains('division by zero')) {
+        suggestion = 'Ensure the denominator is not zero';
+      } else if (message.contains("expected '}'") ||
+          message.contains("expected \"}\"")) {
+        suggestion = 'Missing closing brace } - check for unmatched {';
+      } else if (message.contains("expected ')'") ||
+          message.contains("expected \")\"")) {
+        suggestion = 'Missing closing parenthesis ) - check for unmatched (';
+      } else if (message.contains("expected '{'") ||
+          message.contains("expected \"{\"")) {
+        suggestion =
+            'Missing opening brace { - LaTeX commands require braces: \\func{arg}';
+      } else if (message.contains('expected expression')) {
+        suggestion =
+            'Check for missing operands or invalid syntax near this position';
+      } else if (message.contains('invalid') && message.contains('base')) {
+        suggestion = 'Logarithm base must be positive and not equal to 1';
+      } else if (message.contains('domain') ||
+          message.contains('out of range')) {
+        suggestion =
+            'Input value is outside the valid domain for this function';
+      } else if (message.contains('expected')) {
+        suggestion = 'Check syntax near this position';
+      }
+
+      // Try common mistake detection if we have the expression
+      if (suggestion == null && expr != null) {
+        // Simple check for frac without braces
+        if (expr.contains(r'\frac') && RegExp(r'\\frac\d').hasMatch(expr)) {
+          suggestion =
+              'Use \\frac{numerator}{denominator} with braces, not \\frac12';
+        }
+      }
     }
 
     return ValidationResult(
