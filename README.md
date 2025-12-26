@@ -103,6 +103,11 @@ final validation = evaluator.validate(r'\frac{1{2}');
 if (!validation.isValid) {
   print('Error at ${validation.position}: ${validation.errorMessage}');
   print('Suggestion: ${validation.suggestion}');
+  
+  // New: Check for multiple errors
+  if (validation.subErrors.isNotEmpty) {
+    print('Additional errors: ${validation.subErrors.length}');
+  }
 }
 
 // Did-you-mean for unknown functions

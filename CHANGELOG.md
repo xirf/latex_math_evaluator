@@ -25,6 +25,8 @@
     - Missing backslashes: `sin(x)` → suggestion to use `\sin{x}`.
     - Unmatched delimiters: Specific messages for missing or extra `}` and `)`.
   - **Context-Aware Suggestions**: `ValidationResult` now provides more specific advice for division by zero, domain errors, and undefined variables.
+  - **Error Recovery**: The parser can now recover from syntax errors to report multiple issues in a single pass (reported via `ValidationResult.subErrors`).
+  - **Bug Fix**: Fixed a `RangeError` when reporting errors at the end of input.
   - New internal `error_suggestions.dart` utility for improved error reporting.
   - Added 15+ tests for error message suggestions and position markers.
 

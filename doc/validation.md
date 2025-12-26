@@ -53,13 +53,33 @@ if (!result.isValid) {
 
 ### ValidationResult Properties
 
-| Property        | Type      | Description                                                   |
-| --------------- | --------- | ------------------------------------------------------------- |
-| `isValid`       | `bool`    | Whether the expression is valid                               |
-| `errorMessage`  | `String?` | Error description (null if valid)                             |
-| `position`      | `int?`    | Character position of error (null if unavailable)             |
-| `suggestion`    | `String?` | Suggested fix (null if unavailable)                           |
-| `exceptionType` | `Type?`   | Type of exception (TokenizerException, ParserException, etc.) |
+| Property        | Type                     | Description                                                   |
+| --------------- | ------------------------ | ------------------------------------------------------------- |
+| `isValid`       | `bool`                   | Whether the expression is valid                               |
+| `errorMessage`  | `String?`                | Error description (null if valid)                             |
+| `position`      | `int?`                   | Character position of error (null if unavailable)             |
+| `suggestion`    | `String?`                | Suggested fix (null if unavailable)                           |
+| `subErrors`     | `List<ValidationResult>` | Additional errors found during validation (since v0.1.6)      |
+| `exceptionType` | `Type?`                  | Type of exception (TokenizerException, ParserException, etc.) |
+
+### Multiple Error Reporting
+
+The `validate()` method automatically attempts to recover from syntax errors to find subsequent issues in the expression. This is reported via `subErrors`.
+
+```dart
+final result = evaluator.validate(r'2 + ) + }'); 
+// Error 1: Unexpected token: )
+// Error 2: Unexpected token: }
+
+if (!result.isValid) {
+  print('Primary Error: ${result.errorMessage}');
+  
+  for (final error in result.subErrors) {
+    if (error == result) continue; // Skip primary which is also in listing
+    print('Also found: ${error.errorMessage} at ${error.position}');
+  }
+}
+```
 
 ## Common Validation Scenarios
 
@@ -205,7 +225,7 @@ To check for undefined variables, you need to evaluate with an empty variable ma
 | **Purpose**       | Check syntax                | Compute result              |
 | **Speed**         | Fast (stops at first error) | Slower (full computation)   |
 | **Variables**     | Not required                | Required for undefined vars |
-| **Errors caught** | Syntax errors               | Syntax + runtime errors     |
+| **Errors caught** | Syntax errors (reports all) | Syntax + runtime errors     |
 | **Returns**       | bool or ValidationResult    | double or Matrix            |
 
 ### Error Suggestions
@@ -247,7 +267,7 @@ The library can detect common LaTeX syntax mistakes:
 
 ## Performance Considerations
 
-- **`isValid()`** is slightly faster than `validate()` as it doesn't construct detailed error info
+- **`isValid()`** is slightly faster than `validate()` as it doesn't construct detailed error info or attempt error recovery
 - Both methods parse the expression (tokenize + parse), but don't evaluate it
 - For real-time validation, consider debouncing to avoid validating on every keystroke
 

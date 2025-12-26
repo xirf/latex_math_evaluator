@@ -30,8 +30,10 @@ Returned by `LatexMathEvaluator.validate()`.
 *   `position`: Error index (if invalid).
 *   `suggestion`: Fix suggestion (if invalid).
 *   `exceptionType`: The specific exception class that would be thrown.
+*   `subErrors`: List of additional `ValidationResult`s found during parsing (if multiple errors exist).
 
 ### Methods
 
 *   `ValidationResult.valid()`: Creates a success result.
 *   `ValidationResult.fromException(LatexMathException e)`: Creates a failure result from an exception.
+*   `ValidationResult.fromExceptions(List<LatexMathException> exceptions)`: Creates a result from a list of exceptions.

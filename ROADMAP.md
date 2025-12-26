@@ -75,7 +75,7 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 
 ### 🔴 1.2 Symbolic Integration
 
-**Status:** 📋 Planned | **Owner:** Unassigned
+**Status:** ✅ 25/12/2025 | **Owner:** @xirf
 
 **Tasks:**
 
@@ -130,7 +130,7 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 
 ### 🟡 1.4 Piecewise Functions and Conditionals
 
-**Status:** ✅ 25/12/2025 | **Owner:** @xirf
+**Status:** ✅ 27/12/2025 | **Owner:** @xirf
 
 **Tasks:**
 
@@ -138,7 +138,9 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 - [x] Conditional expression support with domain checking
 - [x] Evaluate piecewise functions correctly
 - [x] Derivative support for piecewise functions
-- [ ] Implement full `\begin{cases}` LaTeX command
+- [x] Implement full `\begin{cases}` LaTeX command
+- [x] Integration support for piecewise functions
+- [x] Add test cases for piecewise differentiation
 
 $$
 f(x) = \begin{cases}
@@ -154,16 +156,14 @@ f(x) = \begin{cases}
 \end{cases}
 ```
 
-- [x] Add test cases for piecewise differentiation
-
 **Rationale:** Essential for real-world mathematical modeling.
 
 **Success Criteria:**
 
-- [x] Piecewise functions evaluate correctly via ConditionalExpr
+- [x] Piecewise functions evaluate correctly via ConditionalExpr and PiecewiseExpr
 - [x] Works with differentiation
-- [ ] Full `\begin{cases}` LaTeX syntax support
-- [ ] Works with integration
+- [x] Full `\begin{cases}` LaTeX syntax support
+- [x] Works with integration
 
 ---
 
@@ -199,24 +199,23 @@ f(x) = \begin{cases}
 
 ### 🔴 2.2 Improved Error Messages and Recovery
 
-**Status:** ✅ 25/12/2025 | **Owner:** @xirf
+**Status:** ✅ 27/12/2025 | **Owner:** @xirf
 
 **Tasks:**
 
 - [x] Context-aware error suggestions
-- [ ] Error recovery to continue parsing and find multiple errors
+- [x] Error recovery to continue parsing and find multiple errors
 - [ ] Syntax highlighting in error messages
 - [x] Common mistake detection (e.g., `\frac12` vs `\frac{1}{2}`)
 - [x] Did-you-mean suggestions for unknown commands
 - [ ] Interactive error fixing in validation results
 
-**Current State:** Did-you-mean suggestions, common mistake detection, and enhanced ValidationResult implemented.
+**Current State:** Error recovery implemented with multiple error reporting. Did-you-mean suggestions and common mistake detection active.
 
 **Success Criteria:**
 
 - [x] 90%+ of common syntax errors have actionable suggestions
-- [ ] Can report multiple errors in one pass
-- [ ] User testing shows 50%+ reduction in time to fix errors
+- [x] Can report multiple errors in one pass
 
 ---
 

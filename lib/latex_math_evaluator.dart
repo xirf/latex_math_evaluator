@@ -377,6 +377,10 @@ class LatexMathEvaluator {
   ///
   /// Returns a [ValidationResult] with validation status and error details.
   ///
+  ///
+  /// This method attempts to recover from errors to report multiple issues
+  /// if possible. Check [ValidationResult.subErrors] for additional errors.
+  ///
   /// Example:
   /// ```dart
   /// final evaluator = LatexMathEvaluator();
@@ -384,15 +388,27 @@ class LatexMathEvaluator {
   /// final result = evaluator.validate(r'\sin{');
   /// if (!result.isValid) {
   ///   print('Error: ${result.errorMessage}');
-  ///   print('Position: ${result.position}');
-  ///   if (result.suggestion != null) {
-  ///     print('Suggestion: ${result.suggestion}');
+  ///   // Check for multiple errors
+  ///   for (final subError in result.subErrors) {
+  ///      print('Also found: ${subError.errorMessage}');
   ///   }
   /// }
   /// ```
   ValidationResult validate(String expression) {
     try {
-      parse(expression);
+      final tokens = Tokenizer(expression,
+              extensions: _extensions,
+              allowImplicitMultiplication: allowImplicitMultiplication)
+          .tokenize();
+
+      final parser = Parser(tokens, expression, true);
+      parser.parse();
+
+      if (parser.errors.isNotEmpty) {
+        return ValidationResult.fromExceptions(parser.errors,
+            expression: expression);
+      }
+
       return const ValidationResult.valid();
     } on LatexMathException catch (e) {
       return ValidationResult.fromException(e);
