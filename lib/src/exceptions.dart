@@ -125,6 +125,9 @@ class ValidationResult {
   /// The exception type that occurred, null if valid.
   final Type? exceptionType;
 
+  /// List of additional errors found during validation.
+  final List<ValidationResult> subErrors;
+
   /// Creates a validation result.
   const ValidationResult({
     required this.isValid,
@@ -132,6 +135,7 @@ class ValidationResult {
     this.position,
     this.suggestion,
     this.exceptionType,
+    this.subErrors = const [],
   });
 
   /// Creates a successful validation result.
@@ -140,7 +144,8 @@ class ValidationResult {
         errorMessage = null,
         position = null,
         suggestion = null,
-        exceptionType = null;
+        exceptionType = null,
+        subErrors = const [];
 
   /// Creates a failed validation result from an exception.
   ///
@@ -224,6 +229,30 @@ class ValidationResult {
     );
   }
 
+  /// Creates a failed validation result from a list of exceptions.
+  factory ValidationResult.fromExceptions(
+    List<LatexMathException> exceptions, {
+    String? expression,
+  }) {
+    if (exceptions.isEmpty) return const ValidationResult.valid();
+
+    final subErrors = exceptions
+        .map((e) => ValidationResult.fromException(e, expression: expression))
+        .toList();
+
+    // Use the first exception as the main error, but include all in subErrors
+    final primary = subErrors.first;
+
+    return ValidationResult(
+      isValid: false,
+      errorMessage: primary.errorMessage,
+      position: primary.position,
+      suggestion: primary.suggestion,
+      exceptionType: primary.exceptionType,
+      subErrors: subErrors,
+    );
+  }
+
   @override
   String toString() {
     if (isValid) {
@@ -248,6 +277,23 @@ class ValidationResult {
     return buffer.toString();
   }
 
+  /// Returns a formatted string with all errors.
+  String toStringWithErrors() {
+    if (isValid) return toString();
+
+    final buffer = StringBuffer(toString());
+    if (subErrors.length > 1) {
+      buffer.writeln('\n\nOther errors:');
+      for (var i = 1; i < subErrors.length; i++) {
+        buffer.writeln('${i + 1}. ${subErrors[i].errorMessage}');
+        if (subErrors[i].position != null) {
+          buffer.writeln('   at position ${subErrors[i].position}');
+        }
+      }
+    }
+    return buffer.toString();
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -257,7 +303,8 @@ class ValidationResult {
           errorMessage == other.errorMessage &&
           position == other.position &&
           suggestion == other.suggestion &&
-          exceptionType == other.exceptionType;
+          exceptionType == other.exceptionType &&
+          _listEquals(subErrors, other.subErrors);
 
   @override
   int get hashCode =>
@@ -265,5 +312,15 @@ class ValidationResult {
       errorMessage.hashCode ^
       position.hashCode ^
       suggestion.hashCode ^
-      exceptionType.hashCode;
+      exceptionType.hashCode ^
+      Object.hashAll(subErrors);
+}
+
+bool _listEquals<T>(List<T>? a, List<T>? b) {
+  if (a == null) return b == null;
+  if (b == null || a.length != b.length) return false;
+  for (int i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
 }

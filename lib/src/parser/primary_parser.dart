@@ -18,6 +18,35 @@ mixin PrimaryParserMixin on BaseParser {
 
     final vt = matchToken(TokenType.variable);
     if (vt != null) {
+      String varName = vt.value;
+
+      // Check for subscript to create composite variable name (e.g., H_0, R_{crit})
+      if (match1(TokenType.underscore)) {
+        if (check(TokenType.lparen) && current.value == '{') {
+          // Handle _{...} - extract content as part of name
+          final sub = parseLatexArgument();
+          varName += '_$sub';
+        } else if (check(TokenType.number)) {
+          // Handle _0
+          varName += '_${current.value}';
+          advance();
+        } else if (check(TokenType.variable)) {
+          // Handle _x
+          varName += '_${current.value}';
+          advance();
+        } else {
+          // Fallback or error - simplistic handling for now
+          // We could throw, but let's see if we can perform a simple consume
+          // If it's a Greek letter or command, it might be tricky.
+          // For now, assume simple tokens.
+          throw ParserException(
+            'Expected number, variable, or {expression} after underscore',
+            position: current.position,
+            expression: sourceExpression,
+          );
+        }
+      }
+
       // Check for function call notation: f(x,y) where f is a variable name
       // followed by parenthesized arguments with COMMAS (textbook notation)
       // Only parse as function call if there are multiple arguments (commas),
@@ -54,12 +83,12 @@ mixin PrimaryParserMixin on BaseParser {
           }
           consume(TokenType.rparen, "Expected ')' after function arguments");
           registerNode();
-          return FunctionCall.multivar(vt.value, args);
+          return FunctionCall.multivar(varName, args);
         }
         // No comma - let implicit multiplication handle x(expr)
       }
       registerNode();
-      return Variable(vt.value);
+      return Variable(varName);
     }
 
     final ct = matchToken(TokenType.constant);
@@ -188,12 +217,21 @@ mixin PrimaryParserMixin on BaseParser {
       return FunctionCall.multivar('sqrt', [argument]);
     }
 
-    throw ParserException(
+    final exception = ParserException(
       'Expected expression, got: ${isAtEnd ? "EOF" : current.type.name}',
       position: isAtEnd ? null : current.position,
       expression: sourceExpression,
       suggestion: 'Check for missing operands or invalid syntax',
     );
+
+    if (recoverOnError) {
+      errors.add(exception);
+      // Synchronize: consume the bad token if not EOF
+      if (!isAtEnd) advance();
+      return Variable('__ERROR__');
+    }
+
+    throw exception;
   }
 
   /// Parses a fraction \frac{numerator}{denominator}.

@@ -7,8 +7,10 @@ abstract class BaseParser {
   String? sourceExpression;
   int position = 0;
   final List<String> delimiterStack = [];
+  final bool recoverOnError;
+  final List<ParserException> errors = [];
 
-  BaseParser(this.tokens, [this.sourceExpression]);
+  BaseParser(this.tokens, [this.sourceExpression, this.recoverOnError = false]);
 
   bool get isAtEnd => position >= tokens.length;
 
@@ -84,12 +86,32 @@ abstract class BaseParser {
 
   Token consume(TokenType type, String message) {
     if (check(type)) return advance();
-    throw ParserException(
+
+    final exception = ParserException(
       message,
-      position: current.position,
+      position: isAtEnd
+          ? (tokens.isNotEmpty ? tokens.last.position : 0)
+          : current.position,
       expression: sourceExpression,
       suggestion: _getSuggestion(type, message),
     );
+
+    if (recoverOnError) {
+      errors.add(exception);
+      // Construct a synthetic token to satisfy the consumer
+      // This allows the parser to continue as if it found the token
+      return Token(
+        type: type,
+        value: type == TokenType.lparen
+            ? '{'
+            : (type == TokenType.rparen ? '}' : ''),
+        position: isAtEnd
+            ? (tokens.isNotEmpty ? tokens.last.position : 0)
+            : current.position,
+      );
+    }
+
+    throw exception;
   }
 
   String? _getSuggestion(TokenType expectedType, String message) {
