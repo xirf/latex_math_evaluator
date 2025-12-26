@@ -422,3 +422,23 @@ e^{i\pi}
 \sqrt{-1}     % Returns i
 \sin{1 + 2i} % Complex trigonometry
 ```
+
+### Textbook Notation Compatibility
+
+The parser supports common textbook notation for copy-paste compatibility:
+
+**Function Power Notation:**
+
+```latex
+\sin^2{x} + \cos^2{x}    % Pythagorean identity
+\tan^3{\theta}           % Third power of tangent
+\sin^{-1}{x}             % Power of -1 on sin
+```
+
+**Multi-argument Function Calls:**
+
+```latex
+f(x,y)                   % Function with multiple arguments
+g(a,b,c)                 % Function with 3 arguments
+\iint_{D} f(x,y) dx dy   % Double integral with function notation
+```

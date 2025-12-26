@@ -12,11 +12,23 @@ mixin FunctionParserMixin on BaseParser {
       final name = tokens[position - 1].value;
       Expression? base;
       Expression? optionalParam;
+      Expression? functionPower;
 
       // Check for optional parameter in square brackets (e.g., \sqrt[3]{x})
       if (match1(TokenType.lbracket)) {
         optionalParam = parseExpression();
         consume(TokenType.rbracket, "Expected ']' after optional parameter");
+      }
+
+      // Check for power notation on function itself: \sin^2{x} -> (\sin{x})^2
+      // This is common textbook notation
+      if (match1(TokenType.power)) {
+        if (match1(TokenType.lparen)) {
+          functionPower = parseExpression();
+          consume(TokenType.rparen, "Expected '}' after power");
+        } else {
+          functionPower = parsePrimary();
+        }
       }
 
       // Special handling for \vec{} and \hat{}
@@ -29,7 +41,11 @@ mixin FunctionParserMixin on BaseParser {
         }
         consume(TokenType.rparen, "Expected '}' after vector components");
         registerNode();
-        return VectorExpr(components, isUnitVector: name == 'hat');
+        Expression result = VectorExpr(components, isUnitVector: name == 'hat');
+        if (functionPower != null) {
+          result = BinaryOp(result, BinaryOperator.power, functionPower);
+        }
+        return result;
       }
 
       if (match1(TokenType.underscore)) {
@@ -51,14 +67,22 @@ mixin FunctionParserMixin on BaseParser {
         args.add(parseUnary());
       }
 
+      Expression result;
       if (args.length == 1) {
-        registerNode();
-        return FunctionCall(name, args[0],
+        result = FunctionCall(name, args[0],
+            base: base, optionalParam: optionalParam);
+      } else {
+        result = FunctionCall.multivar(name, args,
             base: base, optionalParam: optionalParam);
       }
+
+      // Apply power if present: \sin^2{x} -> (\sin{x})^2
+      if (functionPower != null) {
+        result = BinaryOp(result, BinaryOperator.power, functionPower);
+      }
+
       registerNode();
-      return FunctionCall.multivar(name, args,
-          base: base, optionalParam: optionalParam);
+      return result;
     } finally {
       exitRecursion();
     }

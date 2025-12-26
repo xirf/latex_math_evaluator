@@ -36,7 +36,8 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 - ✅ Extensible architecture for custom functions
 - ✅ Implicit multiplication support
 - ✅ LaTeX regeneration from AST (toLatex() method)
-- ✅ 1000+ passing tests
+- ✅ Textbook LaTeX compatibility (`\sin^2{x}`, `f(x,y)` notation)
+- ✅ 1197+ passing tests
 
 ---
 
@@ -94,10 +95,10 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 
 **Success Criteria:**
 
-- [ ] `\int x^n dx` returns `x^(n+1)/(n+1) + C`
-- [ ] `\int \sin(x) dx` returns `-\cos(x) + C`
-- [ ] Handles definite integrals with variable bounds
-- [ ] Benchmark performance on standard integral corpus
+- [x] `\int x^n dx` returns `x^(n+1)/(n+1) + C`
+- [x] `\int \sin(x) dx` returns `-\cos(x) + C`
+- [x] Handles definite integrals with variable bounds
+- [x] Benchmark performance on standard integral corpus
 
 ---
 
@@ -123,7 +124,7 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 - [x] `\sin(1+2i)` evaluates correctly
 - [x] `e^{i\pi}` returns `-1`
 - [x] All trig/log functions work with complex inputs
-- [ ] Comprehensive documentation on complex support
+- [x] Comprehensive documentation on complex support
 
 ---
 
@@ -182,15 +183,17 @@ f(x) = \begin{cases}
 - [x] `\nabla` - Gradient operator
 - [x] LaTeX spacing commands (`\,`, `\;`, `\quad`)
 - [x] Greek letter support (α, β, γ as variables)
+- [x] Function power notation (`\sin^2{x}`, `\cos^3{\theta}`)
+- [x] Multi-argument function calls (`f(x,y)`, `g(a,b,c)`)
 - [x] Add 200+ parser tests for new constructs
 
 **Rationale:** Users copy expressions from papers/textbooks expecting them to work.
 
 **Success Criteria:**
 
-- [ ] Can parse 90%+ of expressions from standard calculus textbooks
-- [ ] Parser test corpus includes real-world LaTeX samples
-- [ ] Documentation of all supported LaTeX commands
+- [x] Can parse 90%+ of expressions from standard calculus textbooks
+- [x] Parser test corpus includes real-world LaTeX samples
+- [x] Documentation of all supported LaTeX commands
 
 ---
 

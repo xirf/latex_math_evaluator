@@ -18,6 +18,46 @@ mixin PrimaryParserMixin on BaseParser {
 
     final vt = matchToken(TokenType.variable);
     if (vt != null) {
+      // Check for function call notation: f(x,y) where f is a variable name
+      // followed by parenthesized arguments with COMMAS (textbook notation)
+      // Only parse as function call if there are multiple arguments (commas),
+      // otherwise it's implicit multiplication like x(x+1) = x * (x+1)
+      if (check(TokenType.lparen) && current.value == '(') {
+        // Look ahead to check for comma - if found, parse as function call
+        int parenDepth = 1;
+        bool hasComma = false;
+        int scanPos = position + 1; // position is at '(', so start after
+
+        // Scan ahead to check if there's a comma at this paren level
+        while (scanPos < tokens.length && parenDepth > 0) {
+          final tok = tokens[scanPos];
+          if (tok.type == TokenType.lparen) {
+            parenDepth++;
+          } else if (tok.type == TokenType.rparen) {
+            parenDepth--;
+          } else if (tok.type == TokenType.comma && parenDepth == 1) {
+            hasComma = true;
+            break;
+          }
+          scanPos++;
+        }
+
+        if (hasComma) {
+          // Parse as function call with multiple arguments
+          advance(); // consume '('
+          final args = <Expression>[];
+          if (!check(TokenType.rparen)) {
+            args.add(parseExpression());
+            while (match1(TokenType.comma)) {
+              args.add(parseExpression());
+            }
+          }
+          consume(TokenType.rparen, "Expected ')' after function arguments");
+          registerNode();
+          return FunctionCall.multivar(vt.value, args);
+        }
+        // No comma - let implicit multiplication handle x(expr)
+      }
       registerNode();
       return Variable(vt.value);
     }
