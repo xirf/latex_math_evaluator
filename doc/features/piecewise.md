@@ -188,42 +188,95 @@ print(expr is ConditionalExpr); // true
 print(expr.toLatex()); // "x^{2} \\text{ where } -5 < x < 5"
 ```
 
-## Limitations
+## `\begin{cases}` Syntax
 
-### 1. No `\begin{cases}` Syntax Yet
+The library now fully supports the standard LaTeX `\begin{cases}` environment for defining multi-branch piecewise functions:
 
-The traditional LaTeX piecewise notation is **not yet supported**:
-
-```latex
-❌ Not supported yet:
-f(x) = \begin{cases}
-  x^2 & x < 0 \\
-  2x & x >= 0
-\end{cases}
-```
-
-Use the comma syntax instead:
-
-```latex
-✅ Supported:
-x^{2}, x < 0
-2x, x >= 0
-```
-
-### 2. Single Condition Per Expression
-
-Each expression can only have one condition. For true piecewise functions with multiple branches, you need separate expressions.
-
-### 3. No Integration Support Yet
-
-While differentiation is fully supported, **integration of piecewise functions is not yet implemented**:
+### Basic Usage
 
 ```dart
-// ❌ Not supported yet
-final integral = evaluator.integrate(r'x^{2}, -5 < x < 5', 'x');
+final evaluator = LatexMathEvaluator();
+
+// Parse a piecewise function using \begin{cases}
+final expr = evaluator.parse(r'''
+  \begin{cases}
+    x^{2} & x < 0 \\
+    2x & x \geq 0
+  \end{cases}
+''');
+
+// Evaluate at different points
+print(evaluator.evaluateParsed(expr, {'x': -2.0}).asNumeric()); // 4.0 (uses x^2)
+print(evaluator.evaluateParsed(expr, {'x': 3.0}).asNumeric());  // 6.0 (uses 2x)
 ```
 
-### 4. Condition Must Use Same Variable
+### ReLU Function Example
+
+```dart
+// ReLU: max(0, x)
+final relu = evaluator.parse(r'''
+  \begin{cases}
+    0 & x < 0 \\
+    x & x \geq 0
+  \end{cases}
+''');
+
+print(evaluator.evaluateParsed(relu, {'x': -5.0}).asNumeric()); // 0.0
+print(evaluator.evaluateParsed(relu, {'x': 5.0}).asNumeric());  // 5.0
+
+// Differentiate ReLU
+final reluDerivative = evaluator.differentiate(relu, 'x');
+print(evaluator.evaluateParsed(reluDerivative, {'x': -1.0}).asNumeric()); // 0.0
+print(evaluator.evaluateParsed(reluDerivative, {'x': 1.0}).asNumeric());  // 1.0
+```
+
+### With "Otherwise" Case
+
+```dart
+final expr = evaluator.parse(r'''
+  \begin{cases}
+    x^{2} & x < -10 \\
+    x^{3} & x > 10 \\
+    0 & \text{otherwise}
+  \end{cases}
+''');
+
+print(evaluator.evaluateParsed(expr, {'x': 0.0}).asNumeric()); // 0.0 (otherwise)
+```
+
+### Integration of Piecewise Functions
+
+```dart
+// Integrate each branch independently
+final expr = evaluator.parse(r'''
+  \begin{cases}
+    x & x < 0 \\
+    x^{2} & x \geq 0
+  \end{cases}
+''');
+
+final integral = evaluator.integrate(expr, 'x');
+// Result: PiecewiseExpr with integrated branches
+// x -> x^2/2
+// x^2 -> x^3/3
+```
+
+## Limitations
+
+### 1. Single Condition Per Case
+
+Each case in a `\begin{cases}` environment has one expression and one condition. The library evaluates cases in order and returns the first matching result.
+
+### 2. Integration Across Case Boundaries
+
+While symbolic integration of each branch is supported, **automatic handling of definite integrals across case boundaries** is not yet fully implemented. For definite integrals spanning multiple branches, you may need to split the integral manually:
+
+```dart
+// To compute ∫₋₁¹ f(x) dx where f(x) is piecewise:
+// Split into ∫₋₁⁰ + ∫₀¹ manually if boundaries cross case conditions
+```
+
+### 3. Condition Must Use Same Variable
 
 The condition must reference the same variable being differentiated or evaluated:
 

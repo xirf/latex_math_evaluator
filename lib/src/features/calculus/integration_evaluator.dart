@@ -192,6 +192,25 @@ class IntegrationEvaluator {
         // TODO: Add more like sec^2(x) -> tan(x) if identified
       }
 
+      // 8. Piecewise function: integrate each case's expression
+      if (expr is PiecewiseExpr) {
+        final integratedCases = expr.cases.map((c) {
+          return PiecewiseCase(
+            _integrateRec(c.expression, variable),
+            c.condition,
+          );
+        }).toList();
+        return PiecewiseExpr(integratedCases);
+      }
+
+      // 9. Conditional expression: integrate the expression, preserve condition
+      if (expr is ConditionalExpr) {
+        return ConditionalExpr(
+          _integrateRec(expr.expression, variable),
+          expr.condition,
+        );
+      }
+
       // Indefinite integral: IntegralExpr(null, null, expr, variable)
       return IntegralExpr(null, null, expr, variable);
     } finally {

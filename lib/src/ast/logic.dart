@@ -143,3 +143,94 @@ class ChainedComparison extends Expression {
     return true;
   }
 }
+
+/// A single case in a piecewise function.
+///
+/// Each case has an expression and an optional condition.
+/// If condition is null, it represents an "otherwise" case.
+///
+/// Example in LaTeX: `x^2 & x < 0`
+class PiecewiseCase {
+  /// The expression to evaluate when this case applies
+  final Expression expression;
+
+  /// The condition that must be satisfied for this case to apply.
+  /// If null, this is the "otherwise" catch-all case.
+  final Expression? condition;
+
+  const PiecewiseCase(this.expression, this.condition);
+
+  @override
+  String toString() => 'PiecewiseCase($expression, condition: $condition)';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PiecewiseCase &&
+          runtimeType == other.runtimeType &&
+          expression == other.expression &&
+          condition == other.condition;
+
+  @override
+  int get hashCode => expression.hashCode ^ condition.hashCode;
+}
+
+/// A piecewise function with multiple cases.
+///
+/// This represents the `\begin{cases}...\end{cases}` LaTeX environment.
+/// Cases are evaluated in order, and the first matching condition determines
+/// the result. If no condition matches, the result is NaN.
+///
+/// Example:
+/// ```latex
+/// \begin{cases}
+///   x^2 & x < 0 \\
+///   2x & x \geq 0
+/// \end{cases}
+/// ```
+class PiecewiseExpr extends Expression {
+  /// The list of cases in this piecewise function.
+  /// Cases are evaluated in order until a matching condition is found.
+  final List<PiecewiseCase> cases;
+
+  const PiecewiseExpr(this.cases);
+
+  @override
+  String toString() => 'PiecewiseExpr($cases)';
+
+  @override
+  String toLatex() {
+    final buffer = StringBuffer(r'\begin{cases}');
+    for (int i = 0; i < cases.length; i++) {
+      final c = cases[i];
+      buffer.write(' ');
+      buffer.write(c.expression.toLatex());
+      buffer.write(' & ');
+      if (c.condition != null) {
+        buffer.write(c.condition!.toLatex());
+      } else {
+        buffer.write(r'\text{otherwise}');
+      }
+      if (i < cases.length - 1) {
+        buffer.write(r' \\');
+      }
+    }
+    buffer.write(r' \end{cases}');
+    return buffer.toString();
+  }
+
+  @override
+  R accept<R, C>(ExpressionVisitor<R, C> visitor, C? context) {
+    return visitor.visitPiecewise(this, context);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PiecewiseExpr &&
+          runtimeType == other.runtimeType &&
+          ChainedComparison._listEquals(cases, other.cases);
+
+  @override
+  int get hashCode => cases.hashCode;
+}

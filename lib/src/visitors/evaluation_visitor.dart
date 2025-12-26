@@ -306,4 +306,10 @@ class EvaluationVisitor
     // If it's marked as a unit vector (\hat{}), normalize it
     return node.isUnitVector ? vec.normalize() : vec;
   }
+
+  @override
+  dynamic visitPiecewise(PiecewiseExpr node, Map<String, double>? context) {
+    final variables = context ?? const {};
+    return _comparisonEvaluator.evaluatePiecewise(node, variables);
+  }
 }

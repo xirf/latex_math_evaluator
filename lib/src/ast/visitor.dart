@@ -64,6 +64,7 @@ abstract class ExpressionVisitor<R, C> {
   R visitComparison(Comparison node, C? context);
   R visitChainedComparison(ChainedComparison node, C? context);
   R visitConditionalExpr(ConditionalExpr node, C? context);
+  R visitPiecewise(PiecewiseExpr node, C? context);
 
   // Matrix and Vector
   R visitMatrixExpr(MatrixExpr node, C? context);

@@ -156,6 +156,16 @@ class DifferentiationEvaluator {
         ConditionalExpr(:final expression, :final condition) =>
           ConditionalExpr(_differentiateOnce(expression, variable), condition),
 
+        // Piecewise function: differentiate each case's expression while preserving conditions
+        PiecewiseExpr(:final cases) => PiecewiseExpr(
+            cases
+                .map((c) => PiecewiseCase(
+                      _differentiateOnce(c.expression, variable),
+                      c.condition,
+                    ))
+                .toList(),
+          ),
+
         // Other types not yet supported
         _ => throw EvaluatorException(
             'Cannot differentiate expression of type ${expr.runtimeType}',

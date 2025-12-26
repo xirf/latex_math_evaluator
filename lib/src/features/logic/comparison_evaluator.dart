@@ -104,4 +104,30 @@ class ComparisonEvaluator {
     // If condition is satisfied, evaluate and return the expression
     return _evaluate(cond.expression, variables);
   }
+
+  /// Evaluates a piecewise function with multiple cases.
+  ///
+  /// Cases are evaluated in order. The first case whose condition evaluates
+  /// to true (non-NaN, non-zero) is used. If no condition matches, returns NaN.
+  /// A case with null condition (otherwise case) always matches.
+  dynamic evaluatePiecewise(
+      PiecewiseExpr piecewise, Map<String, double> variables) {
+    for (final c in piecewise.cases) {
+      // If this is an "otherwise" case (no condition), it always matches
+      if (c.condition == null) {
+        return _evaluate(c.expression, variables);
+      }
+
+      // Evaluate the condition
+      final conditionResult = _evaluateAsDouble(c.condition!, variables);
+
+      // If condition is satisfied (not NaN and not 0), evaluate and return expression
+      if (!conditionResult.isNaN && conditionResult != 0.0) {
+        return _evaluate(c.expression, variables);
+      }
+    }
+
+    // No condition matched
+    return double.nan;
+  }
 }
