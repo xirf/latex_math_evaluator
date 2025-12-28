@@ -1,6 +1,42 @@
 # CHANGELOG
 
-## 0.1.6-nightly - 2025-12-25
+## 0.1.6-nightly - 2025-12-27
+
+### Added
+
+- **Reciprocal Trigonometric Functions**: Full support for secant, cosecant, and cotangent:
+  - `\sec{x}` - Secant (1/cos(x))
+  - `\csc{x}` - Cosecant (1/sin(x))
+  - `\cot{x}` - Cotangent (cos(x)/sin(x))
+  - All support both real and complex arguments
+  - Proper error handling for undefined points (e.g., sec(π/2))
+- **Reciprocal Hyperbolic Functions**: Full support for hyperbolic secant, cosecant, and cotangent:
+  - `\sech{x}` - Hyperbolic secant (1/cosh(x))
+  - `\csch{x}` - Hyperbolic cosecant (1/sinh(x))
+  - `\coth{x}` - Hyperbolic cotangent (cosh(x)/sinh(x))
+  - All support both real and complex arguments
+- **Complex Class Enhancements**:
+  - Added `isZero` getter - checks if both real and imaginary parts are zero
+  - Added `isPureImaginary` getter - alias for `isImaginary`
+  - Added `reciprocal` getter - returns multiplicative inverse (1/z)
+- **Comprehensive v0.2.0 Verification Tests**: Added 8 new test files with ~350 tests covering:
+  - Symbolic algebra edge cases
+  - Polynomial expansion/factorization edge cases
+  - Trigonometric identity verification
+  - Logarithm edge cases
+  - LaTeX round-trip tests
+  - Complex number edge cases
+  - Extended LaTeX stress tests
+  - Error recovery integration tests
+
+### Changed
+
+- **Function Registry**: Updated to include sec, csc, cot, sech, csch, coth functions
+- **Total Test Count**: Increased from ~1241 to 1597 tests
+
+---
+
+## 0.1.5-nightly - 2025-12-25
 
 ### Added
 

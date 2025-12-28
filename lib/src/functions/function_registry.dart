@@ -2,8 +2,8 @@
 ///
 /// Functions are organized into separate files by category:
 /// - [logarithmic.dart] - ln, log
-/// - [trigonometric.dart] - sin, cos, tan, asin, acos, atan
-/// - [hyperbolic.dart] - sinh, cosh, tanh
+/// - [trigonometric.dart] - sin, cos, tan, sec, csc, cot, asin, acos, atan
+/// - [hyperbolic.dart] - sinh, cosh, tanh, sech, csch, coth, asinh, acosh, atanh
 /// - [rounding.dart] - ceil, floor, round
 /// - [power.dart] - sqrt, exp
 /// - [other.dart] - abs, sgn, factorial, fibonacci, min, max
@@ -67,6 +67,9 @@ class FunctionRegistry {
     register('sin', trig.handleSin);
     register('cos', trig.handleCos);
     register('tan', trig.handleTan);
+    register('sec', trig.handleSec);
+    register('csc', trig.handleCsc);
+    register('cot', trig.handleCot);
     reg('asin', trig.handleAsin);
     reg('acos', trig.handleAcos);
     reg('atan', trig.handleAtan);
@@ -75,6 +78,9 @@ class FunctionRegistry {
     register('sinh', hyper.handleSinh);
     register('cosh', hyper.handleCosh);
     register('tanh', hyper.handleTanh);
+    register('sech', hyper.handleSech);
+    register('csch', hyper.handleCsch);
+    register('coth', hyper.handleCoth);
     reg('asinh', hyper.handleAsinh);
     reg('acosh', hyper.handleAcosh);
     reg('atanh', hyper.handleAtanh);
@@ -167,8 +173,12 @@ class FunctionRegistry {
     if (b.isEmpty) return a.length;
 
     final dp = List.generate(a.length + 1, (_) => List.filled(b.length + 1, 0));
-    for (int i = 0; i <= a.length; i++) dp[i][0] = i;
-    for (int j = 0; j <= b.length; j++) dp[0][j] = j;
+    for (int i = 0; i <= a.length; i++) {
+      dp[i][0] = i;
+    }
+    for (int j = 0; j <= b.length; j++) {
+      dp[0][j] = j;
+    }
 
     for (int i = 1; i <= a.length; i++) {
       for (int j = 1; j <= b.length; j++) {

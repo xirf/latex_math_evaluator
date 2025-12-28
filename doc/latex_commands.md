@@ -45,12 +45,12 @@ For more details, see [Trigonometry Documentation](functions/trigonometry.md).
 
 | LaTeX     | Description | Complex Support |
 | --------- | ----------- | --------------- |
-| `\sin{x}` | Sine        | ✅              |
-| `\cos{x}` | Cosine      | ✅              |
-| `\tan{x}` | Tangent     | ✅              |
-| `\cot{x}` | Cotangent   | ❌              |
-| `\sec{x}` | Secant      | ❌              |
-| `\csc{x}` | Cosecant    | ❌              |
+| `\sin{x}` | Sine        | ✅               |
+| `\cos{x}` | Cosine      | ✅               |
+| `\tan{x}` | Tangent     | ✅               |
+| `\cot{x}` | Cotangent   | ✅               |
+| `\sec{x}` | Secant      | ✅               |
+| `\csc{x}` | Cosecant    | ✅               |
 
 ### Inverse Trigonometric Functions
 
@@ -67,12 +67,12 @@ For more details, see [Trigonometry Documentation](functions/trigonometry.md).
 
 | LaTeX      | Description          | Complex Support |
 | ---------- | -------------------- | --------------- |
-| `\sinh{x}` | Hyperbolic sine      | ✅              |
-| `\cosh{x}` | Hyperbolic cosine    | ✅              |
-| `\tanh{x}` | Hyperbolic tangent   | ✅              |
-| `\coth{x}` | Hyperbolic cotangent | ❌              |
-| `\sech{x}` | Hyperbolic secant    | ❌              |
-| `\csch{x}` | Hyperbolic cosecant  | ❌              |
+| `\sinh{x}` | Hyperbolic sine      | ✅               |
+| `\cosh{x}` | Hyperbolic cosine    | ✅               |
+| `\tanh{x}` | Hyperbolic tangent   | ✅               |
+| `\coth{x}` | Hyperbolic cotangent | ✅               |
+| `\sech{x}` | Hyperbolic secant    | ✅               |
+| `\csch{x}` | Hyperbolic cosecant  | ✅               |
 
 ### Inverse Hyperbolic Functions
 
@@ -116,8 +116,8 @@ For more details, see [Logarithms Documentation](functions/logarithms.md).
 For more details, see [Miscellaneous Functions](functions/misc.md).
 
 | LaTeX                   | Description             | Example                 |
-| ----------------------- | ----------------------- | ----------------------- | -------------- | ---------------- |
-| `\abs{x}` or `          | x                       | `                       | Absolute value | `\abs{-5}` → `5` |
+| ----------------------- | ----------------------- | ----------------------- |
+| `\abs{x}` or `\|x\|`    | Absolute value          | `\abs{-5}` → `5`        |
 | `\sgn{x}` or `\sign{x}` | Sign function           | `\sgn{-3}` → `-1`       |
 | `\min{a, b}`            | Minimum                 | `\min{3, 5}` → `3`      |
 | `\max{a, b}`            | Maximum                 | `\max{3, 5}` → `5`      |
@@ -272,11 +272,11 @@ For more details, see [Matrices](notation/matrices.md) and [Vectors](notation/ve
 ### Matrix Environments
 
 | Environment                       | Description       | Delimiters |
-| --------------------------------- | ----------------- | ---------- | --- | --- |
+| --------------------------------- | ----------------- | ---------- |
 | `\begin{matrix}...\end{matrix}`   | Plain matrix      | None       |
 | `\begin{pmatrix}...\end{pmatrix}` | Parenthesized     | ( )        |
 | `\begin{bmatrix}...\end{bmatrix}` | Bracketed         | [ ]        |
-| `\begin{vmatrix}...\end{vmatrix}` | Determinant       |            |     |     |
+| `\begin{vmatrix}...\end{vmatrix}` | Determinant       | \| \|      |
 | `\begin{align}...\end{align}`     | Aligned equations | None       |
 
 ### Matrix Syntax

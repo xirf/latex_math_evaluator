@@ -28,6 +28,30 @@ Returns the tangent of x (in radians).
 \tan{0}          -> 0
 ```
 
+### `\sec{x}` - Secant
+
+Returns the secant of x (1/cos(x)).
+
+```latex
+\sec{0}          -> 1
+```
+
+### `\csc{x}` - Cosecant
+
+Returns the cosecant of x (1/sin(x)).
+
+```latex
+\csc{1.5707963}  -> 1  (π/2)
+```
+
+### `\cot{x}` - Cotangent
+
+Returns the cotangent of x (1/tan(x)).
+
+```latex
+\cot{0.7853981}  -> 1  (π/4)
+```
+
 ## Inverse Trigonometric
 
 ### `\asin{x}` / `\arcsin{x}` - Arcsine
@@ -75,6 +99,24 @@ Returns the arctangent of x.
 
 ```latex
 \tanh{0}         -> 0
+```
+
+### `\sech{x}` - Hyperbolic Secant
+
+```latex
+\sech{0}         -> 1
+```
+
+### `\csch{x}` - Hyperbolic Cosecant
+
+```latex
+\csch{1}         -> 0.8509181
+```
+
+### `\coth{x}` - Hyperbolic Cotangent
+
+```latex
+\coth{1}         -> 1.3130352
 ```
 
 ## Inverse Hyperbolic Functions

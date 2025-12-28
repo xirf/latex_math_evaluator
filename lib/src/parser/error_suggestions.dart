@@ -190,7 +190,7 @@ Map<String, String>? detectCommonMistake(String expression, int? position) {
     return {
       'pattern': 'unmatched braces',
       'suggestion':
-          'Missing ${braceCount} closing brace${braceCount > 1 ? 's' : ''} }',
+          'Missing $braceCount closing brace${braceCount > 1 ? 's' : ''} }',
     };
   } else if (braceCount < 0) {
     return {
@@ -210,7 +210,7 @@ Map<String, String>? detectCommonMistake(String expression, int? position) {
     return {
       'pattern': 'unmatched parentheses',
       'suggestion':
-          'Missing ${parenCount} closing parenthesis${parenCount > 1 ? 'es' : ''} )',
+          'Missing $parenCount closing parenthesis${parenCount > 1 ? 'es' : ''} )',
     };
   } else if (parenCount < 0) {
     return {

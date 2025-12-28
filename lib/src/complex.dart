@@ -20,6 +20,13 @@ class Complex {
   /// Returns true if the real part is zero (purely imaginary).
   bool get isImaginary => real == 0 && imaginary != 0;
 
+  /// Returns true if the real part is zero and imaginary is non-zero.
+  /// Alias for [isImaginary].
+  bool get isPureImaginary => isImaginary;
+
+  /// Returns true if both real and imaginary parts are zero.
+  bool get isZero => real == 0 && imaginary == 0;
+
   /// Returns the modulus (magnitude) of the complex number.
   double get abs => math.sqrt(real * real + imaginary * imaginary);
 
@@ -28,6 +35,13 @@ class Complex {
 
   /// Returns the conjugate of the complex number.
   Complex get conjugate => Complex(real, -imaginary);
+
+  /// Returns the reciprocal (multiplicative inverse) of this complex number.
+  /// Returns 1/z = conjugate(z) / |z|^2
+  Complex get reciprocal {
+    final denom = real * real + imaginary * imaginary;
+    return Complex(real / denom, -imaginary / denom);
+  }
 
   /// Adds this complex number to [other].
   Complex operator +(Object other) {
