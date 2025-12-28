@@ -1,81 +1,114 @@
 # CHANGELOG
 
-## 0.1.6-nightly - 2025-12-27
-
-### Added
-
-- **Reciprocal Trigonometric Functions**: Full support for secant, cosecant, and cotangent:
-  - `\sec{x}` - Secant (1/cos(x))
-  - `\csc{x}` - Cosecant (1/sin(x))
-  - `\cot{x}` - Cotangent (cos(x)/sin(x))
-  - All support both real and complex arguments
-  - Proper error handling for undefined points (e.g., sec(π/2))
-- **Reciprocal Hyperbolic Functions**: Full support for hyperbolic secant, cosecant, and cotangent:
-  - `\sech{x}` - Hyperbolic secant (1/cosh(x))
-  - `\csch{x}` - Hyperbolic cosecant (1/sinh(x))
-  - `\coth{x}` - Hyperbolic cotangent (cosh(x)/sinh(x))
-  - All support both real and complex arguments
-- **Complex Class Enhancements**:
-  - Added `isZero` getter - checks if both real and imaginary parts are zero
-  - Added `isPureImaginary` getter - alias for `isImaginary`
-  - Added `reciprocal` getter - returns multiplicative inverse (1/z)
-- **Comprehensive v0.2.0 Verification Tests**: Added 8 new test files with ~350 tests covering:
-  - Symbolic algebra edge cases
-  - Polynomial expansion/factorization edge cases
-  - Trigonometric identity verification
-  - Logarithm edge cases
-  - LaTeX round-trip tests
-  - Complex number edge cases
-  - Extended LaTeX stress tests
-  - Error recovery integration tests
-
-### Changed
-
-- **Function Registry**: Updated to include sec, csc, cot, sech, csch, coth functions
-- **Total Test Count**: Increased from ~1241 to 1597 tests
+Merged changelog with 0.1.6-nightly as the superset release. Content deduplicated, ordered, and normalized.
 
 ---
 
-## 0.1.5-nightly - 2025-12-25
+## 0.1.6-nightly – 2025-12-27
 
 ### Added
 
-- **Enhanced Complex Number Support**:
-  - Full support for complex transcendental functions: `sin`, `cos`, `tan`, `sinh`, `cosh`, `tanh`, `exp`, `ln`, `log`.
-  - Advanced `Complex` class methods: `pow()`, `sqrt()`, `fromPolar()`, `toPolar()`.
-  - Non-real results (like `sqrt(-1)` or `ln(-1)`) now return `ComplexResult` instead of throwing exceptions.
-  - `ln(0)` and `log(0)` now return complex representations of negative infinity.
-  - Euler's identity `e^{i\pi} = -1` verified and supported.
-  - Added 16+ comprehensive tests for complex function evaluation.
-- **Extended LaTeX Notation Support**:
-  - **Uppercase Greek Letters**: `\Alpha` through `\Psi` (all standard uppercase Greek letters).
-  - **Variant Greek Letters**: `\varepsilon`, `\varphi`, `\varrho`, `\vartheta`, `\varpi`, `\varsigma`.
-  - **Missing Lowercase Greek**: Added `\iota`, `\nu`, `\xi`, `\omicron`, `\upsilon`.
-  - **Font Commands**: `\mathbf`, `\mathcal`, `\mathrm`, `\mathit`, `\mathsf`, `\mathtt`, `\textbf`, `\boldsymbol`.
-  - Font commands preserve content for LaTeX round-trip (e.g., `\mathbf{E}` → `Variable("mathbf:E")`).
-  - New comprehensive documentation: `doc/latex_commands.md`.
-- **Improved Error Messages & Diagnostics**:
-  - **Did-you-mean Suggestions**: Uses Levenshtein distance to suggest the correct function name when an unknown function is called (e.g., `\sinn` → "Did you mean 'sin'?").
-  - **Common Mistake Detection**: Automatic detection of frequent LaTeX syntax errors:
-    - Braceless fractions: `\frac12` → suggestion to use `\frac{1}{2}`.
-    - Missing backslashes: `sin(x)` → suggestion to use `\sin{x}`.
-    - Unmatched delimiters: Specific messages for missing or extra `}` and `)`.
-  - **Context-Aware Suggestions**: `ValidationResult` now provides more specific advice for division by zero, domain errors, and undefined variables.
-  - **Error Recovery**: The parser can now recover from syntax errors to report multiple issues in a single pass (reported via `ValidationResult.subErrors`).
-  - **Bug Fix**: Fixed a `RangeError` when reporting errors at the end of input.
-  - New internal `error_suggestions.dart` utility for improved error reporting.
-  - Added 15+ tests for error message suggestions and position markers.
+* **Reciprocal Trigonometric Functions**
+  Full support for secant, cosecant, and cotangent:
+
+  * `\sec{x}` = 1 / cos(x)
+  * `\csc{x}` = 1 / sin(x)
+  * `\cot{x}` = cos(x) / sin(x)
+  * Supports real and complex arguments
+  * Proper handling of undefined points (e.g. sec(π/2))
+
+* **Reciprocal Hyperbolic Functions**
+  Full support for hyperbolic reciprocals:
+
+  * `\sech{x}` = 1 / cosh(x)
+  * `\csch{x}` = 1 / sinh(x)
+  * `\coth{x}` = cosh(x) / sinh(x)
+  * Supports real and complex arguments
+
+* **Comprehensive Complex Number Support**
+
+  * Full complex transcendental evaluation: `sin`, `cos`, `tan`, `sinh`, `cosh`, `tanh`, `exp`, `ln`, `log`
+  * Non-real results (e.g. `sqrt(-1)`, `ln(-1)`) return `ComplexResult`
+  * `ln(0)` and `log(0)` return complex negative infinity representations
+  * Euler identity `e^{i\pi} = -1` verified
+  * Advanced `Complex` APIs:
+
+    * `pow()`, `sqrt()`, `fromPolar()`, `toPolar()`
+    * `reciprocal` getter (1 / z)
+    * `isZero` getter
+    * `isPureImaginary` getter (alias of `isImaginary`)
+
+* **Extended LaTeX Notation Support**
+
+  * Uppercase Greek letters: `\Alpha` through `\Psi`
+  * Variant Greek letters: `\varepsilon`, `\varphi`, `\varrho`, `\vartheta`, `\varpi`, `\varsigma`
+  * Missing lowercase Greek added: `\iota`, `\nu`, `\xi`, `\omicron`, `\upsilon`
+  * Font commands:
+
+    * `\mathbf`, `\mathcal`, `\mathrm`, `\mathit`, `\mathsf`, `\mathtt`
+    * `\textbf`, `\boldsymbol`
+  * Font commands preserved for LaTeX round-trip (e.g. `\mathbf{E}` → `Variable("mathbf:E")`)
+
+* **Improved Error Messages & Diagnostics**
+
+  * Levenshtein-based “did you mean” suggestions for unknown functions
+  * Detection of common LaTeX mistakes:
+
+    * Braceless fractions (`\frac12`)
+    * Missing backslashes (`sin(x)` vs `\sin{x}`)
+    * Unmatched or extra delimiters
+  * Context-aware diagnostics for division by zero, domain errors, and undefined variables
+  * Parser error recovery with multi-error reporting via `ValidationResult.subErrors`
+  * New internal `error_suggestions.dart` utility
+
+* **Testing & Verification**
+
+  * 8 new v0.2.0 verification test files (~350 tests) covering:
+
+    * Symbolic algebra edge cases
+    * Polynomial expansion and factorization
+    * Trigonometric identities
+    * Logarithmic edge cases
+    * Complex arithmetic edge cases
+    * LaTeX round-trip and stress tests
+    * Error recovery integration tests
+  * Additional 30+ tests for complex evaluation and error diagnostics
+
+* **Documentation**
+
+  * `doc/features/complex.md`
+  * `doc/latex_commands.md`
+  * Updated validation and error documentation
 
 ### Changed
 
-- **Function Registry**: Updated to support `dynamic` return types for handlers that can return either `double` or `Complex`.
-- **ComplexStrategy**: Now uses `Complex.pow()` for all power operations, ensuring consistent handling of complex exponents.
+* **Function Registry**
+
+  * Added: `sec`, `csc`, `cot`, `sech`, `csch`, `coth`
+  * Handlers now support dynamic return types (`double | Complex`)
+
+* **ComplexStrategy**
+
+  * Power operations routed through `Complex.pow()` for consistency
+
+* **Implicit Multiplication**
+
+  * Extended to support `\nabla`, `\partial`, `\iint`, `\iiint`, and font commands
 
 ### Improved
 
-- **Floating-Point Precision**: Improved accuracy for complex power operations (e.g., `i^2` now returns exactly `-1`).
-- **Implicit Multiplication**: Extended to support `\nabla`, `\partial`, `\iint`, `\iiint`, and font commands for expressions like `\alpha \nabla^2 u`.
-- **Documentation**: New [doc/features/complex.md](doc/features/complex.md), [doc/latex_commands.md](doc/latex_commands.md), and updated validation documentation.
+* **Floating-Point Precision**
+
+  * Exact results for key identities (e.g. `i^2 = -1`)
+
+### Fixed
+
+* Resolved `RangeError` when reporting errors at end-of-input
+
+### Metrics
+
+* **Total Test Count**: increased from ~1241 to 1597 tests
+
 
 ## 0.1.5 - 2025-12-25
 
