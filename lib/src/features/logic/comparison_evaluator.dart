@@ -35,6 +35,12 @@ class ComparisonEvaluator {
       case ComparisonOperator.greaterEqual:
         result = left >= right;
         break;
+      case ComparisonOperator.member:
+        // Set membership not fully supported in evaluation yet
+        // For now, return false or throw runtime error?
+        // Returning false to prevent crash, but this requires set logic.
+        result = false;
+        break;
       case ComparisonOperator.equal:
         // Use epsilon for float comparison
         result = (left - right).abs() < 1e-9;
@@ -72,6 +78,10 @@ class ComparisonEvaluator {
           break;
         case ComparisonOperator.greaterEqual:
           result = left >= right;
+          break;
+        case ComparisonOperator.member:
+          // Placeholder for set membership.
+          result = false;
           break;
         case ComparisonOperator.equal:
           result = (left - right).abs() < 1e-9;

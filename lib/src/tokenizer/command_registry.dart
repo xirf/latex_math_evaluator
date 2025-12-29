@@ -173,6 +173,7 @@ class LatexCommandRegistry {
     _commands['int'] = TokenType.int;
     _commands['iint'] = TokenType.iint;
     _commands['iiint'] = TokenType.iiint;
+    _commands['oint'] = TokenType.oint;
     _commands['partial'] = TokenType.partial;
     _commands['nabla'] = TokenType.nabla;
     _commands['to'] = TokenType.to;
@@ -196,6 +197,7 @@ class LatexCommandRegistry {
     _commands['leq'] = TokenType.lessEqual;
     _commands['geq'] = TokenType.greaterEqual;
     _commands['neq'] = TokenType.notEqual;
+    _commands['in'] = TokenType.member;
   }
 
   /// Registers special commands (delimiters, spacing, etc.).
@@ -207,6 +209,8 @@ class LatexCommandRegistry {
     _commands['Big'] = TokenType.ignored;
     _commands['bigg'] = TokenType.ignored;
     _commands['Bigg'] = TokenType.ignored;
+    _commands['langle'] = TokenType.langle;
+    _commands['rangle'] = TokenType.rangle;
 
     // Spacing commands
     _commands['quad'] = TokenType.spacing;
@@ -233,6 +237,7 @@ class LatexCommandRegistry {
     _commands['textit'] = TokenType.fontCommand;
     _commands['textrm'] = TokenType.fontCommand;
     _commands['boldsymbol'] = TokenType.fontCommand;
+    _commands['mathbb'] = TokenType.fontCommand;
   }
 
   /// Gets the token type for a given LaTeX command.

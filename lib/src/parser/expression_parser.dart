@@ -25,7 +25,8 @@ mixin ExpressionParserMixin on BaseParser {
         (mt = matchToken(TokenType.greater)) != null ||
         (mt = matchToken(TokenType.lessEqual)) != null ||
         (mt = matchToken(TokenType.greaterEqual)) != null ||
-        (mt = matchToken(TokenType.equals)) != null) {
+        (mt = matchToken(TokenType.equals)) != null ||
+        (mt = matchToken(TokenType.member)) != null) {
       final operator = mt!;
       final right = parsePlusMinus();
 
@@ -45,6 +46,9 @@ mixin ExpressionParserMixin on BaseParser {
           break;
         case TokenType.equals:
           op = ComparisonOperator.equal;
+          break;
+        case TokenType.member:
+          op = ComparisonOperator.member;
           break;
         default:
           throw ParserException(

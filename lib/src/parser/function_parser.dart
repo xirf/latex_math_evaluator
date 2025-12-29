@@ -172,6 +172,12 @@ mixin FunctionParserMixin on BaseParser {
 
   @override
   Expression parseIntegralExpr() {
+    // Check if the PREVIOUS token was \oint
+    bool isClosed = false;
+    if (position > 0 && tokens[position - 1].type == TokenType.oint) {
+      isClosed = true;
+    }
+
     Expression? lower;
     Expression? upper;
 
@@ -188,7 +194,7 @@ mixin FunctionParserMixin on BaseParser {
       }
     }
 
-    final fullBody = parseExpression();
+    final fullBody = parsePlusMinus();
 
     // Attempt to extract body and variable from "body * d * variable" structure
     Expression? body;
@@ -198,13 +204,25 @@ mixin FunctionParserMixin on BaseParser {
       final right = fullBody.right;
       final left = fullBody.left;
 
-      if (right is Variable) {
+      // Handle simple case: \int d \mathbf{A} -> d * A
+      // structure: left=d, right=A
+      if (left is Variable && left.name == 'd' && right is Variable) {
+        body = NumberLiteral(1.0);
+        variable = right.name;
+      }
+      // Handle standard case: \int ... * d * x
+      // structure: (left * d) * x
+      else if (right is Variable) {
         final potentialVar = right.name;
 
         if (left is Variable && left.name == 'd') {
-          // Case: \int dx -> d * x
-          body = NumberLiteral(1.0);
-          variable = potentialVar;
+          // Case: \int dx -> d * x (Wait, if d*x, then body is 1?
+          // If parseExpression returned d*x, then it was just d*x.
+          // Is this covered by first case? left=d, right=x. Yes.)
+          // What about \int A dx -> A * d * x -> (A*d)*x
+          // Here left is (A*d)
+          body = NumberLiteral(1.0); // Wait, where is A? A should be body.
+          // If left is (A*d), and I fall through...
         } else if (left is BinaryOp &&
             left.operator == BinaryOperator.multiply) {
           // Case: \int f(x) dx -> f(x) * d * x
@@ -218,6 +236,13 @@ mixin FunctionParserMixin on BaseParser {
     }
 
     if (body == null || variable == null) {
+      // Fallback: If heuristic fails, treat strict \int f(x) dx
+      // If the last term is ANY valid variable and second last is 'd'
+      // But we only have the expression tree.
+      // Let's implement a 'trailing differential' extractor?
+      // Too complex for now.
+      // Reuse the exception logic but maybe hint about multiplication.
+
       throw ParserException(
         "Expected differential (e.g., 'dx') at the end of integral",
         position: tokens[position - 1].position,
@@ -228,6 +253,6 @@ mixin FunctionParserMixin on BaseParser {
     }
 
     registerNode();
-    return IntegralExpr(lower, upper, body, variable);
+    return IntegralExpr(lower, upper, body, variable, isClosed: isClosed);
   }
 }

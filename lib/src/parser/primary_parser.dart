@@ -16,6 +16,28 @@ mixin PrimaryParserMixin on BaseParser {
       return NumberLiteral(t.numberValue!);
     }
 
+    if (match1(TokenType.lbracket)) {
+      final expr = parseExpression();
+      consume(TokenType.rbracket, "Expected ']'");
+      registerNode();
+      return expr;
+    }
+
+    if (match1(TokenType.langle)) {
+      final args = <Expression>[];
+      args.add(parseExpression());
+      while (match1(TokenType.comma)) {
+        args.add(parseExpression());
+      }
+      consume(TokenType.rangle, "Expected '\\rangle'");
+      registerNode();
+      if (args.length == 1) return args[0]; // just grouping
+      // For now, return a function call to 'inner_product' or 'vector'
+      // Given the context of <u,v>, inner_product is likely intended.
+      // But \langle x \rangle is expectation value.
+      return FunctionCall.multivar('inner_product', args);
+    }
+
     final vt = matchToken(TokenType.variable);
     if (vt != null) {
       String varName = vt.value;
@@ -118,7 +140,29 @@ mixin PrimaryParserMixin on BaseParser {
       return parseProductExpr();
     }
 
-    if (match1(TokenType.int)) {
+    if (match1(TokenType.int) || match1(TokenType.oint)) {
+      // We stepped back one token effectively? No, match1 advances.
+      // But we need to know WHICH one matched to pass loop?
+      // parseIntegralExpr() re-checks or we pass a flag?
+      // Actually parseIntegralExpr assumes we are *at* the start or just checks?
+      // line 121: if (match1(TokenType.int)) { return parseIntegralExpr(); }
+      // This means the token is CONSUMED.
+      // parseIntegralExpr needs to NOT consume it again.
+      // But parseIntegralExpr implementation parses bounds. It DOES NOT consume 'int' inside?
+      // Let's check parseIntegralExpr below (line 395).
+      // It starts with 'Expression? lower;'.
+      // It DOES NOT consume 'int'.
+      // So checking logic above is correct.
+      // But I need to pass 'isClosed' to it.
+      // I can't pass args to parseIntegralExpr easily as it overrides BaseParser.
+      // I will override parseIntegralExpr signature? No.
+      // I should modify parseIntegralExpr to assume it was called after matching 'int'/'oint'.
+      // But wait! If I consume it here, how does parseIntegralExpr know if it was 'oint'?
+      // I should backtrack? Or pass arg.
+      // BaseParser.parseIntegralExpr() has no args?
+      // I can't change abstract method signature in BaseParser easily.
+      // But I can rely on 'previous' token?
+      // tokens[position-1] is the one just consumed.
       return parseIntegralExpr();
     }
 
@@ -370,10 +414,17 @@ mixin PrimaryParserMixin on BaseParser {
 
     consume(TokenType.rparen, "Expected '}' after derivative denominator");
 
-    // Now parse the function body in parentheses
-    consume(TokenType.lparen, "Expected '(' after derivative operator");
-    final body = parseExpression();
-    consume(TokenType.rparen, "Expected ')' after derivative body");
+    // Parse body: \frac{d}{dx}(x^2) or \frac{d}{dx} x^2
+    Expression body;
+    if (match1(TokenType.lparen)) {
+      body = parseExpression();
+      consume(TokenType.rparen, "Expected ')' after derivative body");
+    } else {
+      // Allow implicit application to next term: \frac{d}{dx} x^2
+      // Using parseTerm() to capture multiplication (e.g. d/dx x * y)
+      // but stop at +/=.
+      body = parseTerm();
+    }
 
     registerNode();
     if (isPartial) {
@@ -393,6 +444,13 @@ mixin PrimaryParserMixin on BaseParser {
   /// Parses an integral with optional bounds \int_{lower}^{upper} body dx.
   @override
   Expression parseIntegralExpr() {
+    // Check if the PREVIOUS token was \oint (since it was consumed by caller)
+    // tokens[position-1]
+    bool isClosed = false;
+    if (position > 0 && tokens[position - 1].type == TokenType.oint) {
+      isClosed = true;
+    }
+
     Expression? lower;
     Expression? upper;
 
@@ -429,7 +487,8 @@ mixin PrimaryParserMixin on BaseParser {
     }
 
     registerNode();
-    return IntegralExpr(lower, upper, body, variable);
+    registerNode();
+    return IntegralExpr(lower, upper, body, variable, isClosed: isClosed);
   }
 
   Expression parseMultiIntegralExpr(int order) {

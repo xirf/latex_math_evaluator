@@ -175,7 +175,7 @@ void main() {
       expect(result.position, isNull);
       expect(result.suggestion, isNull);
       // subErrors is an empty list for valid expressions
-      expect(result.subErrors?.isEmpty, isTrue);
+      expect(result.subErrors.isEmpty, isTrue);
     });
 
     test('invalid result has error message', () {

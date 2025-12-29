@@ -36,6 +36,12 @@ enum TokenType {
   /// Right square bracket `]`.
   rbracket,
 
+  /// Left angle bracket `\langle`.
+  langle,
+
+  /// Right angle bracket `\rangle`.
+  rangle,
+
   /// Underscore `_` for subscripts.
   underscore,
 
@@ -65,6 +71,9 @@ enum TokenType {
 
   /// Triple integral `\iiint`.
   iiint,
+
+  /// Closed surface integral `\oint`.
+  oint,
 
   /// Square root `\sqrt`.
   sqrt,
@@ -117,6 +126,9 @@ enum TokenType {
 
   /// Not equal `\neq`.
   notEqual,
+
+  /// Set membership `\in`.
+  member,
 
   /// Spacing commands (e.g., `\,`, `\;`, `\quad`).
   spacing,

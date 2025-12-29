@@ -156,6 +156,7 @@ abstract class BaseParser {
 
   // Abstract methods for mutual recursion
   Expression parseExpression();
+  Expression parsePlusMinus();
   Expression parsePrimary();
   Expression parseUnary();
   Expression parseTerm();

@@ -8,6 +8,7 @@ enum ComparisonOperator {
   lessEqual,
   greaterEqual,
   equal,
+  member,
 }
 
 /// A comparison operation (left op right).
@@ -29,6 +30,7 @@ class Comparison extends Expression {
       ComparisonOperator.lessEqual => '\\leq',
       ComparisonOperator.greaterEqual => '\\geq',
       ComparisonOperator.equal => '=',
+      ComparisonOperator.member => '\\in',
     };
     return '${left.toLatex()} $op ${right.toLatex()}';
   }
@@ -112,6 +114,7 @@ class ChainedComparison extends Expression {
           ComparisonOperator.lessEqual => '\\leq',
           ComparisonOperator.greaterEqual => '\\geq',
           ComparisonOperator.equal => '=',
+          ComparisonOperator.member => '\\in',
         };
         buffer.write(' $op ');
       }

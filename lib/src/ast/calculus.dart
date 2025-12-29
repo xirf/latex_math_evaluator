@@ -139,22 +139,27 @@ class IntegralExpr extends Expression {
   /// The variable of integration (e.g., 'x' in dx).
   final String variable;
 
-  const IntegralExpr(this.lower, this.upper, this.body, this.variable);
+  /// Whether this is a closed integral (\oint).
+  final bool isClosed;
+
+  const IntegralExpr(this.lower, this.upper, this.body, this.variable,
+      {this.isClosed = false});
 
   @override
   String toString() {
     if (lower == null && upper == null) {
-      return 'IntegralExpr($body d$variable)';
+      return 'IntegralExpr(${isClosed ? "closed, " : ""}$body d$variable)';
     }
-    return 'IntegralExpr($lower to $upper, $body d$variable)';
+    return 'IntegralExpr(${isClosed ? "closed, " : ""}$lower to $upper, $body d$variable)';
   }
 
   @override
   String toLatex() {
     final bounds = (lower != null && upper != null)
         ? '_{${lower!.toLatex()}}^{${upper!.toLatex()}}'
-        : '';
-    return '\\int$bounds{${body.toLatex()}} d$variable';
+        : (lower != null ? '_{${lower!.toLatex()}}' : '');
+    final cmd = isClosed ? '\\oint' : '\\int';
+    return '$cmd$bounds{${body.toLatex()}} d$variable';
   }
 
   @override
@@ -170,11 +175,16 @@ class IntegralExpr extends Expression {
           lower == other.lower &&
           upper == other.upper &&
           body == other.body &&
-          variable == other.variable;
+          variable == other.variable &&
+          isClosed == other.isClosed;
 
   @override
   int get hashCode =>
-      lower.hashCode ^ upper.hashCode ^ body.hashCode ^ variable.hashCode;
+      lower.hashCode ^
+      upper.hashCode ^
+      body.hashCode ^
+      variable.hashCode ^
+      isClosed.hashCode;
 }
 
 /// A derivative expression: \frac{d}{dx} body or \frac{d^n}{dx^n} body.
