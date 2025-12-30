@@ -73,6 +73,7 @@ export 'src/token.dart';
 export 'src/tokenizer.dart';
 export 'src/symbolic.dart';
 export 'src/cache/cache.dart';
+export 'src/visitors/json_ast_visitor.dart';
 
 import 'src/ast.dart';
 import 'src/evaluator.dart';

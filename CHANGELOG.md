@@ -2,6 +2,30 @@
 
 ---
 
+## 0.2.1-nightly – 2025-12-30
+
+### Added
+
+- **JSON AST Export**
+  New `toJson()` method on all Expression types for debugging and tooling:
+
+  ```dart
+  final expr = evaluator.parse(r'\frac{x^2 + 1}{2}');
+  final json = expr.toJson();
+  print(jsonEncode(json));
+  ```
+
+  - `JsonAstVisitor` class for custom JSON conversion
+  - Full support for all 18 AST node types
+  - JSON output is fully serializable with `dart:convert`
+  - 32 new tests for JSON export
+
+### Metrics
+
+- **Total Test Count**: 1757 tests (up from 1725)
+
+---
+
 ## 0.2.0 – 2025-12-30
 
 ### Added
