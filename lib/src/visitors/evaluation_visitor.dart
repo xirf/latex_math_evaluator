@@ -36,19 +36,22 @@ class EvaluationVisitor
   late final IntegrationEvaluator _integrationEvaluator;
 
   /// Creates an evaluation visitor with optional extension registry.
-  EvaluationVisitor({ExtensionRegistry? extensions})
-      : _extensions = extensions {
+  EvaluationVisitor(
+      {ExtensionRegistry? extensions, int maxRecursionDepth = 500})
+      : _extensions = extensions,
+        maxRecursionDepth = maxRecursionDepth {
     _binaryEvaluator = BinaryEvaluator();
     _unaryEvaluator = UnaryEvaluator();
     _calculusEvaluator = CalculusEvaluator(_evaluateRaw);
     _comparisonEvaluator = ComparisonEvaluator(_evaluateAsDouble, _evaluateRaw);
     _matrixEvaluator = MatrixEvaluator(_evaluateRaw);
-    _differentiationEvaluator = DifferentiationEvaluator(_evaluateAsDouble);
+    _differentiationEvaluator =
+        DifferentiationEvaluator(_evaluateAsDouble, maxRecursionDepth);
     _integrationEvaluator = IntegrationEvaluator();
   }
 
   int _recursionDepth = 0;
-  static const int maxRecursionDepth = 500;
+  final int maxRecursionDepth;
 
   void _enterRecursion() {
     if (++_recursionDepth > maxRecursionDepth) {

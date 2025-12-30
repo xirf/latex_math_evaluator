@@ -3,6 +3,7 @@ library;
 
 import 'dart:math' as math;
 import '../ast.dart';
+import '../exceptions.dart';
 
 /// Applies basic algebraic simplification rules.
 ///
@@ -14,18 +15,46 @@ import '../ast.dart';
 class Simplifier {
   /// Simplifies an expression by applying basic algebraic rules.
   Expression simplify(Expression expr) {
-    return _simplifyRecursive(expr);
+    try {
+      return _simplifyRecursive(expr);
+    } finally {
+      _recursionDepth = 0; // Reset after top-level call
+    }
+  }
+
+  final int maxRecursionDepth;
+
+  Simplifier({this.maxRecursionDepth = 500});
+
+  int _recursionDepth = 0;
+
+  void _enterRecursion() {
+    if (++_recursionDepth > maxRecursionDepth) {
+      throw EvaluatorException(
+        'Maximum simplification depth exceeded',
+        suggestion: 'The expression structure is too complex to simplify',
+      );
+    }
+  }
+
+  void _exitRecursion() {
+    _recursionDepth--;
   }
 
   Expression _simplifyRecursive(Expression expr) {
-    if (expr is BinaryOp) {
-      return _simplifyBinaryOp(expr);
-    } else if (expr is UnaryOp) {
-      return _simplifyUnaryOp(expr);
-    } else if (expr is FunctionCall) {
-      return _simplifyFunctionCall(expr);
+    _enterRecursion();
+    try {
+      if (expr is BinaryOp) {
+        return _simplifyBinaryOp(expr);
+      } else if (expr is UnaryOp) {
+        return _simplifyUnaryOp(expr);
+      } else if (expr is FunctionCall) {
+        return _simplifyFunctionCall(expr);
+      }
+      return expr;
+    } finally {
+      _exitRecursion();
     }
-    return expr;
   }
 
   Expression _simplifyBinaryOp(BinaryOp op) {

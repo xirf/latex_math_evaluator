@@ -10,14 +10,18 @@ abstract class BaseParser {
   final bool recoverOnError;
   final List<ParserException> errors = [];
 
-  BaseParser(this.tokens, [this.sourceExpression, this.recoverOnError = false]);
+  final int maxRecursionDepth;
+
+  BaseParser(this.tokens,
+      [this.sourceExpression,
+      this.recoverOnError = false,
+      this.maxRecursionDepth = 500]);
 
   bool get isAtEnd => position >= tokens.length;
 
   Token get current => tokens[position];
 
   int _recursionDepth = 0;
-  static const int maxRecursionDepth = 500;
 
   int _nodeCount = 0;
   static const int maxNodeCount = 10000;

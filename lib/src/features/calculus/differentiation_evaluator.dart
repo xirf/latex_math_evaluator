@@ -19,10 +19,10 @@ class DifferentiationEvaluator {
   final dynamic Function(Expression, Map<String, double>) _evaluate;
 
   /// Creates a differentiation evaluator.
-  DifferentiationEvaluator(this._evaluate);
+  DifferentiationEvaluator(this._evaluate, [this.maxRecursionDepth = 500]);
 
   int _recursionDepth = 0;
-  static const int maxRecursionDepth = 500;
+  final int maxRecursionDepth;
 
   void _enterRecursion() {
     if (++_recursionDepth > maxRecursionDepth) {

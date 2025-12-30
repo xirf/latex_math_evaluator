@@ -8,11 +8,6 @@ class RuleEngine {
   final List<RewriteRule> rules;
   final Set<RuleCategory> enabledCategories;
 
-  RuleEngine({
-    required this.rules,
-    required this.enabledCategories,
-  });
-
   /// Applies enabled rules to [expr] until no more changes occur or maxIterations is reached.
   Expression applyRules(Expression expr,
       {int maxIterations = 100, Assumptions? assumptions}) {
@@ -29,8 +24,15 @@ class RuleEngine {
     return current;
   }
 
+  final int maxRecursionDepth;
+
+  RuleEngine({
+    required this.rules,
+    required this.enabledCategories,
+    this.maxRecursionDepth = 500,
+  });
+
   int _recursionDepth = 0;
-  static const int maxRecursionDepth = 500;
 
   void _enterRecursion() {
     if (++_recursionDepth > maxRecursionDepth) {

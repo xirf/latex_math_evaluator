@@ -14,7 +14,10 @@ class Parser extends BaseParser
         PrimaryParserMixin,
         FunctionParserMixin,
         MatrixParserMixin {
-  Parser(super.tokens, [super.sourceExpression, super.recoverOnError]);
+  Parser(super.tokens,
+      [super.sourceExpression,
+      super.recoverOnError,
+      super.maxRecursionDepth = 500]);
 
   /// Parses the token stream and returns the root expression.
   Expression parse() {

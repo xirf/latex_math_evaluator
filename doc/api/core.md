@@ -6,11 +6,12 @@ The `LatexMathEvaluator` class is the primary interface for using the library. I
 
 ### Constructors
 
-- `LatexMathEvaluator({ExtensionRegistry? extensions, bool allowImplicitMultiplication = true, CacheConfig? cacheConfig})`
+- `LatexMathEvaluator({ExtensionRegistry? extensions, bool allowImplicitMultiplication = true, CacheConfig? cacheConfig, int maxRecursionDepth = 500})`
   - Creates a new evaluator instance.
   - `extensions`: Optional registry for custom commands and functions.
   - `allowImplicitMultiplication`: If true, `xy` is treated as `x * y`.
   - `cacheConfig`: Advanced cache configuration (size, eviction policy, TTL).
+  - `maxRecursionDepth`: Maximum recursion depth for parsing and evaluation (default 500).
 
 ### Methods
 
@@ -44,7 +45,7 @@ Parses a string into an AST `Expression` without evaluating. Cached if caching i
 double evaluateNumeric(String expression, [Map<String, double> variables = const {}])
 ```
 
-Convenience method that returns a `double` directly. Throws `StateError` if the result is not a real number.
+Evaluates the expression and returns a `double` directly. Throws `StateError` if the result is not a real number.
 
 #### `evaluateMatrix`
 
@@ -52,7 +53,7 @@ Convenience method that returns a `double` directly. Throws `StateError` if the 
 Matrix evaluateMatrix(String expression, [Map<String, double> variables = const {}])
 ```
 
-Convenience method that returns a `Matrix` directly. Throws `StateError` if the result is not a matrix.
+Evaluates the expression and returns a `Matrix` directly. Throws `StateError` if the result is not a matrix.
 
 #### `validate`
 

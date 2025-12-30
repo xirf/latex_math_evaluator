@@ -45,15 +45,15 @@ registry.registerEvaluator((expr, vars, eval) {
 
 The `Tokenizer` class converts a LaTeX string into a list of `Token` objects.
 
-*   `Tokenizer(String expression, {ExtensionRegistry? extensions, bool allowImplicitMultiplication})`
-*   `List<Token> tokenize()`
+- `Tokenizer(String expression, {ExtensionRegistry? extensions, bool allowImplicitMultiplication})`
+- `List<Token> tokenize()`
 
 ## Parser
 
 The `Parser` class converts a list of `Token` objects into an AST `Expression`.
 
-*   `Parser(List<Token> tokens, String source)`
-*   `Expression parse()`
+- `Parser(List<Token> tokens, [String? sourceExpression, bool recoverOnError, int maxRecursionDepth = 500])`
+- `Expression parse()`
 
 ## Token
 
@@ -61,4 +61,4 @@ Represents a unit of code in the LaTeX expression.
 
 ### Types
 
-*   `number`, `variable`, `operator`, `function`, `leftParen`, `rightParen`, `leftBrace`, `rightBrace`, `comma`, `backslash`, `circumflex`, `underscore`, `verticalBar` (absolute value).
+- `number`, `variable`, `operator`, `function`, `leftParen`, `rightParen`, `leftBrace`, `rightBrace`, `comma`, `backslash`, `circumflex`, `underscore`, `verticalBar` (absolute value).

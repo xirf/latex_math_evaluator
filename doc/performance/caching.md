@@ -4,7 +4,7 @@ This page explains the caching system for parsed expressions, evaluation results
 
 ## Multi-Layer Cache Architecture
 
-The evaluator uses a 4-layer caching system for optimal performance:
+The evaluator uses a 4-layer caching system for improved performance:
 
 | Layer | Name               | Key                    | Value          | Use Case                             |
 | ----- | ------------------ | ---------------------- | -------------- | ------------------------------------ |
@@ -18,7 +18,7 @@ The evaluator uses a 4-layer caching system for optimal performance:
 ### Default Configuration
 
 ```dart
-// Default: reasonable cache sizes, LRU eviction, no statistics
+// Default: default cache sizes, LRU eviction, no statistics
 final evaluator = LatexMathEvaluator();
 ```
 

@@ -2,6 +2,7 @@
 library;
 
 import '../ast.dart';
+import '../exceptions.dart';
 
 /// Simplifies rational expressions (fractions).
 ///
@@ -12,19 +13,47 @@ import '../ast.dart';
 class RationalSimplifier {
   /// Simplifies rational expressions.
   Expression simplify(Expression expr) {
-    return _simplifyRecursive(expr);
+    try {
+      return _simplifyRecursive(expr);
+    } finally {
+      _recursionDepth = 0; // Reset
+    }
+  }
+
+  final int maxRecursionDepth;
+
+  RationalSimplifier({this.maxRecursionDepth = 500});
+
+  int _recursionDepth = 0;
+
+  void _enterRecursion() {
+    if (++_recursionDepth > maxRecursionDepth) {
+      throw EvaluatorException(
+        'Maximum rational simplification depth exceeded',
+        suggestion: 'The expression structure is too complex to simplify',
+      );
+    }
+  }
+
+  void _exitRecursion() {
+    _recursionDepth--;
   }
 
   Expression _simplifyRecursive(Expression expr) {
-    if (expr is BinaryOp && expr.operator == BinaryOperator.divide) {
-      return _simplifyDivision(expr);
-    } else if (expr is BinaryOp) {
-      final left = _simplifyRecursive(expr.left);
-      final right = _simplifyRecursive(expr.right);
-      return BinaryOp(left, expr.operator, right,
-          sourceToken: expr.sourceToken);
+    _enterRecursion();
+    try {
+      if (expr is BinaryOp && expr.operator == BinaryOperator.divide) {
+        return _simplifyDivision(expr);
+      } else if (expr is BinaryOp) {
+        final left = _simplifyRecursive(expr.left);
+        final right = _simplifyRecursive(expr.right);
+        return BinaryOp(left, expr.operator, right,
+            sourceToken: expr.sourceToken);
+      }
+      return expr;
+    } finally {
+      _exitRecursion();
     }
-    return expr;
   }
 
   Expression _simplifyDivision(BinaryOp division) {

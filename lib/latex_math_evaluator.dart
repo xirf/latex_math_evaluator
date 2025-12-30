@@ -130,12 +130,15 @@ class LatexMathEvaluator {
   /// precedence over [parsedExpressionCacheSize].
   /// [parsedExpressionCacheSize]: Size of the internal parsed-expression LRU
   /// cache. Set to 0 to disable caching. Defaults to 128.
+  /// [maxRecursionDepth]: Maximum recursion depth for parsing and evaluation.
+  /// Defaults to 500.
   /// @deprecated Use [cacheConfig] instead for more control.
   LatexMathEvaluator({
     ExtensionRegistry? extensions,
     this.allowImplicitMultiplication = true,
     CacheConfig? cacheConfig,
     this.parsedExpressionCacheSize = 128,
+    this.maxRecursionDepth = 500,
   })  : _extensions = extensions,
         cacheConfig = cacheConfig ??
             CacheConfig(parsedExpressionCacheSize: parsedExpressionCacheSize) {
@@ -143,8 +146,12 @@ class LatexMathEvaluator {
     _evaluator = Evaluator(
       extensions: _extensions,
       cacheManager: _cacheManager,
+      maxRecursionDepth: maxRecursionDepth,
     );
   }
+
+  /// Maximum recursion depth for parsing and evaluation.
+  final int maxRecursionDepth;
 
   /// Gets cache statistics for all layers.
   ///
@@ -229,7 +236,7 @@ class LatexMathEvaluator {
             extensions: _extensions,
             allowImplicitMultiplication: allowImplicitMultiplication)
         .tokenize();
-    return Parser(tokens, expression).parse();
+    return Parser(tokens, expression, false, maxRecursionDepth).parse();
   }
 
   /// Evaluates a pre-parsed expression with variable bindings.
@@ -401,7 +408,7 @@ class LatexMathEvaluator {
               allowImplicitMultiplication: allowImplicitMultiplication)
           .tokenize();
 
-      final parser = Parser(tokens, expression, true);
+      final parser = Parser(tokens, expression, true, maxRecursionDepth);
       parser.parse();
 
       if (parser.errors.isNotEmpty) {

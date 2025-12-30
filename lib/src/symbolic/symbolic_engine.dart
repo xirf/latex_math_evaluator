@@ -25,16 +25,18 @@ class SymbolicEngine {
   final RationalSimplifier _rationalSimplifier;
 
   /// Creates a new symbolic engine.
-  SymbolicEngine()
+  SymbolicEngine({int maxRecursionDepth = 500})
       : _normalizer = ExpressionNormalizer(),
         _polynomialOps = PolynomialOperations(),
-        _rationalSimplifier = RationalSimplifier(),
+        _rationalSimplifier =
+            RationalSimplifier(maxRecursionDepth: maxRecursionDepth),
         _simplifyEngine = RuleEngine(
           rules: allSimplificationRules,
           enabledCategories: {
             RuleCategory.identity,
             RuleCategory.simplification
           },
+          maxRecursionDepth: maxRecursionDepth,
         ),
         _expandEngine = RuleEngine(
           rules: [...allSimplificationRules, ...allExpansionRules],
@@ -43,6 +45,7 @@ class SymbolicEngine {
             RuleCategory.simplification,
             RuleCategory.expansion
           },
+          maxRecursionDepth: maxRecursionDepth,
         );
 
   /// Adds a domain assumption for a variable.

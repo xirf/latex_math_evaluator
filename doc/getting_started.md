@@ -23,7 +23,7 @@ import 'package:latex_math_evaluator/latex_math_evaluator.dart';
 void main() {
   final evaluator = LatexMathEvaluator();
 
-  // Simple expression
+  // Basic expression
   print(evaluator.evaluate(r'2 + 3'));  // 5.0
 
   // With variables
@@ -103,4 +103,13 @@ var result = evaluator.evaluate('\sqrt{16}');
 // Clear internal parsed-expression cache when you want to free memory
 // or invalidate cached ASTs after dynamic extension changes.
 evaluator.clearParsedExpressionCache();
+```
+
+## Recursion Depth
+
+For deeply nested expressions, you can configure the maximum recursion depth (default is 500).
+
+```dart
+// Increase limit for deep nesting
+final evaluator = LatexMathEvaluator(maxRecursionDepth: 2000);
 ```

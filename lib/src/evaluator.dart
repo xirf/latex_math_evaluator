@@ -40,9 +40,13 @@ class Evaluator {
   ///
   /// [extensions] allows adding custom functions and variables to the evaluator.
   /// [cacheManager] enables sub-expression caching for better performance.
-  Evaluator({ExtensionRegistry? extensions, CacheManager? cacheManager})
+  Evaluator(
+      {ExtensionRegistry? extensions,
+      CacheManager? cacheManager,
+      int maxRecursionDepth = 500})
       : _cacheManager = cacheManager {
-    _visitor = EvaluationVisitor(extensions: extensions);
+    _visitor = EvaluationVisitor(
+        extensions: extensions, maxRecursionDepth: maxRecursionDepth);
   }
 
   /// Gets the differentiation evaluator (for internal use by public API).
