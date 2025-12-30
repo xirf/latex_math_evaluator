@@ -6,7 +6,7 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  latex_math_evaluator: ^0.1.5
+  latex_math_evaluator: ^0.2.0
 ```
 
 Then run:

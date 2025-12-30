@@ -31,7 +31,7 @@ Add the dependency to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  latex_math_evaluator: ^0.1.5
+  latex_math_evaluator: ^0.2.0
 ```
 
 ### Basic Evaluation
@@ -103,7 +103,7 @@ final validation = evaluator.validate(r'\frac{1{2}');
 if (!validation.isValid) {
   print('Error at ${validation.position}: ${validation.errorMessage}');
   print('Suggestion: ${validation.suggestion}');
-  
+
   // New: Check for multiple errors
   if (validation.subErrors.isNotEmpty) {
     print('Additional errors: ${validation.subErrors.length}');

@@ -13,31 +13,33 @@ This roadmap outlines concrete, actionable tasks organized by priority and timel
 
 ---
 
-## 📊 Current State (v0.1.5)
+## 📊 Current State (v0.2.0)
 
 ### ✅ Implemented Features
 
 - ✅ LaTeX tokenization and parsing (fractions, exponents, subscripts, functions)
-- ✅ 30+ mathematical functions (trig, hyperbolic, logarithmic, rounding, etc.)
+- ✅ 40+ mathematical functions (trig, hyperbolic, reciprocal trig/hyperbolic, logarithmic, rounding, etc.)
 - ✅ Symbolic differentiation with full calculus rule support
 - ✅ Symbolic algebra engine (simplification, expansion, factorization)
 - ✅ Trigonometric identities (Pythagorean, double-angle formulas)
 - ✅ Equation solving (linear and quadratic)
 - ✅ Numerical integration (Simpson's Rule)
+- ✅ Symbolic integration (basic patterns)
 - ✅ Matrix operations (addition, multiplication, determinant, transpose, inverse)
 - ✅ Vector operations (dot product, cross product, magnitude)
 - ✅ Summation and product notation
 - ✅ Limit evaluation (numerical approximation)
-- ✅ Complex number support (basic arithmetic, Re, Im, conjugate)
+- ✅ Complex number support (full transcendental: sin, cos, exp, ln for complex inputs)
 - ✅ Domain assumptions & tracking (e.g., x > 0 for log simplification)
 - ✅ Piecewise function evaluation and differentiation (ConditionalExpr)
-- ✅ Expression validation with detailed error messages
-- ✅ Parse-once-evaluate-many pattern with LRU caching
+- ✅ Expression validation with detailed error messages and "did you mean" suggestions
+- ✅ Parse-once-evaluate-many pattern with advanced multi-layer caching
 - ✅ Extensible architecture for custom functions
 - ✅ Implicit multiplication support
 - ✅ LaTeX regeneration from AST (toLatex() method)
 - ✅ Textbook LaTeX compatibility (`\sin^2{x}`, `f(x,y)` notation)
-- ✅ 1197+ passing tests
+- ✅ Extended LaTeX notation (uppercase Greek, variant Greek, font commands)
+- ✅ 1725+ passing tests
 
 ---
 
@@ -570,7 +572,7 @@ f(x) = \begin{cases}
 
 ## 🚀 Milestone Releases
 
-### v0.2.0 - Enhanced Symbolic Math (Target: Q1 2026)
+### v0.2.0 - Enhanced Symbolic Math ✅ Released 2025-12-30
 
 - [x] Basic symbolic simplification
 - [x] Polynomial expansion and factorization
@@ -578,9 +580,11 @@ f(x) = \begin{cases}
 - [x] Logarithm laws and rational simplification
 - [x] LaTeX regeneration (toLatex() method)
 - [x] Extended LaTeX notation (`\left/\right`, `\binom`, `\iint`, `\partial`, `\nabla`, Greek letters)
-- [x] Enhanced complex number support
-- [x] Improved error messages
-- [x] 1000+ tests
+- [x] Enhanced complex number support (full transcendental evaluation)
+- [x] Improved error messages with "did you mean" suggestions
+- [x] Reciprocal trigonometric and hyperbolic functions (sec, csc, cot, sech, csch, coth)
+- [x] Advanced multi-layer caching system
+- [x] 1725+ tests
 
 ### v0.3.0 - Integration & Tooling (Target: Q2 2026)
 
@@ -628,4 +632,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
 
 ---
 
-**Last Updated:** December 25, 2025
+**Last Updated:** December 30, 2025

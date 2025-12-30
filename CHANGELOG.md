@@ -1,114 +1,115 @@
 # CHANGELOG
 
-Merged changelog with 0.1.6-nightly as the superset release. Content deduplicated, ordered, and normalized.
-
 ---
 
-## 0.1.6-nightly – 2025-12-27
+## 0.2.0 – 2025-12-30
 
 ### Added
 
-* **Reciprocal Trigonometric Functions**
+- **Reciprocal Trigonometric Functions**
   Full support for secant, cosecant, and cotangent:
 
-  * `\sec{x}` = 1 / cos(x)
-  * `\csc{x}` = 1 / sin(x)
-  * `\cot{x}` = cos(x) / sin(x)
-  * Supports real and complex arguments
-  * Proper handling of undefined points (e.g. sec(π/2))
+  - `\sec{x}` = 1 / cos(x)
+  - `\csc{x}` = 1 / sin(x)
+  - `\cot{x}` = cos(x) / sin(x)
+  - Supports real and complex arguments
+  - Proper handling of undefined points (e.g. sec(π/2))
 
-* **Reciprocal Hyperbolic Functions**
+- **Reciprocal Hyperbolic Functions**
   Full support for hyperbolic reciprocals:
 
-  * `\sech{x}` = 1 / cosh(x)
-  * `\csch{x}` = 1 / sinh(x)
-  * `\coth{x}` = cosh(x) / sinh(x)
-  * Supports real and complex arguments
+  - `\sech{x}` = 1 / cosh(x)
+  - `\csch{x}` = 1 / sinh(x)
+  - `\coth{x}` = cosh(x) / sinh(x)
+  - Supports real and complex arguments
 
-* **Comprehensive Complex Number Support**
+- **Comprehensive Complex Number Support**
 
-  * Full complex transcendental evaluation: `sin`, `cos`, `tan`, `sinh`, `cosh`, `tanh`, `exp`, `ln`, `log`
-  * Non-real results (e.g. `sqrt(-1)`, `ln(-1)`) return `ComplexResult`
-  * `ln(0)` and `log(0)` return complex negative infinity representations
-  * Euler identity `e^{i\pi} = -1` verified
-  * Advanced `Complex` APIs:
+  - Full complex transcendental evaluation: `sin`, `cos`, `tan`, `sinh`, `cosh`, `tanh`, `exp`, `ln`, `log`
+  - Non-real results (e.g. `sqrt(-1)`, `ln(-1)`) return `ComplexResult`
+  - `ln(0)` and `log(0)` return complex negative infinity representations
+  - Euler identity `e^{i\pi} = -1` verified
+  - Advanced `Complex` APIs:
 
-    * `pow()`, `sqrt()`, `fromPolar()`, `toPolar()`
-    * `reciprocal` getter (1 / z)
-    * `isZero` getter
-    * `isPureImaginary` getter (alias of `isImaginary`)
+    - `pow()`, `sqrt()`, `fromPolar()`, `toPolar()`
+    - `reciprocal` getter (1 / z)
+    - `isZero` getter
+    - `isPureImaginary` getter (alias of `isImaginary`)
 
-* **Extended LaTeX Notation Support**
+- **Extended LaTeX Notation Support**
 
-  * Uppercase Greek letters: `\Alpha` through `\Psi`
-  * Variant Greek letters: `\varepsilon`, `\varphi`, `\varrho`, `\vartheta`, `\varpi`, `\varsigma`
-  * Missing lowercase Greek added: `\iota`, `\nu`, `\xi`, `\omicron`, `\upsilon`
-  * Font commands:
+  - Uppercase Greek letters: `\Alpha` through `\Psi`
+  - Variant Greek letters: `\varepsilon`, `\varphi`, `\varrho`, `\vartheta`, `\varpi`, `\varsigma`
+  - Missing lowercase Greek added: `\iota`, `\nu`, `\xi`, `\omicron`, `\upsilon`
+  - Font commands:
 
-    * `\mathbf`, `\mathcal`, `\mathrm`, `\mathit`, `\mathsf`, `\mathtt`
-    * `\textbf`, `\boldsymbol`
-  * Font commands preserved for LaTeX round-trip (e.g. `\mathbf{E}` → `Variable("mathbf:E")`)
+    - `\mathbf`, `\mathcal`, `\mathrm`, `\mathit`, `\mathsf`, `\mathtt`
+    - `\textbf`, `\boldsymbol`
 
-* **Improved Error Messages & Diagnostics**
+  - Font commands preserved for LaTeX round-trip (e.g. `\mathbf{E}` → `Variable("mathbf:E")`)
 
-  * Levenshtein-based “did you mean” suggestions for unknown functions
-  * Detection of common LaTeX mistakes:
+- **Improved Error Messages & Diagnostics**
 
-    * Braceless fractions (`\frac12`)
-    * Missing backslashes (`sin(x)` vs `\sin{x}`)
-    * Unmatched or extra delimiters
-  * Context-aware diagnostics for division by zero, domain errors, and undefined variables
-  * Parser error recovery with multi-error reporting via `ValidationResult.subErrors`
-  * New internal `error_suggestions.dart` utility
+  - Levenshtein-based "did you mean" suggestions for unknown functions
+  - Detection of common LaTeX mistakes:
 
-* **Testing & Verification**
+    - Braceless fractions (`\frac12`)
+    - Missing backslashes (`sin(x)` vs `\sin{x}`)
+    - Unmatched or extra delimiters
 
-  * 8 new v0.2.0 verification test files (~350 tests) covering:
+  - Context-aware diagnostics for division by zero, domain errors, and undefined variables
+  - Parser error recovery with multi-error reporting via `ValidationResult.subErrors`
+  - New internal `error_suggestions.dart` utility
 
-    * Symbolic algebra edge cases
-    * Polynomial expansion and factorization
-    * Trigonometric identities
-    * Logarithmic edge cases
-    * Complex arithmetic edge cases
-    * LaTeX round-trip and stress tests
-    * Error recovery integration tests
-  * Additional 30+ tests for complex evaluation and error diagnostics
+- **Testing & Verification**
 
-* **Documentation**
+  - 8 new v0.2.0 verification test files (~350 tests) covering:
 
-  * `doc/features/complex.md`
-  * `doc/latex_commands.md`
-  * Updated validation and error documentation
+    - Symbolic algebra edge cases
+    - Polynomial expansion and factorization
+    - Trigonometric identities
+    - Logarithmic edge cases
+    - Complex arithmetic edge cases
+    - LaTeX round-trip and stress tests
+    - Error recovery integration tests
+
+  - Additional 30+ tests for complex evaluation and error diagnostics
+  - Comprehensive toLatex round-trip tests for all features from 0.1.0 to 0.1.6
+
+- **Documentation**
+
+  - `doc/features/complex.md`
+  - `doc/latex_commands.md`
+  - Updated validation and error documentation
 
 ### Changed
 
-* **Function Registry**
+- **Function Registry**
 
-  * Added: `sec`, `csc`, `cot`, `sech`, `csch`, `coth`
-  * Handlers now support dynamic return types (`double | Complex`)
+  - Added: `sec`, `csc`, `cot`, `sech`, `csch`, `coth`
+  - Handlers now support dynamic return types (`double | Complex`)
 
-* **ComplexStrategy**
+- **ComplexStrategy**
 
-  * Power operations routed through `Complex.pow()` for consistency
+  - Power operations routed through `Complex.pow()` for consistency
 
-* **Implicit Multiplication**
+- **Implicit Multiplication**
 
-  * Extended to support `\nabla`, `\partial`, `\iint`, `\iiint`, and font commands
+  - Extended to support `\nabla`, `\partial`, `\iint`, `\iiint`, and font commands
 
 ### Improved
 
-* **Floating-Point Precision**
+- **Floating-Point Precision**
 
-  * Exact results for key identities (e.g. `i^2 = -1`)
+  - Exact results for key identities (e.g. `i^2 = -1`)
 
 ### Fixed
 
-* Resolved `RangeError` when reporting errors at end-of-input
+- Resolved `RangeError` when reporting errors at end-of-input
 
 ### Metrics
 
-* **Total Test Count**: increased from ~1241 to 1597 tests
-
+- **Total Test Count**: 1725 tests
 
 ## 0.1.5 - 2025-12-25
 
