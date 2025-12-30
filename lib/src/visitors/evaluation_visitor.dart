@@ -37,9 +37,8 @@ class EvaluationVisitor
 
   /// Creates an evaluation visitor with optional extension registry.
   EvaluationVisitor(
-      {ExtensionRegistry? extensions, int maxRecursionDepth = 500})
-      : _extensions = extensions,
-        maxRecursionDepth = maxRecursionDepth {
+      {ExtensionRegistry? extensions, this.maxRecursionDepth = 500})
+      : _extensions = extensions {
     _binaryEvaluator = BinaryEvaluator();
     _unaryEvaluator = UnaryEvaluator();
     _calculusEvaluator = CalculusEvaluator(_evaluateRaw);

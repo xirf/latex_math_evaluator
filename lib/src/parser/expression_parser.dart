@@ -74,6 +74,7 @@ mixin ExpressionParserMixin on BaseParser {
     return left;
   }
 
+  @override
   Expression parsePlusMinus() {
     var left = parseTerm();
 

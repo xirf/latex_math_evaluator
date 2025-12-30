@@ -25,7 +25,8 @@ void main() {
     final simplified = Simplifier().simplify(parsed);
 
     final originalVal = evaluator.evaluateParsed(parsed, {'x': 3}).asNumeric();
-    final simplifiedVal = evaluator.evaluateParsed(simplified, {'x': 3}).asNumeric();
+    final simplifiedVal =
+        evaluator.evaluateParsed(simplified, {'x': 3}).asNumeric();
     expect(originalVal, equals(simplifiedVal));
   });
 }
