@@ -135,6 +135,25 @@ final fastEvaluator = LatexMathEvaluator(
 fastEvaluator.evaluate(r'\sum_{i=1}^{100} i');
 ```
 
+### 5. Export & Interoperability 🔄
+
+Export parsed expressions to other formats for debugging, web display, or advanced analysis.
+
+```dart
+final expr = evaluator.parse(r'\int x^2 dx');
+
+// 1. JSON (Stable) - For debugging and tooling
+print(expr.toJson());
+
+// 2. SymPy (Experimental) - For Python interoperability
+print(expr.toSymPy()); // integrate(x**2, x)
+
+// 3. MathML (Experimental) - For web display
+print(expr.toMathML()); // <math><mo>∫</mo>...</math>
+```
+
+👉 [**Learn more about text export**](doc/features/export.md)
+
 ---
 
 ## 📚 Real-World Examples
@@ -156,6 +175,7 @@ fastEvaluator.evaluate(r'\sum_{i=1}^{100} i');
 - [**Piecewise Functions**](doc/features/piecewise.md) – Conditional expressions and domain-restricted functions.
 - [**Function Reference**](doc/functions/README.md) – Mathematical functions and their behavior.
 - [**Extending the Library**](doc/extensions.md) – How to add custom functions.
+- [**Export Features**](doc/features/export.md) – Export to JSON, SymPy, and MathML.
 - [**Performance Guide**](doc/performance/caching.md) – Tuning the cache and memoization.
 
 ## 🤝 Contributing

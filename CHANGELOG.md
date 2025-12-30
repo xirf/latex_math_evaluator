@@ -20,9 +20,41 @@
   - JSON output is fully serializable with `dart:convert`
   - 32 new tests for JSON export
 
+- **MathML Export**
+  New `toMathML()` method for displaying math in web browsers:
+
+  ```dart
+  final expr = evaluator.parse(r'\sin{x}');
+  final mathml = expr.toMathML();
+  // <math xmlns="..."><mrow><mi>sin</mi>...</mrow></math>
+  ```
+
+  - MathML presentation markup support
+  - Unicode symbols for operators (∫, ∑, π, etc.)
+  - 27 new tests for MathML export
+
+* **SymPy Export**
+  New `toSymPy()` method for Python interoperability:
+
+  ```dart
+  final expr = evaluator.parse(r'\int x^2 dx');
+  print(expr.toSymPy());
+  // integrate(x**2, x)
+
+  print(expr.toSymPyScript());
+  // from sympy import *
+  // x = symbols('x')
+  // expr = integrate(x**2, x)
+  ```
+
+  - SymPy function mapping (sin, cos, integrate, diff, etc.)
+  - `toSymPyScript()` generates runnable Python code
+  - Automatic variable collection
+  - 39 new tests for SymPy export
+
 ### Metrics
 
-- **Total Test Count**: 1757 tests (up from 1725)
+- **Total Test Count**: 1823 tests (up from 1725)
 
 ---
 

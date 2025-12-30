@@ -119,7 +119,8 @@ Some valid LaTeX may require minor adjustments:
 | Task            | Status | Description                  |
 | --------------- | ------ | ---------------------------- |
 | JSON AST export | ✅     | For debugging and tooling    |
-| MathML export   | 📋     | For web display              |
+| MathML export   | ✅     | For web display              |
+| SymPy export    | ✅     | For Python interoperability  |
 | CLI tool        | 📋     | `latexmath eval "x^2" --x=3` |
 
 ---
