@@ -13,6 +13,35 @@ The evaluator uses a 4-layer caching system for improved performance:
 | L3    | Differentiation    | AST + Variable + Order | Derivative AST | Cache symbolic derivatives           |
 | L4    | Sub-expressions    | Expression hash        | Numeric result | Cache shared sub-computations        |
 
+### Cost-Aware L2 Caching
+
+L2 evaluation cache is **only consulted for computationally expensive operations**:
+- Integrals (Simpson's rule: ~10,000 iterations)
+- Summations and products with bounds
+- Limits
+- Large matrices (>4 rows)
+- Constant expressions (no variables)
+
+For cheap expressions like `x^2 + 1`, the overhead of cache key creation would exceed evaluation time, so L2 is bypassed entirely.
+
+### Identity-Based Keys
+
+L2 uses **identity-based cache keys** for performance. This means cache hits occur when the **same Map instance** is reused:
+
+```dart
+final vars = {'x': 5.0};
+
+// These are cache hits (same vars instance)
+evaluator.evaluateParsed(ast, vars);
+evaluator.evaluateParsed(ast, vars);
+
+// This is a cache miss (new Map instance)
+evaluator.evaluateParsed(ast, {'x': 5.0});
+```
+
+> [!IMPORTANT]
+> **AST Immutability Invariant:** Identity-based caching requires ASTs to be immutable after parsing. All Expression nodes are frozen once constructed. Do not modify AST fields after creation.
+
 ## Cache Configuration
 
 ### Default Configuration

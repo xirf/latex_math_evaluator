@@ -190,19 +190,37 @@ void main() {
       expect(stats.parsedExpressions.hits, greaterThan(0));
     });
 
-    test('evaluation result caching works', () {
+    test('evaluation result caching works for constant expressions', () {
       final evaluator = LatexMathEvaluator(
         cacheConfig: CacheConfig.withStatistics,
       );
 
+      // Constant expressions (no variables) are always cached
       // First evaluation (cache miss)
-      evaluator.evaluate('x^2 + 2*x + 1', {'x': 5});
+      evaluator.evaluate(r'\pi * 2');
 
-      // Same expression and variables (should be cache hit)
-      evaluator.evaluate('x^2 + 2*x + 1', {'x': 5});
+      // Same expression (should be cache hit)
+      evaluator.evaluate(r'\pi * 2');
 
       final stats = evaluator.cacheStatistics;
       expect(stats.evaluationResults.hits, greaterThan(0));
+    });
+
+    test('cheap expressions with variables bypass L2 cache (cost-aware)', () {
+      // This is intentional: for cheap expressions, cache lookup overhead
+      // exceeds evaluation cost. L2 is only consulted for costly operations.
+      final evaluator = LatexMathEvaluator(
+        cacheConfig: CacheConfig.withStatistics,
+      );
+
+      // Cheap expression - should NOT hit L2 (by design)
+      evaluator.evaluate('x^2 + 2*x + 1', {'x': 5});
+      evaluator.evaluate('x^2 + 2*x + 1', {'x': 5});
+
+      final stats = evaluator.cacheStatistics;
+      // L1 (parsed expression) should hit, but L2 (evaluation) should not
+      expect(stats.parsedExpressions.hits, greaterThan(0));
+      expect(stats.evaluationResults.hits, equals(0));
     });
 
     test('differentiation caching works', () {

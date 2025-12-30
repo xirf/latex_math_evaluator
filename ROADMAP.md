@@ -142,6 +142,17 @@ The following are explicitly **not** goals for this library:
 2. Open an issue with the exact expression
 3. We'll add support and tests
 
+### Phase 4: Performance & Optimization
+
+**Goal:** Ensure 60fps performance on mobile devices.
+
+| Task | Status | Description |
+| ---- | ------ | ----------- |
+| Standardized Benchmark | ✅ | Cross-language benchmark (Dart/JS/Python) |
+| AOT Compilation Profile | 📋 | Verify performance in release builds |
+| WebAssembly (Wasm) | 📋 | Investigate compiling to Wasm for web apps |
+| Parallel Evaluation | 📋 | Evaluate independent sub-expressions in isolates |
+
 ---
 
 **Last Updated:** 2025-12-30

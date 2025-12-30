@@ -10,3 +10,4 @@ environment:
 dev_dependencies:
   test: ^1.28.0
   lints: ^6.0.0
+  math_expressions: ^2.6.0 # For benchmarking comparison

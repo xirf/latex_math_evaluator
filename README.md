@@ -120,20 +120,56 @@ try {
 
 ### 4. Performance & Caching ⚡
 
-For applications requiring frequent evaluations (like graphing or simulations), use the built-in LRU cache.
+For applications requiring frequent evaluations (like graphing or simulations), use the built-in multi-layer LRU cache.
 
 ```dart
-// Configure a 512-entry cache for parsed ASTs with LFU eviction policy
+// Configure caching for high-frequency evaluation
 final fastEvaluator = LatexMathEvaluator(
-  cacheConfig: CacheConfig(
-    parsedExpressionCacheSize: 512,
-    evictionPolicy: EvictionPolicy.lfu,
-  ),
+  cacheConfig: CacheConfig.highPerformance,
 );
 
-// Subsequent calls with the same string are near-instant
-fastEvaluator.evaluate(r'\sum_{i=1}^{100} i');
+// Or parse once and reuse for hot loops (fastest method)
+final ast = fastEvaluator.parse(r'\sin(x) + \cos(x)');
+for (var x = 0.0; x < 100; x += 0.01) {
+  fastEvaluator.evaluateParsed(ast, {'x': x}); // ~0.76 µs/op
+}
 ```
+
+#### Performance Modes
+
+Benchmark for `x * y * z` with variables (MacBook Air M1 8Gb - macOS 15.7.2, 1000 iterations):
+
+| Mode                    |        Time | What it Measures                                     |
+| :---------------------- | ----------: | :--------------------------------------------------- |
+| `evaluate()` (no cache) |     4.99 µs | Parse + evaluate every call                          |
+| `evaluate()` (cached)   |     2.57 µs | L1 cache hit + evaluate (L2 skipped for cheap exprs) |
+| **`evaluateParsed()`**  | **1.01 µs** | Pure evaluation, no parse/cache overhead             |
+
+> [!TIP]
+> For hot loops, use **`evaluateParsed()`** with a pre-parsed AST—it's 5x faster than `evaluate()`.
+
+**Cost-aware caching:** L2 evaluation cache is only consulted for computationally expensive operations (integrals, summations, products, limits, large matrices). For cheap expressions, the overhead of cache key creation would exceed evaluation time.
+
+#### Library Comparison
+
+All caches disabled to measure raw parse + evaluate performance:
+
+| Operation          | Dart (LaTeX) | Dart (Simple Text)* | JS (Simple Text) | Python (LaTeX) |
+| :----------------- | -----------: | ------------------: | ---------------: | -------------: |
+| **Arithmetic**     |  **10.8 µs** |             13.3 µs |           9.0 µs |       3,926 µs |
+| **Multiplication** |   **5.0 µs** |             14.7 µs |           5.5 µs |       5,322 µs |
+| **Trigonometry**   |   **5.5 µs** |             21.5 µs |          10.2 µs |      13,933 µs |
+| **Power & Sqrt**   |   **4.0 µs** |             14.2 µs |           9.5 µs |       3,108 µs |
+| **Matrix 2×2**     |   **7.6 µs** |                 N/A |          10.1 µs |            N/A |
+
+> [!NOTE]
+> * **Dart (LaTeX)**: `latex_math_evaluator` parsing full LaTeX grammar (`\sin{x}`)
+> * **Dart (Simple Text)**: `math_expressions` library parsing standard text (`sin(x)`)
+> * **JS**: `mathjs` library parsing text
+> * **Python**: `SymPy` parsing LaTeX
+
+> [!NOTE] Performance Comparison
+> *This benchmark compares the common subset (basic algebra). `latex_math_evaluator` additionally handles complex LaTeX semantics that simple text parsers do not support.*
 
 ### 5. Export & Interoperability 🔄
 

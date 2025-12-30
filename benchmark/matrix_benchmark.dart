@@ -2,7 +2,9 @@ import 'dart:math' as math;
 import 'package:latex_math_evaluator/latex_math_evaluator.dart';
 
 void main() {
-  final evaluator = LatexMathEvaluator();
+  // Disable all caches to measure actual computation time
+  // Without this, L2 evaluation cache returns cached matrix results
+  final evaluator = LatexMathEvaluator(cacheConfig: CacheConfig.disabled);
 
   print('Matrix Performance Benchmarks');
   print('=' * 60);
