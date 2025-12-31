@@ -156,46 +156,38 @@ for (var x = 0.0; x < 100; x += 0.01) {
 
 **Cost-aware caching:** L2 evaluation cache is only consulted for computationally expensive operations (integrals, summations, products, limits, large matrices). For cheap expressions, the overhead of cache key creation would exceed evaluation time.
 
-#### Cross-Language Benchmark
+#### Performance Context
 
-Benchmarks run using language-native tools:
-- **Dart**: `benchmark_harness` package
-- **Dart WASM**: `dart compile wasm` (WasmGC, Brave (Chromium: 143.0.7499.169))
+> [!IMPORTANT]
+> **Comparison Limitations:** This performance comparison compares different tools with different purposes:
+> - **Dart**: Numeric evaluation of LaTeX syntax
+> - **Python**: Symbolic computation with SymPy (capable of algebra, not just evaluation)
+> - **JavaScript**: General-purpose math with mathjs (supports units, matrices, complex types)
+>
+> Direct speed comparisons should be interpreted with these architectural differences in mind.
+
+Performance References run using language-native tools:
+- **Dart**: `benchmark_harness` (JIT)
+- **Dart WASM**: `dart compile wasm` (WasmGC, AOT)
 - **Python**: `pytest-benchmark`
 - **JavaScript**: `benchmark.js`
 
-All caches disabled where applicable. Results from MacBook Air M1 8GB, macOS 15.7.2:
+Results from MacBook Air M1 8GB, macOS 15.7.2:
 
-| Expression Category             | Dart (µs) | Dart WASM (µs) | Python (µs) | JavaScript (µs) |
-| :------------------------------ | --------: | -------------: | ----------: | --------------: |
-| **Basic: Arithmetic**           |      0.81 |           2.99 |        0.06 |            4.35 |
-| **Basic: Trigonometry**         |      1.10 |           3.38 |       34.23 |            5.28 |
-| **Basic: Power & Sqrt**         |      1.05 |           2.80 |       32.93 |            6.09 |
-| **Polynomial**                  |      1.19 |           3.10 |        6.45 |            5.59 |
-| **Academic: Normal PDF**        |      4.76 |          10.77 |      211.05 |           19.46 |
-| **Calculus: Definite Integral** |  1,415.93 |            N/A |    1,811.45 |             N/A |
+| Expression Category             | Dart (µs) | Dart WASM (µs) | Python (SymPy)* (µs) | JS (mathjs) (µs) |
+| :------------------------------ | --------: | -------------: | -------------------: | ---------------: |
+| **Basic: Trigonometry**         |      1.10 |           3.38 |                34.23 |             5.28 |
+| **Basic: Power & Sqrt**         |      1.05 |           2.80 |                32.93 |             6.09 |
+| **Polynomial**                  |      1.19 |           3.10 |                 6.45 |             5.59 |
+| **Academic: Normal PDF**        |      4.76 |          10.77 |               211.05 |            19.46 |
+| **Calculus: Definite Integral** |  1,415.93 |            N/A |             1,811.45 |              N/A |
 
 > [!NOTE]
-> **Methodology notes:**
-> - Dart benchmarks LaTeX syntax (`\sin{x}`, `\frac{a}{b}`)
-> - Dart WASM runs in Brave using WasmGC (Chromium: 143.0.7499.169)
-> - Python uses SymPy native syntax 
-> - JavaScript uses mathjs text syntax (`sin(x)`, `a/b`)
-> - Python "Basic: Arithmetic" is pure Python math (no parsing), others use SymPy
-
-#### WASM Performance
-
-Dart WASM is **2-4x slower than native Dart** due to:
-- JIT (native) vs AOT (WASM) compilation differences
-- JS interop overhead for timers and console output
-- WasmGC runtime is still maturing
-
-However, WASM provides:
-- **Cross-platform deployment** - Same binary runs in any WasmGC browser
-- **Sandboxed execution** - Secure code execution
-- **Comparable to JS** - Faster than SymPy, slightly faster than mathjs
-
-See `benchmark/wasm/README.md` for build instructions.
+> * **Input formats:** Dart parses LaTeX (`\sin{x}`), Python uses SymPy syntax (`sin(x)`), JavaScript uses text syntax (`sin(x)`)
+> * **Python (SymPy):** Performs symbolic computation, maintaining exact forms (e.g., $\sqrt{2}$ vs 1.414...), which adds overhead
+> * **WASM:** ~2-4x overhead vs native Dart is expected due to JIT vs AOT differences and browser sandbox.
+> * **Scope:** Dart benchmarks include parsing LaTeX string + numeric evaluation.
+>
 
 #### Dart Library Comparison
 
