@@ -7,43 +7,105 @@ void main() async {
   print('LATEX PARSING & EVALUATION BENCHMARK: DART vs PYTHON vs JS');
   print('================================================================');
 
+  // Expression format: (Description, LaTeX, JS Math (null if skip), Variables)
+  // Organized by category for cross-language comparison
   final expressions = [
-    // Description, LaTeX, JS Math (null if skip), Variables
+    // -------------------------------------------------------------------------
+    // Category 1: Basic Algebra (baseline)
+    // -------------------------------------------------------------------------
     (
-      'Simple Arithmetic',
+      'Basic: Simple Arithmetic',
       r'1 + 2 + 3 + 4 + 5',
       '1 + 2 + 3 + 4 + 5',
       <String, double>{}
     ),
     (
-      'Multiplication',
+      'Basic: Multiplication',
       r'x * y * z',
       'x * y * z',
       <String, double>{'x': 2, 'y': 3, 'z': 4}
     ),
     (
-      'Trigonometry',
+      'Basic: Trigonometry',
       r'\sin(x) + \cos(x)',
       'sin(x) + cos(x)',
       <String, double>{'x': 0.5}
     ),
     (
-      'Power & Sqrt',
+      'Basic: Power & Sqrt',
       r'\sqrt{x^2 + y^2}',
       'sqrt(x^2 + y^2)',
       <String, double>{'x': 3, 'y': 4}
     ),
+
+    // -------------------------------------------------------------------------
+    // Category 2: Calculus (LaTeX-only for Python, skip JS)
+    // -------------------------------------------------------------------------
     (
-      'Definite Integral',
+      'Calculus: Definite Integral',
       r'\int_{0}^{1} x^2 dx',
-      null, // JS mathjs doesn't parse integrals syntax
+      null, // JS mathjs doesn't have integral syntax
+      <String, double>{}
+    ),
+
+    // -------------------------------------------------------------------------
+    // Category 3: Matrix Operations
+    // -------------------------------------------------------------------------
+    (
+      'Matrix: 2x2 Parse',
+      r'\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}',
+      '[[1, 2], [3, 4]]',
       <String, double>{}
     ),
     (
-      'Matrix',
-      r'\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}',
-      '[[1, 2], [3, 4]]', // JS syntax
+      'Matrix: 3x3 Power',
+      r'\begin{pmatrix} 0.8 & 0.1 & 0.1 \\ 0.2 & 0.7 & 0.1 \\ 0.3 & 0.3 & 0.4 \end{pmatrix} ^ 2',
+      '[[0.8, 0.1, 0.1], [0.2, 0.7, 0.1], [0.3, 0.3, 0.4]] ^ 2',
       <String, double>{}
+    ),
+
+    // -------------------------------------------------------------------------
+    // Category 4: Academic/Scientific (universal syntax)
+    // -------------------------------------------------------------------------
+    (
+      'Academic: Normal Distribution PDF',
+      r'\frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}',
+      '(1 / (sigma * sqrt(2 * pi))) * exp(-0.5 * ((x - mu) / sigma)^2)',
+      <String, double>{'x': 0.0, 'mu': 0.0, 'sigma': 1.0}
+    ),
+    (
+      'Academic: Lorentz Factor',
+      r'\frac{1}{\sqrt{1 - \frac{v^2}{c^2}}}',
+      '1 / sqrt(1 - (v^2 / c^2))',
+      <String, double>{'v': 0.6, 'c': 1.0}
+    ),
+    (
+      'Academic: Euler Polyhedra',
+      r'V - E + F',
+      'V - E + F',
+      <String, double>{'V': 8.0, 'E': 12.0, 'F': 6.0}
+    ),
+    (
+      'Academic: Beam Deflection',
+      r'\frac{P L^3}{48 E I} * ( 3 \frac{x}{L} - 4 ( \frac{x}{L} )^3 )',
+      '(P * L^3) / (48 * E_ * I_) * (3 * x / L - 4 * (x / L)^3)',
+      <String, double>{'P': 48.0, 'L': 1.0, 'E': 1.0, 'I': 1.0, 'x': 0.5}
+    ),
+
+    // -------------------------------------------------------------------------
+    // Category 5: Complex Expressions (stress test)
+    // -------------------------------------------------------------------------
+    (
+      'Complex: Nested Functions',
+      r'\sin(\cos(\tan(x)))',
+      'sin(cos(tan(x)))',
+      <String, double>{'x': 0.5}
+    ),
+    (
+      'Complex: Polynomial',
+      r'x^5 + 2x^4 - 3x^3 + 4x^2 - 5x + 6',
+      'x^5 + 2*x^4 - 3*x^3 + 4*x^2 - 5*x + 6',
+      <String, double>{'x': 2.0}
     ),
   ];
 

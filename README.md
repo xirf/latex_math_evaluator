@@ -34,6 +34,14 @@ dependencies:
   latex_math_evaluator: ^0.2.0
 ```
 
+or run this command:
+
+```bash
+flutter pub add latex_math_evaluator
+# or
+dart pub add latex_math_evaluator
+```
+
 ### Basic Evaluation
 
 ```dart
@@ -131,47 +139,85 @@ final fastEvaluator = LatexMathEvaluator(
 // Or parse once and reuse for hot loops (fastest method)
 final ast = fastEvaluator.parse(r'\sin(x) + \cos(x)');
 for (var x = 0.0; x < 100; x += 0.01) {
-  fastEvaluator.evaluateParsed(ast, {'x': x}); // ~0.76 µs/op
+  fastEvaluator.evaluateParsed(ast, {'x': x}); // ~0.19 µs/op
 }
 ```
 
 #### Performance Modes
 
-Benchmark for `x * y * z` with variables (MacBook Air M1 8Gb - macOS 15.7.2, 1000 iterations):
-
-| Mode                    |        Time | What it Measures                                     |
-| :---------------------- | ----------: | :--------------------------------------------------- |
-| `evaluate()` (no cache) |     4.99 µs | Parse + evaluate every call                          |
-| `evaluate()` (cached)   |     2.57 µs | L1 cache hit + evaluate (L2 skipped for cheap exprs) |
-| **`evaluateParsed()`**  | **1.01 µs** | Pure evaluation, no parse/cache overhead             |
+| Mode                    |        Time | What it Measures                         |
+| :---------------------- | ----------: | :--------------------------------------- |
+| `evaluate()` (no cache) |       ~5 µs | Parse + evaluate every call              |
+| `evaluate()` (cached)   |     ~2.5 µs | L1 cache hit + evaluate                  |
+| **`evaluateParsed()`**  | **~0.2 µs** | Pure evaluation, no parse/cache overhead |
 
 > [!TIP]
-> For hot loops, use **`evaluateParsed()`** with a pre-parsed AST—it's 5x faster than `evaluate()`.
+> For hot loops, use **`evaluateParsed()`** with a pre-parsed AST—it's 20x+ faster than `evaluate()`.
 
 **Cost-aware caching:** L2 evaluation cache is only consulted for computationally expensive operations (integrals, summations, products, limits, large matrices). For cheap expressions, the overhead of cache key creation would exceed evaluation time.
 
-#### Library Comparison
+#### Cross-Language Benchmark
 
-All caches disabled to measure raw parse + evaluate performance:
+Benchmarks run using language-native tools:
+- **Dart**: `benchmark_harness` package
+- **Dart WASM**: `dart compile wasm` (WasmGC, Brave (Chromium: 143.0.7499.169))
+- **Python**: `pytest-benchmark`
+- **JavaScript**: `benchmark.js`
 
-| Operation          | Dart (LaTeX) | Dart (Simple Text)* | JS (Simple Text) | Python (LaTeX) |
-| :----------------- | -----------: | ------------------: | ---------------: | -------------: |
-| **Arithmetic**     |  **10.8 µs** |             13.3 µs |           9.0 µs |       3,926 µs |
-| **Multiplication** |   **5.0 µs** |             14.7 µs |           5.5 µs |       5,322 µs |
-| **Trigonometry**   |   **5.5 µs** |             21.5 µs |          10.2 µs |      13,933 µs |
-| **Power & Sqrt**   |   **4.0 µs** |             14.2 µs |           9.5 µs |       3,108 µs |
-| **Matrix 2×2**     |   **7.6 µs** |                 N/A |          10.1 µs |            N/A |
+All caches disabled where applicable. Results from MacBook Air M1 8GB, macOS 15.7.2:
+
+| Expression Category             | Dart (µs) | Dart WASM (µs) | Python (µs) | JavaScript (µs) |
+| :------------------------------ | --------: | -------------: | ----------: | --------------: |
+| **Basic: Arithmetic**           |      0.81 |           2.99 |        0.06 |            4.35 |
+| **Basic: Trigonometry**         |      1.10 |           3.38 |       34.23 |            5.28 |
+| **Basic: Power & Sqrt**         |      1.05 |           2.80 |       32.93 |            6.09 |
+| **Polynomial**                  |      1.19 |           3.10 |        6.45 |            5.59 |
+| **Academic: Normal PDF**        |      4.76 |          10.77 |      211.05 |           19.46 |
+| **Calculus: Definite Integral** |  1,415.93 |            N/A |    1,811.45 |             N/A |
 
 > [!NOTE]
-> * **Dart (LaTeX)**: `latex_math_evaluator` parsing full LaTeX grammar (`\sin{x}`)
-> * **Dart (Simple Text)**: `math_expressions` library parsing standard text (`sin(x)`)
-> * **JS**: `mathjs` library parsing text
-> * **Python**: `SymPy` parsing LaTeX
+> **Methodology notes:**
+> - Dart benchmarks LaTeX syntax (`\sin{x}`, `\frac{a}{b}`)
+> - Dart WASM runs in Brave using WasmGC (Chromium: 143.0.7499.169)
+> - Python uses SymPy native syntax 
+> - JavaScript uses mathjs text syntax (`sin(x)`, `a/b`)
+> - Python "Basic: Arithmetic" is pure Python math (no parsing), others use SymPy
 
-> [!NOTE] Performance Comparison
-> *This benchmark compares the common subset (basic algebra). `latex_math_evaluator` additionally handles complex LaTeX semantics that simple text parsers do not support.*
+#### WASM Performance
 
-### 5. Export & Interoperability 🔄
+Dart WASM is **2-4x slower than native Dart** due to:
+- JIT (native) vs AOT (WASM) compilation differences
+- JS interop overhead for timers and console output
+- WasmGC runtime is still maturing
+
+However, WASM provides:
+- **Cross-platform deployment** - Same binary runs in any WasmGC browser
+- **Sandboxed execution** - Secure code execution
+- **Comparable to JS** - Faster than SymPy, slightly faster than mathjs
+
+See `benchmark/wasm/README.md` for build instructions.
+
+#### Dart Library Comparison
+
+Comparing `latex_math_evaluator` (LaTeX syntax) vs `math_expressions` (text syntax):
+
+| Expression       | Parse+Eval LaTeX (µs) | Parse+Eval Text (µs) | Eval-Only LaTeX (µs) | Eval-Only Text (µs) |
+| :--------------- | --------------------: | -------------------: | -------------------: | ------------------: |
+| Arithmetic       |                  0.73 |                 0.95 |                 0.13 |                0.05 |
+| Trigonometry     |                  1.18 |                12.74 |                 0.21 |                0.07 |
+| Power & Sqrt     |                  1.09 |                10.20 |                 0.23 |                0.08 |
+| Polynomial       |                  1.19 |                 6.45 |                 0.33 |                0.12 |
+| Nested Functions |                  1.03 |                11.20 |                 0.15 |                0.06 |
+
+> [!NOTE]
+> **Observations:**
+> - Parse+Eval (one-shot): `latex_math_evaluator` is faster due to optimized tokenizer/parser
+> - Eval-Only (hot loop): `math_expressions` is faster due to simpler AST structure
+> - For hot loops, use `evaluateParsed()` regardless of library choice
+
+See `benchmark/comparison/README.md` for how to run these benchmarks yourself.
+
+### 5. Export & Interoperability
 
 Export parsed expressions to other formats for debugging, web display, or advanced analysis.
 
@@ -188,7 +234,7 @@ print(expr.toSymPy()); // integrate(x**2, x)
 print(expr.toMathML()); // <math><mo>∫</mo>...</math>
 ```
 
-👉 [**Learn more about text export**](doc/features/export.md)
+[**Learn more about text export**](doc/features/export.md)
 
 ---
 

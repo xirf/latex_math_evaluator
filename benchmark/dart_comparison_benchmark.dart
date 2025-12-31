@@ -1,164 +1,208 @@
 /// Benchmark comparing latex_math_evaluator (LaTeX) vs math_expressions (text).
 ///
+/// Uses benchmark_harness for proper statistical benchmarking.
 /// Both are Dart libraries - this is the most fair apples-to-apples comparison
 /// since it removes language runtime differences.
+library;
+
+import 'package:benchmark_harness/benchmark_harness.dart';
 import 'package:latex_math_evaluator/latex_math_evaluator.dart';
 import 'package:math_expressions/math_expressions.dart' as me;
 
+// =============================================================================
+// Benchmark Classes
+// =============================================================================
+
+/// Benchmark for latex_math_evaluator (parse + evaluate)
+class LatexBenchmark extends BenchmarkBase {
+  final String latex;
+  final Map<String, double> variables;
+  late final LatexMathEvaluator evaluator;
+
+  LatexBenchmark(String name, this.latex, [this.variables = const {}])
+      : super('LaTeX.$name');
+
+  @override
+  void setup() {
+    evaluator = LatexMathEvaluator(cacheConfig: CacheConfig.disabled);
+  }
+
+  @override
+  void exercise() => run();
+
+  @override
+  void run() {
+    evaluator.evaluate(latex, variables);
+  }
+}
+
+/// Benchmark for latex_math_evaluator (evaluate only, pre-parsed)
+class LatexEvalOnlyBenchmark extends BenchmarkBase {
+  final String latex;
+  final Map<String, double> variables;
+  late final LatexMathEvaluator evaluator;
+  late final Expression parsed;
+
+  LatexEvalOnlyBenchmark(String name, this.latex, [this.variables = const {}])
+      : super('LaTeX.$name.EvalOnly');
+
+  @override
+  void setup() {
+    evaluator = LatexMathEvaluator(cacheConfig: CacheConfig.disabled);
+    parsed = evaluator.parse(latex);
+  }
+
+  @override
+  void exercise() => run();
+
+  @override
+  void run() {
+    evaluator.evaluateParsed(parsed, variables);
+  }
+}
+
+/// Benchmark for math_expressions (parse + evaluate)
+class MathExprBenchmark extends BenchmarkBase {
+  final String text;
+  final Map<String, double> variables;
+  late final me.Parser parser;
+  late final me.ContextModel cm;
+
+  MathExprBenchmark(String name, this.text, [this.variables = const {}])
+      : super('MathExpr.$name');
+
+  @override
+  void setup() {
+    parser = me.Parser();
+    cm = me.ContextModel();
+    for (final entry in variables.entries) {
+      cm.bindVariable(me.Variable(entry.key), me.Number(entry.value));
+    }
+  }
+
+  @override
+  void exercise() => run();
+
+  @override
+  void run() {
+    final expr = parser.parse(text);
+    expr.evaluate(me.EvaluationType.REAL, cm);
+  }
+}
+
+/// Benchmark for math_expressions (evaluate only, pre-parsed)
+class MathExprEvalOnlyBenchmark extends BenchmarkBase {
+  final String text;
+  final Map<String, double> variables;
+  late final me.Parser parser;
+  late final me.ContextModel cm;
+  late final me.Expression parsed;
+
+  MathExprEvalOnlyBenchmark(String name, this.text, [this.variables = const {}])
+      : super('MathExpr.$name.EvalOnly');
+
+  @override
+  void setup() {
+    parser = me.Parser();
+    cm = me.ContextModel();
+    for (final entry in variables.entries) {
+      cm.bindVariable(me.Variable(entry.key), me.Number(entry.value));
+    }
+    parsed = parser.parse(text);
+  }
+
+  @override
+  void exercise() => run();
+
+  @override
+  void run() {
+    parsed.evaluate(me.EvaluationType.REAL, cm);
+  }
+}
+
+// =============================================================================
+// Main
+// =============================================================================
+
 void main() {
-  print('================================================================');
-  print('DART LIBRARY COMPARISON: LaTeX vs Text Expression Parsing');
-  print('================================================================');
+  print('=' * 70);
+  print('DART LIBRARY COMPARISON: latex_math_evaluator vs math_expressions');
+  print('Using benchmark_harness for reliable microbenchmarking');
+  print('=' * 70);
   print('');
-  print('latex_math_evaluator: Parses full LaTeX (\\sin{x}, \\frac{a}{b})');
-  print('math_expressions:     Parses simple text (sin(x), a/b)');
+  print('latex_math_evaluator: Parses LaTeX (\\sin{x}, \\frac{a}{b})');
+  print('math_expressions:     Parses text (sin(x), a/b)');
   print('');
 
-  // Expressions in both formats
+  // Expression pairs: (name, latex, text, variables)
   final expressions = [
     (
-      'Simple Arithmetic',
-      r'1 + 2 + 3 + 4 + 5', // LaTeX
-      '1 + 2 + 3 + 4 + 5', // text
-      <String, double>{},
+      'SimpleArithmetic',
+      r'1 + 2 + 3 + 4 + 5',
+      '1 + 2 + 3 + 4 + 5',
+      <String, double>{}
     ),
     (
       'Multiplication',
-      r'x * y * z', // LaTeX
-      'x * y * z', // text
-      <String, double>{'x': 2, 'y': 3, 'z': 4},
+      r'x * y * z',
+      'x * y * z',
+      {'x': 2.0, 'y': 3.0, 'z': 4.0}
     ),
+    ('Trigonometry', r'\sin(x) + \cos(x)', 'sin(x) + cos(x)', {'x': 0.5}),
     (
-      'Trigonometry',
-      r'\sin(x) + \cos(x)', // LaTeX
-      'sin(x) + cos(x)', // text
-      <String, double>{'x': 0.5},
-    ),
-    (
-      'Power & Sqrt',
-      r'\sqrt{x^2 + y^2}', // LaTeX
-      'sqrt(x^2 + y^2)', // text
-      <String, double>{'x': 3, 'y': 4},
+      'PowerAndSqrt',
+      r'\sqrt{x^2 + y^2}',
+      'sqrt(x^2 + y^2)',
+      {'x': 3.0, 'y': 4.0}
     ),
     (
       'Polynomial',
-      r'x^3 + 2*x^2 - 5*x + 7', // LaTeX
-      'x^3 + 2*x^2 - 5*x + 7', // text
-      <String, double>{'x': 2},
+      r'x^3 + 2*x^2 - 5*x + 7',
+      'x^3 + 2*x^2 - 5*x + 7',
+      {'x': 2.0}
+    ),
+    ('NestedFunctions', r'\sin(\cos(x))', 'sin(cos(x))', {'x': 1.0}),
+    // Note: math_expressions doesn't support 'pi' or 'exp' as functions
+    // Using simpler alternatives for fair comparison:
+    (
+      'ComplexTrig',
+      r'\sin(x) * \cos(y) + \tan(z)',
+      'sin(x) * cos(y) + tan(z)',
+      {'x': 1.0, 'y': 2.0, 'z': 0.5}
     ),
     (
-      'Nested Functions',
-      r'\sin(\cos(x))', // LaTeX
-      'sin(cos(x))', // text
-      <String, double>{'x': 1},
+      'LongPolynomial',
+      r'x^5 + 2*x^4 - 3*x^3 + 4*x^2 - 5*x + 6',
+      'x^5 + 2*x^4 - 3*x^3 + 4*x^2 - 5*x + 6',
+      {'x': 2.0}
     ),
   ];
 
-  const iterations = 1000;
+  // -------------------------------------------------------------------------
+  // Parse + Evaluate (One-Shot)
+  // -------------------------------------------------------------------------
+  print('--- Parse + Evaluate (One-Shot) ---');
+  print('');
 
-  // =========================================================
-  // 1. LATEX_MATH_EVALUATOR - No Cache (raw performance)
-  // =========================================================
-  print('--- latex_math_evaluator (No Cache) ---');
-  print('Measures: Full LaTeX parse + evaluate\n');
-
-  final latexEval = LatexMathEvaluator(cacheConfig: CacheConfig.disabled);
-
-  for (final (desc, latex, _, vars) in expressions) {
-    // Warmup
-    for (var i = 0; i < 100; i++) {
-      latexEval.evaluate(latex, vars);
-    }
-
-    final sw = Stopwatch()..start();
-    for (var i = 0; i < iterations; i++) {
-      latexEval.evaluate(latex, vars);
-    }
-    sw.stop();
-    print(
-        '  $desc: ${(sw.elapsedMicroseconds / iterations).toStringAsFixed(2)} µs/op');
+  for (final (name, latex, text, vars) in expressions) {
+    LatexBenchmark(name, latex, vars).report();
+    MathExprBenchmark(name, text, vars).report();
+    print('');
   }
 
-  // =========================================================
-  // 2. MATH_EXPRESSIONS (text parser)
-  // =========================================================
-  print('\n--- math_expressions (Text Parser) ---');
-  print('Measures: Simple text parse + evaluate\n');
+  // -------------------------------------------------------------------------
+  // Evaluate Only (Hot Loop)
+  // -------------------------------------------------------------------------
+  print('--- Evaluate Only (Hot Loop, Pre-Parsed) ---');
+  print('');
 
-  final meParser = me.Parser();
-
-  for (final (desc, _, text, vars) in expressions) {
-    // Build context model for math_expressions
-    final cm = me.ContextModel();
-    for (final entry in vars.entries) {
-      cm.bindVariable(me.Variable(entry.key), me.Number(entry.value));
-    }
-
-    // Warmup
-    for (var i = 0; i < 100; i++) {
-      final expr = meParser.parse(text);
-      expr.evaluate(me.EvaluationType.REAL, cm);
-    }
-
-    final sw = Stopwatch()..start();
-    for (var i = 0; i < iterations; i++) {
-      final expr = meParser.parse(text);
-      expr.evaluate(me.EvaluationType.REAL, cm);
-    }
-    sw.stop();
-    print(
-        '  $desc: ${(sw.elapsedMicroseconds / iterations).toStringAsFixed(2)} µs/op');
+  for (final (name, latex, text, vars) in expressions) {
+    LatexEvalOnlyBenchmark(name, latex, vars).report();
+    MathExprEvalOnlyBenchmark(name, text, vars).report();
+    print('');
   }
 
-  // =========================================================
-  // 3. BOTH WITH PARSE-ONCE (optimal hot-loop)
-  // =========================================================
-  print('\n--- Parse Once + Evaluate (Hot Loop Optimal) ---\n');
-
-  print('latex_math_evaluator (evaluateParsed):');
-  for (final (desc, latex, _, vars) in expressions) {
-    final ast = latexEval.parse(latex);
-
-    // Warmup
-    for (var i = 0; i < 100; i++) {
-      latexEval.evaluateParsed(ast, vars);
-    }
-
-    final sw = Stopwatch()..start();
-    for (var i = 0; i < iterations; i++) {
-      latexEval.evaluateParsed(ast, vars);
-    }
-    sw.stop();
-    print(
-        '  $desc: ${(sw.elapsedMicroseconds / iterations).toStringAsFixed(2)} µs/op');
-  }
-
-  print('\nmath_expressions (evaluate pre-parsed):');
-  for (final (desc, _, text, vars) in expressions) {
-    final cm = me.ContextModel();
-    for (final entry in vars.entries) {
-      cm.bindVariable(me.Variable(entry.key), me.Number(entry.value));
-    }
-    final expr = meParser.parse(text);
-
-    // Warmup
-    for (var i = 0; i < 100; i++) {
-      expr.evaluate(me.EvaluationType.REAL, cm);
-    }
-
-    final sw = Stopwatch()..start();
-    for (var i = 0; i < iterations; i++) {
-      expr.evaluate(me.EvaluationType.REAL, cm);
-    }
-    sw.stop();
-    print(
-        '  $desc: ${(sw.elapsedMicroseconds / iterations).toStringAsFixed(2)} µs/op');
-  }
-
-  print('\n================================================================');
-  print('SUMMARY');
-  print('================================================================');
-  print('Both libraries are Dart - this removes language runtime differences.');
-  print('latex_math_evaluator parses complex LaTeX grammar.');
-  print('math_expressions parses simpler text grammar.');
+  print('=' * 70);
+  print('COMPLETE');
+  print('=' * 70);
 }
