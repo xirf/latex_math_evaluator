@@ -22,6 +22,8 @@ Welcome to the API reference for the `latex_math_evaluator` package. This docume
 ## AST (Abstract Syntax Tree)
 
 *   [Expression](ast.md): The base class for all parsed expression nodes.
+    *   Supports: Basic operations, Functions, Matrices, Vectors, Limits, Integrals (`\int`, `\oint`, `\iint`), Derivatives, Partial Derivatives.
+    *   Logic: Comparisons, Piecewise functions (`\begin{cases}`).
 
 ## Exceptions
 

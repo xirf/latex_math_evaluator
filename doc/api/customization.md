@@ -45,14 +45,14 @@ registry.registerEvaluator((expr, vars, eval) {
 
 The `Tokenizer` class converts a LaTeX string into a list of `Token` objects.
 
-- `Tokenizer(String expression, {ExtensionRegistry? extensions, bool allowImplicitMultiplication})`
+- `Tokenizer(String expression, {ExtensionRegistry? extensions, bool allowImplicitMultiplication = true})`
 - `List<Token> tokenize()`
 
 ## Parser
 
 The `Parser` class converts a list of `Token` objects into an AST `Expression`.
 
-- `Parser(List<Token> tokens, [String? sourceExpression, bool recoverOnError, int maxRecursionDepth = 500])`
+- `Parser(List<Token> tokens, String sourceExpression, bool recoverOnError, int maxRecursionDepth)`
 - `Expression parse()`
 
 ## Token
