@@ -9,7 +9,7 @@ A Flutter/Dart library designed for parsing and evaluating complex mathematical 
 
 > [!WARNING] This package is now texpr.
 >
-> We have renamed the package to reflect its expanded capabilities. While latex_math_evaluator focused on calculating results, texpr (TeX Expressions) provides a complete engine for parsing, analyzing, and evaluating mathematical LaTeX.
+> We have renamed the package to reflect its expanded capabilities. While latex_math_evaluator focused on calculating results, texpr (TeX Expressions) provides a broader engine for parsing, analyzing, and evaluating mathematical LaTeX.
 >
 > Version 0.2.0+ is strictly available on texpr [(pub.dev/texpr)](https://pub.dev/packages/texpr) and GitHub [(github.com/xirf/texpr)](https://github.com/xirf/texpr).
 >
