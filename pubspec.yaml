@@ -1,6 +1,6 @@
 name: latex_math_evaluator
 description: A Dart library for parsing and evaluating mathematical expressions in LaTeX format.
-version: 0.2.1-nightly
+version: 0.2.1
 homepage: https://github.com/xirf/latex_math_evaluator
 repository: https://github.com/xirf/latex_math_evaluator
 
@@ -11,4 +11,4 @@ dev_dependencies:
   test: ^1.28.0
   lints: ^6.0.0
   math_expressions: ^2.6.0 # For benchmarking comparison
-  benchmark_harness: ^2.4.0
+  benchmark_harness: ^2.3.1
