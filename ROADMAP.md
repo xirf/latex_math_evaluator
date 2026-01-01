@@ -1,635 +1,158 @@
-# LaTeX Math Evaluator - Development Roadmap
+# LaTeX Math Evaluator - Roadmap
 
-> **Vision:** Build a comprehensive, performant, and developer-friendly LaTeX math evaluation library for Dart/Flutter, bridging the gap between symbolic mathematics and practical computation.
-
-This roadmap outlines concrete, actionable tasks organized by priority and timeline. Items are marked with their current status and organized into clear categories.
-
-**Legend:**
-
-- 🔴 High Priority - Core functionality or critical improvements
-- 🟡 Medium Priority - Important enhancements
-- 🟢 Low Priority - Nice-to-have features
-- ✅ Completed | 🚧 In Progress | 📋 Planned | ⏸️ Paused | ⛔ Blocked
+> **Goal:** Copy-paste LaTeX from academic sources and it just works.
 
 ---
 
-## 📊 Current State (v0.2.0)
+## Current State (v0.2.0)
 
-### ✅ Implemented Features
+### ✅ What Works
 
-- ✅ LaTeX tokenization and parsing (fractions, exponents, subscripts, functions)
-- ✅ 40+ mathematical functions (trig, hyperbolic, reciprocal trig/hyperbolic, logarithmic, rounding, etc.)
-- ✅ Symbolic differentiation with full calculus rule support
-- ✅ Symbolic algebra engine (simplification, expansion, factorization)
-- ✅ Trigonometric identities (Pythagorean, double-angle formulas)
-- ✅ Equation solving (linear and quadratic)
-- ✅ Numerical integration (Simpson's Rule)
-- ✅ Symbolic integration (basic patterns)
-- ✅ Matrix operations (addition, multiplication, determinant, transpose, inverse)
-- ✅ Vector operations (dot product, cross product, magnitude)
-- ✅ Summation and product notation
-- ✅ Limit evaluation (numerical approximation)
-- ✅ Complex number support (full transcendental: sin, cos, exp, ln for complex inputs)
-- ✅ Domain assumptions & tracking (e.g., x > 0 for log simplification)
-- ✅ Piecewise function evaluation and differentiation (ConditionalExpr)
-- ✅ Expression validation with detailed error messages and "did you mean" suggestions
-- ✅ Parse-once-evaluate-many pattern with advanced multi-layer caching
-- ✅ Extensible architecture for custom functions
-- ✅ Implicit multiplication support
-- ✅ LaTeX regeneration from AST (toLatex() method)
-- ✅ Textbook LaTeX compatibility (`\sin^2{x}`, `f(x,y)` notation)
-- ✅ Extended LaTeX notation (uppercase Greek, variant Greek, font commands)
-- ✅ 1725+ passing tests
+**Parsing & Evaluation:**
 
----
+- Basic arithmetic, fractions, powers, roots
+- 40+ mathematical functions (trig, hyperbolic, reciprocal, logarithmic, rounding)
+- Complex number transcendental evaluation (sin, cos, tan, exp, ln for complex inputs)
+- Symbolic differentiation with full calculus rules
+- Symbolic integration (basic patterns)
+- Numerical integration (Simpson's Rule)
+- Matrix operations (determinant, inverse, transpose, trace)
+- Summation (`\sum`), product (`\prod`), limit (`\lim`)
+- Definite and indefinite integrals
+- Multi-integrals (`\iint`, `\iiint`), closed integrals (`\oint`)
 
-## 🎯 Priority 1: Core Mathematical Capabilities
+**LaTeX Notation:**
 
-### 🔴 1.1 Symbolic Algebra Engine
+- Greek letters (lowercase, UPPERCASE, variants: `\alpha`, `\Gamma`, `\varepsilon`)
+- Font commands (`\mathbf`, `\mathcal`, `\mathrm`, `\boldsymbol`)
+- Delimiter sizing (`\left`, `\right`, `\big`, `\Big`, etc.)
+- Spacing commands (`\,`, `\;`, `\quad` - ignored for evaluation)
+- Partial derivatives (`\partial`), gradient (`\nabla`)
+- Angle brackets (`\langle`, `\rangle`), set membership (`\in`)
+- Blackboard bold (`\mathbb{R}`)
+- Comparison operators (`\leq`, `\geq`, `\neq`)
 
-**Status:** ✅ 18/12/2025 | **Owner:** @xirf
+**Academic Paper Compatibility (Tested):**
 
-**Tasks:**
+- Heisenberg Uncertainty Principle
+- Schrödinger Equation (time-dependent and time-independent)
+- Maxwell's Equations (Gauss's Law, Ampère's Law)
+- Navier-Stokes Equation
+- Fourier Transform definition
+- Cauchy-Schwarz Inequality
+- Einstein Field Equations
+- Normal distribution PDF
 
-- [x] Implement symbolic simplification
-  - [x] Polynomial expansion and factorization
-  - [x] Trigonometric identities (Pythagorean, even/odd functions)
-  - [x] Double-angle formulas (sin(2x), cos(2x), tan(2x))
-  - [x] Logarithm laws (log(ab) = log(a) + log(b))
-  - [x] Rational expression simplification
-- [x] Expression equivalence testing
-- [x] Symbolic equation solving (linear, quadratic)
-- [x] Add tests for 50+ symbolic identities (700+ tests passing)
-- [x] Document simplification rules and limitations
-
-**Rationale:** Current differentiation has basic simplification, but advanced symbolic manipulation would enable algebraic workflows and make derivative results more readable.
-
-> [!NOTE] > **Limitations:** Despite completion status, the symbolic algebra engine uses pattern-based local simplification, not a full Computer Algebra System (CAS). It does not provide canonical forms or general term collection. See [KNOWN_ISSUES.md](doc/KNOWN_ISSUES.md) for details.
-
-**Success Criteria:**
-
-- [x] Can simplify `(x+1)^2` to `x^2 + 2x + 1`
-- [x] Can factor `x^2 - 4` to `(x+2)(x-2)`
-- [x] 95%+ test coverage on symbolic operations
-- [ ] Performance benchmarks vs SymPy ⏸️ - Paused: not relevant for now
+**Test Coverage:** 1,725 tests passing
 
 ---
 
-### 🔴 1.2 Symbolic Integration
+## Known Gaps
 
-**Status:** ✅ 25/12/2025 | **Owner:** @xirf
+The following are known limitations discovered through testing:
 
-**Tasks:**
+### 1. Evaluation Limitations (Not Parsing)
 
-- [x] Implement symbolic indefinite integration
-  - [x] Power rule for polynomials
-  - [x] Trigonometric integrals
-  - [x] Exponential and logarithmic integrals
-  - [x] Integration by substitution (basic cases)
-- [x] Symbolic definite integration with bounds evaluation
-- [x] LaTeX notation: `\int f(x) dx` returns symbolic result
-- [x] Add 100+ integration test cases
-- [x] Document supported integration patterns
+| Expression                        | Can Parse | Can Evaluate | Notes                                    |
+| --------------------------------- | --------- | ------------ | ---------------------------------------- |
+| `\nabla f`                        | ✅        | ❌           | Gradient requires vector calculus engine |
+| `\oint E \cdot dA`                | ✅        | ❌           | Line/surface integrals are symbolic only |
+| Tensor notation (`R_{\mu\nu}`)    | ✅        | ❌           | Parsed as subscripted variable           |
+| Set notation (`x \in \mathbb{R}`) | ✅        | ❌           | Parsed but not evaluated as constraint   |
 
-**Rationale:** Currently only numerical integration via Simpson's Rule exists. Symbolic integration would enable closed-form solutions.
+### 2. Missing LaTeX Commands (Will Fail to Parse)
 
-**Current State:** Only numerical integration is implemented. The items above represent planned symbolic integration capabilities.
+| Command                | Description            | Priority |
+| ---------------------- | ---------------------- | -------- |
+| `\mapsto` (↦)          | Maps to arrow          | Low      |
+| `\Rightarrow` (⇒)      | Double arrow           | Low      |
+| `\approx` (≈)          | Approximately equal    | Medium   |
+| `\propto` (∝)          | Proportional to        | Low      |
+| `\subset`, `\subseteq` | Subset notation        | Low      |
+| `\cup`, `\cap`         | Set union/intersection | Low      |
+| `\forall`, `\exists`   | Quantifiers            | Low      |
+| `\dot{x}`, `\ddot{x}`  | Time derivatives       | Medium   |
+| `\bar{x}`              | Mean notation          | Medium   |
 
-**Success Criteria:**
+### 3. Syntax Variations
 
-- [x] `\int x^n dx` returns `x^(n+1)/(n+1) + C`
-- [x] `\int \sin(x) dx` returns `-\cos(x) + C`
-- [x] Handles definite integrals with variable bounds
-- [x] Benchmark performance on standard integral corpus
+Some valid LaTeX may require minor adjustments:
 
----
-
-### 🟡 1.3 Enhanced Complex Number Support
-
-**Status:** ✅ 25/12/2025 | **Owner:** @xirf
-
-**Tasks:**
-
-- [x] Full complex arithmetic in all functions
-  - [x] Complex trigonometric functions (sin(a+bi))
-  - [x] Complex exponentials and logarithms
-  - [x] Complex power operations
-- [x] Polar form representation (r∠θ)
-- [ ] LaTeX notation: `a + bi` or `r \angle \theta`
-- [ ] Complex differentiation and integration
-- [x] Expand complex tests to 50+ cases (31 new tests added)
-
-**Current State:** Complex trig/log/exp/sqrt fully supported, Euler's identity verified.
-
-**Success Criteria:**
-
-- [x] `\sin(1+2i)` evaluates correctly
-- [x] `e^{i\pi}` returns `-1`
-- [x] All trig/log functions work with complex inputs
-- [x] Comprehensive documentation on complex support
+| Academic LaTeX          | Library Equivalent | Issue                            |
+| ----------------------- | ------------------ | -------------------------------- |
+| `\frac12` (braceless)   | `\frac{1}{2}`      | Parser suggests fix              |
+| `sin(x)` (no backslash) | `\sin{x}`          | Parser suggests fix              |
+| `e^{ix}`                | `e^{i*x}`          | May need explicit multiplication |
 
 ---
 
-### 🟡 1.4 Piecewise Functions and Conditionals
+## Roadmap
 
-**Status:** ✅ 27/12/2025 | **Owner:** @xirf
+### Phase 1: Parsing Completeness
 
-**Tasks:**
+**Goal:** Any valid mathematical LaTeX from a textbook or paper parses successfully.
 
-- [x] Parse piecewise function syntax (via conditional expressions)
-- [x] Conditional expression support with domain checking
-- [x] Evaluate piecewise functions correctly
-- [x] Derivative support for piecewise functions
-- [x] Implement full `\begin{cases}` LaTeX command
-- [x] Integration support for piecewise functions
-- [x] Add test cases for piecewise differentiation
+| Task                                               | Status | Description                    |
+| -------------------------------------------------- | ------ | ------------------------------ |
+| Add `\approx`, `\bar`, `\dot`, `\ddot`             | 📋     | Common in physics papers       |
+| Add `\Rightarrow`, `\Leftarrow`, `\Leftrightarrow` | 📋     | Logic notation                 |
+| Add `\forall`, `\exists`                           | 📋     | Quantifiers (parse as symbols) |
+| Add `\subset`, `\subseteq`, `\supset`              | 📋     | Set notation                   |
+| Add `\cup`, `\cap`, `\setminus`                    | 📋     | Set operations                 |
+| Add `\propto`, `\mapsto`                           | 📋     | Relation symbols               |
+| Test with 50+ real academic paper excerpts         | 📋     | Validate "just works" claim    |
 
-$$
-f(x) = \begin{cases}
-    x^2 & x < 0 \\
-    2x & x \geq 0
-  \end{cases}
-$$
+### Phase 2: Common Use Case Evaluation
 
-```latex
-f(x) = \begin{cases}
-  x^2 & x < 0 \\
-  2x & x \geq 0
-\end{cases}
-```
+**Goal:** Expressions that can be numerically evaluated, are.
 
-**Rationale:** Essential for real-world mathematical modeling.
+| Task                                          | Status | Description                             |
+| --------------------------------------------- | ------ | --------------------------------------- |
+| Unicode input support                         | 📋     | Accept `√`, `∑`, `∫`, `π` directly      |
+| Improved implicit multiplication heuristics   | 📋     | `e^ix` → `e^{i*x}`                      |
+| Better error messages for evaluation failures | 📋     | "Cannot evaluate gradient symbolically" |
 
-**Success Criteria:**
+### Phase 3: Developer Experience
 
-- [x] Piecewise functions evaluate correctly via ConditionalExpr and PiecewiseExpr
-- [x] Works with differentiation
-- [x] Full `\begin{cases}` LaTeX syntax support
-- [x] Works with integration
+**Goal:** Easy integration and debugging.
 
----
-
-## 🔧 Priority 2: Parser & Language Support
-
-### 🔴 2.1 Extended LaTeX Notation Support
-
-**Status:** ✅ 19/12/2025 | **Owner:** @xirf
-
-**Tasks:**
-
-- [x] `\left( \right)` - Automatic sizing delimiters
-- [x] `\binom{n}{k}` - Binomial coefficient notation
-- [x] Multi-line equations with `\begin{align}...\end{align}`
-- [x] `\iint`, `\iiint` - Multiple integrals
-- [x] `\partial` - Partial derivatives
-- [x] `\nabla` - Gradient operator
-- [x] LaTeX spacing commands (`\,`, `\;`, `\quad`)
-- [x] Greek letter support (α, β, γ as variables)
-- [x] Function power notation (`\sin^2{x}`, `\cos^3{\theta}`)
-- [x] Multi-argument function calls (`f(x,y)`, `g(a,b,c)`)
-- [x] Add 200+ parser tests for new constructs
-
-**Rationale:** Users copy expressions from papers/textbooks expecting them to work.
-
-**Success Criteria:**
-
-- [x] Can parse 90%+ of expressions from standard calculus textbooks
-- [x] Parser test corpus includes real-world LaTeX samples
-- [x] Documentation of all supported LaTeX commands
+| Task            | Status | Description                  |
+| --------------- | ------ | ---------------------------- |
+| JSON AST export | ✅     | For debugging and tooling    |
+| MathML export   | ✅     | For web display              |
+| SymPy export    | ✅     | For Python interoperability  |
+| CLI tool        | 📋     | `latexmath eval "x^2" --x=3` |
 
 ---
 
-### 🔴 2.2 Improved Error Messages and Recovery
+## Non-Goals
 
-**Status:** ✅ 27/12/2025 | **Owner:** @xirf
+The following are explicitly **not** goals for this library:
 
-**Tasks:**
-
-- [x] Context-aware error suggestions
-- [x] Error recovery to continue parsing and find multiple errors
-- [ ] Syntax highlighting in error messages
-- [x] Common mistake detection (e.g., `\frac12` vs `\frac{1}{2}`)
-- [x] Did-you-mean suggestions for unknown commands
-- [ ] Interactive error fixing in validation results
-
-**Current State:** Error recovery implemented with multiple error reporting. Did-you-mean suggestions and common mistake detection active.
-
-**Success Criteria:**
-
-- [x] 90%+ of common syntax errors have actionable suggestions
-- [x] Can report multiple errors in one pass
+1. **Full Computer Algebra System (CAS)** - We do pattern-based simplification, not canonical forms
+2. **Symbolic tensor calculus** - Parsing tensor notation is supported; evaluation is not
+3. **Proof verification** - Logic symbols are parsed but not reasoned about
+4. **Typesetting** - Community already had it, we fill the gap with evaluation
 
 ---
 
-### 🟡 2.3 Unicode and Alternative Notation
+## How to Contribute
 
-**Status:** 📋 Planned | **Owner:** Unassigned
+1. Find a LaTeX expression from an academic paper that fails to parse
+2. Open an issue with the exact expression
+3. We'll add support and tests
 
-**Tasks:**
+### Phase 4: Performance & Optimization
 
-- [ ] Accept Unicode math symbols: `√`, `∑`, `∏`, `∫`, `≤`, `≥`
-- [ ] Support common ASCII alternatives: `sqrt()`, `sum()`, `prod()`
-- [ ] Mixed notation mode: LaTeX + Unicode + ASCII
-- [ ] Add configuration option for notation style preference
-- [ ] Document all supported input formats
+**Goal:** Ensure 60fps performance on mobile devices.
 
-**Rationale:** Users input math in many formats; flexibility increases adoption.
-
-**Success Criteria:**
-
-- [ ] `√16` works same as `\sqrt{16}`
-- [ ] `∑_{i=1}^{10} i` works same as `\sum_{i=1}^{10} i`
-- [ ] All three notations tested and documented
+| Task | Status | Description |
+| ---- | ------ | ----------- |
+| Standardized Benchmark | ✅ | Cross-language benchmark (Dart/JS/Python) |
+| AOT Compilation Profile | 📋 | Verify performance in release builds |
+| WebAssembly (Wasm) | 📋 | Investigate compiling to Wasm for web apps |
+| Parallel Evaluation | 📋 | Evaluate independent sub-expressions in isolates |
 
 ---
 
-## ⚡ Priority 3: Performance & Optimization
-
-### 🟡 3.1 Advanced Caching Strategies
-
-**Status:** ✅ 23/12/2025 | **Owner:** @xirf
-
-**Tasks:**
-
-- [ ] Persistent cache with disk storage option (for long-running apps) - ⛔ Overengineer
-- [x] Hierarchical caching (sub-expression results) - CacheManager with 4-layer architecture
-- [x] Cache invalidation strategies - TTL-based and manual layer clearing
-- [x] Differentiation result caching - L3 cache in CacheManager
-- [x] Benchmark cache hit rates and performance gains - CacheStatistics class
-- [x] Cache size limits and eviction policies - LRU and LFU support
-- [x] Document caching best practices - Updated doc/performance/caching.md
-
-**Current State:** Multi-layer cache system with LRU/LFU support, statistics, and TTL.
-
-**Success Criteria:**
-
-- [x] At least 10x speedup on repeated evaluations (benchmarked)
-- [x] Cache memory usage configurable and monitored
-- [x] Performance documentation with benchmarks
-
----
-
-### 🟢 3.2 Parallel Evaluation
-
-**Status:** 📋 Planned | **Owner:** Unassigned
-
-**Tasks:**
-
-- [ ] Isolate-based parallel evaluation for bulk operations
-- [ ] Vectorized operations for arrays of variable values
-- [ ] SIMD optimization exploration (native extensions)
-- [ ] Benchmark parallel vs sequential evaluation
-- [ ] API for batch evaluation modes
-
-**Rationale:** Server applications may need to evaluate thousands of expressions.
-
-**Success Criteria:**
-
-- [ ] 4x speedup on 4-core systems for bulk evaluations
-- [ ] Linear scalability demonstrated
-- [ ] Production-ready API for parallel mode
-
----
-
-### 🟢 3.3 Streaming Parser for Large Expressions
-
-**Status:** 📋 Planned | **Owner:** Unassigned
-
-**Tasks:**
-
-- [ ] Incremental tokenization for multi-megabyte LaTeX
-- [ ] Memory-efficient AST construction
-- [ ] Progressive parsing with partial results
-- [ ] Stress tests with 1MB+ expressions
-
-**Rationale:** Research papers may have extremely long equations.
-
-**Success Criteria:**
-
-- [ ] Can parse 10MB expression without OOM
-- [ ] Constant memory usage regardless of input size
-
----
-
-## 🌐 Priority 4: Interoperability & Ecosystem
-
-### 🟡 4.1 AST Export Formats
-
-**Status:** � In Progress | **Owner:** @xomodo
-
-**Tasks:**
-
-- [ ] MathML export (Presentation and Content MathML)
-- [ ] JSON AST export for external tooling
-- [ ] SymPy-compatible AST format
-- [x] LaTeX regeneration from AST (round-trip support)
-- [ ] Add import capabilities for each format
-- [ ] Comprehensive format conversion tests
-
-**Rationale:** Integration with visualization tools, other CAS systems, web display.
-
-**Success Criteria:**
-
-- [ ] Can export to all 4 formats
-- [x] Round-trip parsing: LaTeX → AST → LaTeX → AST identical
-- [ ] Examples of integration with MathJax, KaTeX
-
----
-
-### 🟢 4.2 TypeScript / WASM Port & JS Ecosystem
-
-**Status:** 🟡 Planned | **Owner:** Unassigned
-
-**Tasks:**
-
-- [ ] Implement TypeScript-first port (either native TS implementation or thin JS bindings to WASM)
-- [ ] Publish `latex-math-evaluator` on NPM with TypeScript definitions
-- [ ] Provide Bun & Deno-compatible module
-- [ ] WASM build for browser usage (with JS bindings and README examples)
-- [ ] Example integrations and benchmarks for React, Vue, Svelte, Bun, Node, and Deno
-- [ ] Performance benchmarks vs math.js and algebrite on Node & Browser
-
-**Rationale:** Focusing on the JS/TS ecosystem first gives the largest adoption lift with less maintenance than multiple native bindings.
-
-**Note:** Python and Rust native bindings are deprioritized for now and will be revisited only if community demand justifies the long-term maintenance cost.
-
----
-
-## 🛠️ Priority 5: Tooling & Developer Experience
-
-### 🟡 5.1 CLI Tool
-
-**Status:** 📋 Planned | **Owner:** Unassigned
-
-**Tasks:**
-
-- [ ] Command-line evaluator: `latexmath eval "x^2" --x=3`
-- [ ] Validator: `latexmath validate file.tex`
-- [ ] Formatter: `latexmath format expression.tex`
-- [ ] REPL mode: `latexmath repl`
-- [ ] Batch processing from files
-- [ ] Install via pub or npm (if web port exists)
-
-**Rationale:** Useful for scripting, CI/CD validation, quick testing.
-
-**Success Criteria:**
-
-- [ ] Published on pub.dev as executable
-- [ ] Documentation and examples
-- [ ] Used in at least 5 public projects
-
----
-
-### 🟡 5.2 Web Playground
-
-**Status:** 📋 Planned | **Owner:** Unassigned
-
-**Tasks:**
-
-- [ ] Interactive web app for testing expressions
-- [ ] AST visualization (tree view)
-- [ ] Step-by-step evaluation trace
-- [ ] Share expressions via URL
-- [ ] Example library with 100+ expressions
-- [ ] Dark mode and mobile-friendly UI
-- [ ] Deploy to Vercel/Netlify
-
-**Rationale:** Marketing, demos, user onboarding, debugging.
-
-**Success Criteria:**
-
-- [ ] Live at future URL
-- [ ] Featured in documentation
-
----
-
-### 🟢 5.3 Benchmark Suite & Comparison Page
-
-**Status:** 📋 Planned | **Owner:** Unassigned
-
-**Tasks:**
-
-- [ ] Comprehensive benchmark suite
-- [ ] Automated performance regression testing
-- [ ] Public comparison page vs competitors:
-  - `math_expressions` (Dart)
-  - SymPy (Python)
-  - math.js (JavaScript)
-  - Algebrite (JavaScript)
-- [ ] Publish results with CI/CD updates
-- [ ] Include accuracy tests alongside performance
-
-**Rationale:** Demonstrates library strengths and builds credibility.
-
-**Success Criteria:**
-
-- [ ] Benchmarks run on every PR
-- [ ] Public dashboard showing trends
-- [ ] Referenced in README
-
----
-
-## 📚 Priority 6: Documentation & Examples
-
-### 🔴 6.1 Comprehensive Documentation
-
-**Status:** 🚧 In Progress | **Owner:** Unassigned
-
-**Tasks:**
-
-- [ ] Complete API reference documentation
-- [ ] Advanced cookbook with 50+ recipes
-- [ ] Migration guide from `math_expressions`
-- [ ] Performance tuning guide
-- [ ] Troubleshooting FAQ
-
-**Current State:** Good foundation in `doc/` folder, needs expansion.
-
-**Success Criteria:**
-
-- [ ] 95%+ of public APIs documented
-- [ ] Zero unanswered questions in discussions for 30 days
-
----
-
-### 🟡 6.2 Feature Comparison Matrix
-
-**Status:** 📋 Planned | **Owner:** Unassigned
-
-**Tasks:**
-
-- [ ] Create detailed feature matrix comparing to alternatives
-- [ ] Include: `math_expressions`, SymPy, math.js, algebrite, mathsteps
-- [ ] Cover: parsing, evaluation, symbolic ops, performance, platform support
-- [ ] Update quarterly with new features
-- [ ] Add to README and documentation site
-
-**Rationale:** Help users decide if this library fits their needs.
-
-**Success Criteria:**
-
-- [ ] Matrix includes 15+ libraries and 30+ features
-- [ ] Linked from README introduction
-- [ ] Community agrees it's accurate and fair
-
----
-
-### 🟡 6.3 Real-World Examples & Showcases
-
-**Status:** 📋 Planned | **Owner:** Unassigned
-
-**Tasks:**
-
-- [ ] Build 10+ example applications:
-  - [ ] Flutter calculator app with LaTeX input
-  - [ ] Graphing calculator
-  - [ ] Physics simulation with equation parsing
-  - [ ] Statistical analysis tool
-  - [ ] Educational math tutor app
-- [ ] Showcase page listing projects using the library
-- [ ] Blog posts demonstrating advanced use cases
-
-**Rationale:** Inspires adoption and demonstrates capabilities.
-
-**Success Criteria:**
-
-- [ ] 10+ example apps in repo
-- [ ] Featured projects page with 20+ community projects
-- [ ] Case studies from production users
-
----
-
-## 🏗️ Priority 7: Stability & Release Management
-
-### 🔴 7.1 API Stability & Versioning
-
-**Status:** 🚧 In Progress | **Owner:** Unassigned
-
-**Tasks:**
-
-- [ ] Semver policy documentation
-- [ ] Deprecation schedule (min 3 months warning)
-- [ ] Breaking change checklist
-- [ ] Version compatibility matrix
-- [ ] Automated API diff tool in CI
-- [x] Publish roadmap for v1.0 stable
-
-**Current State:** Pre-1.0, API changes happening frequently.
-
-**Success Criteria:**
-
-- [ ] v1.0 release with stability guarantee
-- [ ] Published compatibility policy
-- [ ] No breaking changes without major version bump
-
----
-
-### 🔴 7.2 Testing & Quality Assurance
-
-**Status:** 🚧 In Progress | **Owner:** Unassigned
-
-**Tasks:**
-
-- [ ] Achieve 95%+ code coverage (currently 80%)
-- [x] Property-based testing expansion (fuzz testing)
-- [ ] Integration testing with real-world expressions corpus
-- [x] Regression test suite (prevent re-introducing bugs)
-- [ ] Performance regression tests
-- [ ] Coverage reports published with each release
-
-**Current State:** 820+ tests, good coverage but edge cases remain.
-
-**Success Criteria:**
-
-- [ ] 95%+ line coverage
-- [ ] 100% of public APIs have tests
-- [ ] Zero known critical bugs
-
----
-
-### 🟡 7.3 CI/CD & Release Automation
-
-**Status:** 📋 Planned | **Owner:** Unassigned
-
-**Tasks:**
-
-- [ ] Automated pub.dev releases from tags
-- [ ] Changelog auto-generation
-- [ ] Release notes with migration guide
-- [ ] Automated performance benchmarks on PR
-- [ ] Security scanning (dependency audit)
-- [ ] Multi-platform testing (Linux, macOS, Windows, Web, Mobile)
-
-**Rationale:** Professional project management inspires confidence.
-
-**Success Criteria:**
-
-- [ ] Releases require one command
-- [ ] All PRs tested on 5+ platforms
-- [ ] Security vulnerabilities detected within 24 hours
-
----
-
-## 🚀 Milestone Releases
-
-### v0.2.0 - Enhanced Symbolic Math ✅ Released 2025-12-30
-
-- [x] Basic symbolic simplification
-- [x] Polynomial expansion and factorization
-- [x] Trigonometric identities (Pythagorean, double-angle)
-- [x] Logarithm laws and rational simplification
-- [x] LaTeX regeneration (toLatex() method)
-- [x] Extended LaTeX notation (`\left/\right`, `\binom`, `\iint`, `\partial`, `\nabla`, Greek letters)
-- [x] Enhanced complex number support (full transcendental evaluation)
-- [x] Improved error messages with "did you mean" suggestions
-- [x] Reciprocal trigonometric and hyperbolic functions (sec, csc, cot, sech, csch, coth)
-- [x] Advanced multi-layer caching system
-- [x] 1725+ tests
-
-### v0.3.0 - Integration & Tooling (Target: Q2 2026)
-
-- [ ] Symbolic integration (basic)
-- [ ] Sum-to-product and product-to-sum formulas
-- [ ] Half-angle formulas
-- [ ] CLI tool release
-- [ ] MathML export
-- [ ] Web playground launch
-- [ ] TypeScript / NPM package release (initial)
-- [ ] Documentation overhaul
-
-### v0.4.0 - Performance & Ecosystem (Target: Q3 2026)
-
-- [x] Advanced caching
-- [ ] WASM compilation
-- [ ] VS Code extension
-- [ ] Piecewise functions
-- [x] 700+ tests
-
-### v1.0.0 - Stable Release (Target: Q4 2026)
-
-- [x] API stability guarantee
-- [ ] 95%+ test coverage
-- [ ] Comprehensive documentation
-- [ ] Production-ready performance
-- [ ] Feature parity with math_expressions + unique features
-
----
-
-## 📞 How to Contribute
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
-
-**Quick Links:**
-
-- [Open Issues](https://github.com/xirf/latex_math_evaluator/issues)
-- [Feature Requests](https://github.com/xirf/latex_math_evaluator/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement)
-- [Good First Issues](https://github.com/xirf/latex_math_evaluator/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
-
-**Contact:**
-
-- GitHub Discussions: <https://github.com/xirf/latex_math_evaluator/discussions>
-- Issues: <https://github.com/xirf/latex_math_evaluator/issues>
-
----
-
-**Last Updated:** December 30, 2025
+**Last Updated:** 2025-12-30

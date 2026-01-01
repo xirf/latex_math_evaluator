@@ -76,8 +76,20 @@ Represents a complex number with real and imaginary parts.
 *   `abs`: Modulus/magnitude.
 *   `arg`: Argument/phase angle.
 *   `conjugate`: Complex conjugate.
+*   `reciprocal`: Multiplicative inverse (1/z).
 *   `isReal`: True if imaginary part is 0.
 *   `isImaginary`: True if real part is 0 and imaginary is not.
+*   `isZero`: True if both real and imaginary parts are 0.
+
+### Methods
+
+*   `exp()`: Complex exponential ($e^z$).
+*   `log()`: Principal value of natural logarithm ($\ln(z)$).
+*   `pow(Object exponent)`: Complex power ($z^w$).
+*   `sqrt()`: Principal square root.
+*   `sin()`, `cos()`, `tan()`: Trigonometric functions.
+*   `sinh()`, `cosh()`, `tanh()`: Hyperbolic functions.
+*   `toPolar()`: Returns string representation in polar form ($r\angle\theta$).
 
 ### Operators
 

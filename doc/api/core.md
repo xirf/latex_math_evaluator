@@ -11,7 +11,7 @@ The `LatexMathEvaluator` class is the primary interface for using the library. I
   - `extensions`: Optional registry for custom commands and functions.
   - `allowImplicitMultiplication`: If true, `xy` is treated as `x * y`.
   - `cacheConfig`: Advanced cache configuration (size, eviction policy, TTL).
-  - `maxRecursionDepth`: Maximum recursion depth for parsing and evaluation (default 500).
+  - `maxRecursionDepth`: Maximum recursion depth for parsing and evaluation (default: 500).
 
 ### Methods
 
@@ -103,6 +103,14 @@ void clearAllCaches()
 
 Clears all internal caches (L1-L4).
 
+#### `warmUpCache`
+
+```dart
+void warmUpCache(List<String> expressions)
+```
+
+Warms up the cache with a list of common expressions to pre-populate it before time-critical operations.
+
 ---
 
 ## EvaluationResult
@@ -132,6 +140,8 @@ final result = evaluator.evaluate('2 + 3');
 switch (result) {
   case NumericResult(:final value):
     print('Number: $value');
+  case ComplexResult(:final value):
+    print('Complex: $value');
   case MatrixResult(:final matrix):
     print('Matrix: $matrix');
   // Handle other cases...

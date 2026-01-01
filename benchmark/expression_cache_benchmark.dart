@@ -35,8 +35,16 @@ void main(List<String> args) {
   final expr = r'x^{2} + 2x + 1';
   const iterations = 2000;
 
-  final withCache = LatexMathEvaluator(parsedExpressionCacheSize: 1024);
-  final withoutCache = LatexMathEvaluator(parsedExpressionCacheSize: 0);
+  // Use CacheConfig to properly control ALL cache layers
+  // parsedExpressionCacheSize: 0 alone only disables L1 (parse cache)
+  // but L2 (evaluation cache), L3 (differentiation cache), L4 (sub-expression cache)
+  // would still be active with defaults!
+  final withCache = LatexMathEvaluator(
+    cacheConfig: CacheConfig.highPerformance,
+  );
+  final withoutCache = LatexMathEvaluator(
+    cacheConfig: CacheConfig.disabled,
+  );
 
   // Warmup
   print('Warming up JIT (light warmup)...');
@@ -61,7 +69,11 @@ void main(List<String> args) {
   print(
       '\nBenchmark: parsed parse() + evaluateParsed (with cache) vs reparse on each evaluate');
 
-  final evaluatorParseOnce = LatexMathEvaluator(parsedExpressionCacheSize: 0);
+  // For parse-once vs re-parse comparison, disable all caches
+  // This measures: does parsing once help when caching is off?
+  final evaluatorParseOnce = LatexMathEvaluator(
+    cacheConfig: CacheConfig.disabled,
+  );
 
   final parsed = evaluatorParseOnce.parse(expr);
 

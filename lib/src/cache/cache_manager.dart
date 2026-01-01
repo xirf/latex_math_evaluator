@@ -29,8 +29,11 @@ class CacheManager {
   // L1: Parsed expressions
   late final dynamic _parsedCache;
 
-  // L2: Evaluation results
+  // L2: Evaluation results (for expressions with variables)
   late final dynamic _evaluationCache;
+
+  // L2a: Constant expression results (no variables, uses expr hashCode only)
+  late final dynamic _constantCache;
 
   // L3: Differentiation results
   late final dynamic _differentiationCache;
@@ -58,14 +61,20 @@ class CacheManager {
       _parsedCache = null;
     }
 
-    // L2: Evaluation results
+    // L2: Evaluation results (for expressions with variables)
     if (config.evaluationResultCacheSize > 0) {
       _evaluationCache = _createCache<EvaluationCacheKey, EvaluationResult>(
         config.evaluationResultCacheSize,
         collectStats ? _statistics.evaluationResults : null,
       );
+      // L2a: Constant expressions use a simpler int key (expression hashCode)
+      _constantCache = _createCache<int, EvaluationResult>(
+        config.evaluationResultCacheSize ~/ 4, // Smaller, constants are fewer
+        collectStats ? _statistics.evaluationResults : null,
+      );
     } else {
       _evaluationCache = null;
+      _constantCache = null;
     }
 
     // L3: Differentiation results
@@ -121,18 +130,39 @@ class CacheManager {
   // ========== L2: Evaluation Result Cache ==========
 
   /// Gets a cached evaluation result, or null if not found.
+  ///
+  /// Uses a fast path for constant expressions (no variables) that avoids
+  /// cache key allocation entirely. For expressions with variables, uses
+  /// identity-based keys for minimal overhead.
   EvaluationResult? getEvaluationResult(
       Expression expr, Map<String, double> variables) {
     if (_evaluationCache == null) return null;
-    final key = EvaluationCacheKey(expr, variables);
+
+    // Fast path: constant expressions use expression hashCode directly
+    if (variables.isEmpty) {
+      return _constantCache?.get(expr.hashCode) as EvaluationResult?;
+    }
+
+    // Standard path: identity-based key for expressions with variables
+    final key = EvaluationCacheKey.identity(expr, variables);
     return _evaluationCache.get(key) as EvaluationResult?;
   }
 
   /// Caches an evaluation result.
+  ///
+  /// Uses the same fast path logic as [getEvaluationResult].
   void putEvaluationResult(
       Expression expr, Map<String, double> variables, EvaluationResult result) {
     if (_evaluationCache == null) return;
-    final key = EvaluationCacheKey(expr, variables);
+
+    // Fast path: constant expressions
+    if (variables.isEmpty) {
+      _constantCache?.put(expr.hashCode, result);
+      return;
+    }
+
+    // Standard path: identity-based key
+    final key = EvaluationCacheKey.identity(expr, variables);
     _evaluationCache.put(key, result);
   }
 
@@ -175,6 +205,7 @@ class CacheManager {
   void clear() {
     _parsedCache?.clear();
     _evaluationCache?.clear();
+    _constantCache?.clear();
     _differentiationCache?.clear();
     _subExpressionCache?.clear();
     _statistics.reset();
@@ -188,6 +219,7 @@ class CacheManager {
         _statistics.parsedExpressions.reset();
       case CacheLayer.evaluationResults:
         _evaluationCache?.clear();
+        _constantCache?.clear();
         _statistics.evaluationResults.reset();
       case CacheLayer.differentiation:
         _differentiationCache?.clear();

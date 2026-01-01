@@ -109,7 +109,12 @@ void benchmarkDifferentiateCost({
 String _repeat(String s, int n) => List.filled(n, s).join(' + ');
 
 void main(List<String> args) {
-  final evaluator = LatexMathEvaluator(parsedExpressionCacheSize: 256);
+  // Use caching intentionally for this benchmark - we're comparing
+  // inline derivative evaluation vs pre-computed symbolic derivatives,
+  // not measuring cache overhead
+  final evaluator = LatexMathEvaluator(
+    cacheConfig: CacheConfig.highPerformance,
+  );
   print('Derivative Benchmarks');
   print('=' * 60);
 

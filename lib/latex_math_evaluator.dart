@@ -73,6 +73,9 @@ export 'src/token.dart';
 export 'src/tokenizer.dart';
 export 'src/symbolic.dart';
 export 'src/cache/cache.dart';
+export 'src/visitors/json_ast_visitor.dart';
+export 'src/visitors/mathml_visitor.dart';
+export 'src/visitors/sympy_visitor.dart';
 
 import 'src/ast.dart';
 import 'src/evaluator.dart';
@@ -247,6 +250,10 @@ class LatexMathEvaluator {
   /// Returns the computed result as an [EvaluationResult], which can be
   /// either a [NumericResult] or [MatrixResult].
   ///
+  /// **Performance note:** For hot loops, reuse the same [variables] Map
+  /// instance to maximize cache hits. Creating a new Map each iteration
+  /// will bypass the evaluation cache.
+  ///
   /// Example:
   /// ```dart
   /// final evaluator = LatexMathEvaluator();
@@ -256,13 +263,34 @@ class LatexMathEvaluator {
   /// ```
   EvaluationResult evaluateParsed(Expression ast,
       [Map<String, double> variables = const {}]) {
-    // Check evaluation cache
-    final cached = _cacheManager.getEvaluationResult(ast, variables);
-    if (cached != null) return cached;
+    // Only consult L2 cache for computationally expensive operations.
+    // For cheap expressions, cache lookup overhead exceeds evaluation cost.
+    final shouldCache = _isCostlyExpression(ast) || variables.isEmpty;
+
+    if (shouldCache) {
+      final cached = _cacheManager.getEvaluationResult(ast, variables);
+      if (cached != null) return cached;
+    }
 
     final result = _evaluator.evaluate(ast, variables);
-    _cacheManager.putEvaluationResult(ast, variables, result);
+
+    if (shouldCache) {
+      _cacheManager.putEvaluationResult(ast, variables, result);
+    }
     return result;
+  }
+
+  /// Determines if an expression is computationally expensive enough
+  /// to warrant L2 cache overhead.
+  ///
+  /// Cache lookup has ~0.5µs overhead. Only cache operations that
+  /// exceed this cost significantly.
+  bool _isCostlyExpression(Expression ast) {
+    return ast is IntegralExpr ||
+        ast is SumExpr ||
+        ast is ProductExpr ||
+        ast is LimitExpr ||
+        (ast is MatrixExpr && ast.rows.length > 4);
   }
 
   /// Parses and evaluates a LaTeX math expression.

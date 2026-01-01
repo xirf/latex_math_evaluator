@@ -35,10 +35,19 @@ The following are the key subclasses of `Expression` produced by the parser:
 *   `SumExpr`: Summation (e.g., `\sum`).
 *   `ProductExpr`: Product (e.g., `\prod`).
 *   `IntegralExpr`: Integral (e.g., `\int`).
+    *   Properties: `lower`, `upper`, `body`, `variable`, `isClosed`.
 *   `DerivativeExpr`: Derivative (e.g., `\frac{d}{dx}`).
+    *   Properties: `body`, `variable`, `order`.
+*   `PartialDerivativeExpr`: Partial derivative (e.g., `\frac{\partial}{\partial x}`).
+*   `MultiIntegralExpr`: Multiple integral (e.g., `\iint`, `\iiint`).
+*   `BinomExpr`: Binomial coefficient (e.g., `\binom{n}{k}`).
 
 ### Logic and Comparisons
 
 *   `Comparison`: Simple comparison (e.g., `x < 2`).
 *   `ChainedComparison`: Chained comparison (e.g., `0 < x < 1`).
-*   `ConditionalExpr`: Piecewise function (cases).
+*   `ConditionalExpr`: Conditional expression (e.g., `x^2 \text{ where } x > 0`).
+*   `PiecewiseExpr`: Piecewise function (cases).
+    *   Properties: `cases` (list of `PiecewiseCase`).
+*   `PiecewiseCase`: A single case in a piecewise function.
+    *   Properties: `expression`, `condition`.
